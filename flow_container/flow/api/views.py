@@ -97,6 +97,38 @@ def received_messages_view(request): ### gets all messages received by user from
 			return HttpResponse(json.dumps(allMessagesContent), status=200)
 		except Exception as e:
 			return HttpResponse(e, status=404)
+		
+
+##### BLOCK ENDPOINT #####
+
+def block_view(request):
+	if request.user.is_authenticated:
+		if (request.method == 'POST'): ##add user to blocklist
+			try:
+				data = json.loads(request.body)
+				toBlockUsername = data.get('username')
+				blockUsername = data.get('blockUsername')
+				user = Account.objects.get(user__username=toBlockUsername)
+				block = Account.objects.get(user__username=blockUsername)
+				user.blockedList.add(block)
+				return HttpResponse('User blocked', status=200)
+			except Exception as e:
+				return HttpResponse(e, status=500)
+		if (request.method == 'DELETE'): ##remove user from blocklist
+			try:
+				data = json.loads(request.body)
+				toUnblockUsername = data.get('username')
+				unblockUsername = data.get('unblockUsername')
+				user = Account.objects.get(user__username=toUnblockUsername)
+				unblock = Account.objects.get(user__username=unblockUsername)
+				user.blockedList.remove(unblock)
+				return HttpResponse('User unblocked', status=200)
+			except Exception as e:
+				return HttpResponse(e, status=500)
+		else:
+			return HttpResponse('Method not allowed', status=405)
+	else:
+		return HttpResponse('Unauthorized', status=401)
 
 
 ##### USER ENDPOINT #####
