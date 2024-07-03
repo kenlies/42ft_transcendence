@@ -1,0 +1,8 @@
+uvicorn
+django
+django-extensions
+requests
+jsonschema
+Pillow
+psycopg2-binary
+pyOpenSSL
