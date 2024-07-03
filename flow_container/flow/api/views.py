@@ -2,6 +2,7 @@ from django.http import HttpResponse
 import json
 from django.contrib.auth.models import User
 from .models import Account
+from .models import Message
 
 
 ##### AVATAR ENDPOINT #####
@@ -30,6 +31,73 @@ def avatar_view(request):
 			return HttpResponse('Method not allowed', status=405)
 	else:
 		return HttpResponse('Unauthorized', status=401)
+
+
+##### MESSAGES ENDPOINTS #####
+
+def send_messages_view(request):
+	if (request.method == 'POST'):
+		try:
+			data = json.loads(request.body)
+			senderUsername = data.get('sender')
+			receiverUsername = data.get('receiver')
+			messageContent = data.get('content')
+			sender = Account.objects.get(user__username=senderUsername)
+			receiver = Account.objects.get(user__username=receiverUsername)
+			newMessage = Message(
+				messageContent = messageContent,
+				messageSender = sender,
+				messageReceiver = receiver,
+			)
+			newMessage.save()
+			sender.sentMessages.add(newMessage)
+			receiver.receivedMessages.add(newMessage)
+			sender.save()
+			receiver.save()
+			return HttpResponse('Message sent', status=200)
+		except Exception as e:
+			return HttpResponse(e, status=500)
+	if (request.method == 'GET'): ## gets all messages user has sent to a receiver defined in query. Unless the receiver query is all, then it gets all messages sent by the user
+		try:
+			username = request.GET.get('username')
+			user = Account.objects.get(user__username=username)
+			currentReceiver = request.GET.get('receiver')
+			if (currentReceiver == 'all'):
+				allSentMessages = user.sentMessages.all()
+			else:
+				allSentMessages = user.sentMessages.filter(messageReceiver__user__username=currentReceiver)
+			allSentMessagesContent = []
+			for message in allSentMessages:
+				messageData = {
+					'sender': message.messageSender.user.username,
+					'receiver': message.messageReceiver.user.username,
+					'content': message.messageContent,
+				}
+				allSentMessagesContent.append(messageData)
+			return HttpResponse(json.dumps(allSentMessagesContent), status=200)
+		except Exception as e:
+			return HttpResponse(e, status=404)
+
+
+def received_messages_view(request): ### gets all messages received by user from another user "sender" defined in query. If sender query is all, then it gets all messages received by the user
+	if (request.method == 'GET'):
+		try:
+			usersUsername = request.GET.get('username')
+			currentSenderUsername = request.GET.get('sender')
+			user = Account.objects.get(user__username=usersUsername)
+			allMessages = user.receivedMessages.filter(messageSender__user__username=currentSenderUsername)
+			allMessagesContent = []
+			for message in allMessages:
+				messageData = {
+					'sender': message.messageSender.user.username,
+					'receiver': message.messageReceiver.user.username,
+					'content': message.messageContent,
+				}
+				allMessagesContent.append(messageData)
+			return HttpResponse(json.dumps(allMessagesContent), status=200)
+		except Exception as e:
+			return HttpResponse(e, status=404)
+
 
 ##### USER ENDPOINT #####
 
