@@ -4,6 +4,33 @@ from django.contrib.auth.models import User
 from .models import Account
 
 
+##### AVATAR ENDPOINT #####
+
+def avatar_view(request):
+	if request.user.is_authenticated:
+		if (request.method == 'GET'): ##get avatar
+			try:
+				getUsername = request.GET.get('username')
+				user = Account.objects.get(user__username=getUsername)
+				usrAvatar = user.avatar
+				return HttpResponse(usrAvatar, status=200)
+			except Exception as e:
+				return HttpResponse(e, status=404)
+		if (request.method == 'POST'): #change avatar.
+			try:
+				data = request.body
+				toChangeUsername = data.POST.get('username')
+				user = Account.objects.get(user__username=toChangeUsername)
+				user.avatar = data.FILES['avatar']
+				user.save()
+				return HttpResponse('Avatar changed', status=200)
+			except Exception as e:
+				return HttpResponse(e, status=500)
+		else:
+			return HttpResponse('Method not allowed', status=405)
+	else:
+		return HttpResponse('Unauthorized', status=401)
+
 ##### USER ENDPOINT #####
 
 def user_view(request):
