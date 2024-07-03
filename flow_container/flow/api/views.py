@@ -131,6 +131,40 @@ def block_view(request):
 		return HttpResponse('Unauthorized', status=401)
 
 
+##### FRIEND ENDPOINT #####
+
+def friend_view(request):
+	if request.user.is_authenticated:
+		if (request.method == 'POST'): ##add friend
+			try:
+				data = json.loads(request.body)
+				toAddUsername = data.get('username')
+				friendUsername = data.get('friendUsername')
+				user = Account.objects.get(user__username=toAddUsername)
+				friend = Account.objects.get(user__username=friendUsername)
+				user.friendList.add(friend)
+				user.save()
+				return HttpResponse('Friend added', status=200)
+			except Exception as e:
+				return HttpResponse(e, status=500)
+		if (request.method == 'DELETE'): ##delete friend from list
+			try:
+				data = json.loads(request.body)
+				toDeleteUsername = data.get('username')
+				friendUsername = data.get('friendUsername')
+				user = Account.objects.get(user__username=toDeleteUsername)
+				friend = Account.objects.get(user__username=friendUsername)
+				user.friendList.remove(friend)
+				user.save()
+				return HttpResponse('Friend deleted', status=200)
+			except Exception as e:
+				return HttpResponse(e, status=500)
+		else:
+			return HttpResponse('Method not allowed', status=405)
+	else:
+		return HttpResponse('Unauthorized', status=401)
+
+
 ##### USER ENDPOINT #####
 
 def user_view(request):
