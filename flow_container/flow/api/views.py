@@ -3,6 +3,44 @@ import json
 from django.contrib.auth.models import User
 from .models import Account
 from .models import Message
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
+from django.contrib.auth import logout
+from django.contrib.sessions.models import Session
+
+
+##### LOGIN AND LOGOUT ENDPOINTS #####
+
+def login_view(request):
+	if (request.method == 'POST'):
+		try:
+			data = json.loads(request.body)
+			loginUsername = data.get('username')
+			loginPassword = data.get('password')
+			user = authenticate(request, username=loginUsername, password=loginPassword)
+			if user is not None:
+				login(request, user)
+				request.session['username'] = loginUsername
+				request.session.save()
+				return HttpResponse('Login successful', status=200)
+			else:
+				return HttpResponse('Login failed', status=401)
+		except:
+			return HttpResponse('Internal Server Error', status=500)
+	else:
+		return HttpResponse('Method not allowed', status=405)
+
+
+def logout_view(request):
+	try:
+		toLogout = Account.objects.get(user__username=request.session['username'])
+		toLogout.save()
+		logout(request)
+		Session.objects.filter(session_key=request.session.session_key).delete()
+		return HttpResponse('Logout successful', status=200)
+	except Exception as e:
+		print(e)
+		return HttpResponse('Logout failed', status=500)
 
 
 ##### AVATAR ENDPOINT #####
