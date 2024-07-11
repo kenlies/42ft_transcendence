@@ -15,12 +15,10 @@ def login_view(request):
 	if (request.method == 'POST'):
 		try:
 			data = json.loads(request.body)
-			loginUsername = data.get('username')
-			loginPassword = data.get('password')
-			user = authenticate(request, username=loginUsername, password=loginPassword)
+			user = authenticate(request, username=data.get('username'), password=data.get('password'))
 			if user is not None:
 				login(request, user)
-				request.session['username'] = loginUsername
+				request.session['username'] = user.username
 				request.session.save()
 				return HttpResponse('Login successful', status=200)
 			else:
@@ -49,17 +47,14 @@ def avatar_view(request):
 	if request.user.is_authenticated:
 		if (request.method == 'GET'): ##get avatar
 			try:
-				getUsername = request.GET.get('username')
-				user = Account.objects.get(user__username=getUsername)
-				usrAvatar = user.avatar
-				return HttpResponse(usrAvatar, status=200)
+				user = Account.objects.get(user__username=request.GET.get('username'))
+				return HttpResponse(user.avatar, status=200)
 			except Exception as e:
 				return HttpResponse(e, status=404)
 		if (request.method == 'POST'): #change avatar.
 			try:
 				data = request.body
-				toChangeUsername = data.POST.get('username')
-				user = Account.objects.get(user__username=toChangeUsername)
+				user = Account.objects.get(user__username=data.POST.get('username'))
 				user.avatar = data.FILES['avatar']
 				user.save()
 				return HttpResponse('Avatar changed', status=200)
@@ -77,13 +72,10 @@ def send_messages_view(request):
 	if (request.method == 'POST'):
 		try:
 			data = json.loads(request.body)
-			senderUsername = data.get('sender')
-			receiverUsername = data.get('receiver')
-			messageContent = data.get('content')
-			sender = Account.objects.get(user__username=senderUsername)
-			receiver = Account.objects.get(user__username=receiverUsername)
+			sender = Account.objects.get(user__username=data.get('sender'))
+			receiver = Account.objects.get(user__username=data.get('receiver'))
 			newMessage = Message(
-				messageContent = messageContent,
+				messageContent = data.get('content'),
 				messageSender = sender,
 				messageReceiver = receiver,
 			)
@@ -97,8 +89,7 @@ def send_messages_view(request):
 			return HttpResponse(e, status=500)
 	if (request.method == 'GET'): ## gets all messages user has sent to a receiver defined in query. Unless the receiver query is all, then it gets all messages sent by the user
 		try:
-			username = request.GET.get('username')
-			user = Account.objects.get(user__username=username)
+			user = Account.objects.get(user__username=request.GET.get('username'))
 			currentReceiver = request.GET.get('receiver')
 			if (currentReceiver == 'all'):
 				allSentMessages = user.sentMessages.all()
@@ -120,10 +111,8 @@ def send_messages_view(request):
 def received_messages_view(request): ### gets all messages received by user from another user "sender" defined in query. If sender query is all, then it gets all messages received by the user
 	if (request.method == 'GET'):
 		try:
-			usersUsername = request.GET.get('username')
-			currentSenderUsername = request.GET.get('sender')
-			user = Account.objects.get(user__username=usersUsername)
-			allMessages = user.receivedMessages.filter(messageSender__user__username=currentSenderUsername)
+			user = Account.objects.get(user__username=request.GET.get('username'))
+			allMessages = user.receivedMessages.filter(messageSender__user__username=request.GET.get('sender'))
 			allMessagesContent = []
 			for message in allMessages:
 				messageData = {
@@ -144,22 +133,16 @@ def block_view(request):
 		if (request.method == 'POST'): ##add user to blocklist
 			try:
 				data = json.loads(request.body)
-				toBlockUsername = data.get('username')
-				blockUsername = data.get('blockUsername')
-				user = Account.objects.get(user__username=toBlockUsername)
-				block = Account.objects.get(user__username=blockUsername)
-				user.blockedList.add(block)
+				user = Account.objects.get(user__username=data.get('username'))
+				user.blockedList.add(Account.objects.get(user__username=data.get('blockUsername')))
 				return HttpResponse('User blocked', status=200)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		if (request.method == 'DELETE'): ##remove user from blocklist
 			try:
 				data = json.loads(request.body)
-				toUnblockUsername = data.get('username')
-				unblockUsername = data.get('unblockUsername')
-				user = Account.objects.get(user__username=toUnblockUsername)
-				unblock = Account.objects.get(user__username=unblockUsername)
-				user.blockedList.remove(unblock)
+				user = Account.objects.get(user__username=data.get('username'))
+				user.blockedList.remove(Account.objects.get(user__username=data.get('unblockUsername')))
 				return HttpResponse('User unblocked', status=200)
 			except Exception as e:
 				return HttpResponse(e, status=500)
@@ -176,11 +159,8 @@ def friend_view(request):
 		if (request.method == 'POST'): ##add friend
 			try:
 				data = json.loads(request.body)
-				toAddUsername = data.get('username')
-				friendUsername = data.get('friendUsername')
-				user = Account.objects.get(user__username=toAddUsername)
-				friend = Account.objects.get(user__username=friendUsername)
-				user.friendList.add(friend)
+				user = Account.objects.get(user__username=data.get('username'))
+				user.friendList.add(Account.objects.get(user__username=data.get('friendUsername')))
 				user.save()
 				return HttpResponse('Friend added', status=200)
 			except Exception as e:
@@ -188,11 +168,8 @@ def friend_view(request):
 		if (request.method == 'DELETE'): ##delete friend from list
 			try:
 				data = json.loads(request.body)
-				toDeleteUsername = data.get('username')
-				friendUsername = data.get('friendUsername')
-				user = Account.objects.get(user__username=toDeleteUsername)
-				friend = Account.objects.get(user__username=friendUsername)
-				user.friendList.remove(friend)
+				user = Account.objects.get(user__username=data.get('username'))
+				user.friendList.remove(Account.objects.get(user__username=data.get('friendUsername')))
 				user.save()
 				return HttpResponse('Friend deleted', status=200)
 			except Exception as e:
@@ -209,15 +186,13 @@ def user_view(request):
 	if (request.method == 'POST'): ##create user
 		try:
 			data = json.loads(request.body)
-			avatar = 'api/static/avatars/default.png'
-			toSetUsername = data.get('username')
-			toSetEmail = data.get('email')
-			toSetPassword = data.get('password')
-			newUser = User.objects.create_user(toSetUsername, toSetEmail, toSetPassword)
+			newUser = User.objects.create_user(data.get('username'),
+											   data.get('email'),
+											   data.get('password'))
 			newUser.save()
 			newAccount = Account(
 				user= newUser,
-				avatar= avatar,
+				avatar= 'api/static/avatars/default.png',
 			)
 			newAccount.save()
 			return HttpResponse('User created', status=201)
@@ -226,15 +201,12 @@ def user_view(request):
 	if request.user.is_authenticated:
 		if (request.method == 'GET'): ##get user data
 			try:
-				getUsername = request.GET.get('username')
-				currentAccount = Account.objects.get(user__username=getUsername)
-				allFriends = currentAccount.friendList.all()
+				currentAccount = Account.objects.get(user__username=request.GET.get('username'))
 				allFriendsUsernames = []
-				for friend in allFriends:
+				for friend in currentAccount.friendList.all():
 					allFriendsUsernames.append(friend.user.username)
-				allBlocked = currentAccount.blockedList.all()
 				allBlockedUsernames = []
-				for block in allBlocked:
+				for block in currentAccount.blockedList.all():
 					allBlockedUsernames.append(block.user.username)
 				userData = {
 					'username': currentAccount.user.username,
@@ -249,8 +221,7 @@ def user_view(request):
 		if (request.method == 'DELETE'): ##delete user
 			try:
 				data = json.loads(request.body)
-				deleteUsername = data.get('username')
-				user = Account.objects.get(user__username=deleteUsername)
+				user = Account.objects.get(user__username=data.get('username'))
 				user.delete()
 				return HttpResponse('User deleted', status=200)
 			except Exception as e:
@@ -258,8 +229,7 @@ def user_view(request):
 		if (request.method == 'PUT'): ##change user password
 			try:
 				data = json.loads(request.body)
-				toChangeUsername = data.get('username')
-				account = User.objects.get(username=toChangeUsername)
+				account = User.objects.get(username=data.get('username'))
 				if (data.get('password') != None):
 					account.user.set_password(data.get('password'))
 					account.user.save()
