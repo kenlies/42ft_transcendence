@@ -135,6 +135,7 @@ def block_view(request):
 				data = json.loads(request.body)
 				user = Account.objects.get(user__username=data.get('username'))
 				user.blockedList.add(Account.objects.get(user__username=data.get('blockUsername')))
+				user.save()
 				return HttpResponse('User blocked', status=200)
 			except Exception as e:
 				return HttpResponse(e, status=500)
@@ -143,6 +144,7 @@ def block_view(request):
 				data = json.loads(request.body)
 				user = Account.objects.get(user__username=data.get('username'))
 				user.blockedList.remove(Account.objects.get(user__username=data.get('unblockUsername')))
+				user.save()
 				return HttpResponse('User unblocked', status=200)
 			except Exception as e:
 				return HttpResponse(e, status=500)
