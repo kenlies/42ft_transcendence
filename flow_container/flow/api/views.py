@@ -228,17 +228,11 @@ def user_view(request):
 			try:
 				getUsername = request.GET.get('username')
 				currentAccount = Account.objects.get(user__username=getUsername)
-				try:
-					allFriends = currentAccount.friendList.all()
-				except:
-					allFriends = []
+				allFriends = currentAccount.friendList.all()
 				allFriendsUsernames = []
 				for friend in allFriends:
 					allFriendsUsernames.append(friend.user.username)
-				try:
-					allBlocked = currentAccount.blockedList.all()
-				except:
-					allBlocked = []
+				allBlocked = currentAccount.blockedList.all()
 				allBlockedUsernames = []
 				for block in allBlocked:
 					allBlockedUsernames.append(block.user.username)
