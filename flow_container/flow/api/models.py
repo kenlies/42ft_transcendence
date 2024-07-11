@@ -6,7 +6,7 @@ class Account(models.Model):
 	avatar = models.ImageField(upload_to='api/static/avatars/')
 	friendList = models.ManyToManyField('self', blank=True)
 	blockedList = models.ManyToManyField('self', blank=True)
-	matches = models.ManyToManyField('Match', blank=True)
+	matchHistory = models.ManyToManyField('Match', blank=True)
 	sentMessages = models.ManyToManyField('Message', blank=True, related_name='sent_messages')
 	receivedMessages = models.ManyToManyField('Message', blank=True, related_name='received_messages')
 
