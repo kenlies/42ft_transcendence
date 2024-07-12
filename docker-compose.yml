@@ -9,12 +9,12 @@ services:
       - ./.env
     depends_on:
       - db
-    restart: always
+    restart: unless-stopped
   db:
     image: postgres:15
     environment:
       POSTGRES_USER: ${SQL_USER}
       POSTGRES_PASSWORD: ${SQL_PASSWORD}
       POSTGRES_DB: ${SQL_DATABASE}
-    restart: always
+    restart: unless-stopped
     pull_policy: always
