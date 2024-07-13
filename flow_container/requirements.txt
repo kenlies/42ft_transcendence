@@ -1,4 +1,5 @@
 uvicorn
+whitenoise
 django
 django-extensions
 requests
