@@ -16,6 +16,4 @@ COPY ./entry.sh .
 
 RUN chmod +x entry.sh
 
-RUN apt-get update && apt-get install -y netcat
-
 CMD ["sh", "entry.sh"]
