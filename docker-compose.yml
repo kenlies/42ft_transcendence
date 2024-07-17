@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   flow:
     build: ./flow_container
