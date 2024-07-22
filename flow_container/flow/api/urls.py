@@ -10,4 +10,5 @@ urlpatterns = [
     path('user', views.user_view),
     path('block', views.block_view),
     path('friend', views.friend_view),
+    path('ping', views.ping_view),
 ]

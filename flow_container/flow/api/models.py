@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import timedelta, datetime
+from django.utils import timezone
 
 class Account(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -9,9 +11,14 @@ class Account(models.Model):
 	matchHistory = models.ManyToManyField('Match', blank=True)
 	sentMessages = models.ManyToManyField('Message', blank=True, related_name='sent_messages')
 	receivedMessages = models.ManyToManyField('Message', blank=True, related_name='received_messages')
+	last_activity = models.DateTimeField(default=datetime.min)
 
 	def __str__(self):
 		return self.user.username
+
+	@property
+	def is_online(self):
+		return timezone.now() < self.last_activity + timedelta(minutes=1)
 
 class Match(models.Model):
 	matchId = models.IntegerField()
@@ -27,4 +34,3 @@ class Message(models.Model):
 	messageSender = models.ForeignKey(Account, on_delete=models.CASCADE, blank=False, null=False, related_name='message_sender')
 	messageReceiver = models.ForeignKey(Account, on_delete=models.CASCADE, blank=False, null=False, related_name='message_receiver')
 	messageDate = models.DateTimeField(null=True, blank=True)
-

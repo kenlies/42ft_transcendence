@@ -7,6 +7,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.sessions.models import Session
+from datetime import timedelta
+from django.utils import timezone
 
 
 ##### LOGIN AND LOGOUT ENDPOINTS #####
@@ -20,6 +22,9 @@ def login_view(request):
 				login(request, user)
 				request.session['username'] = user.username
 				request.session.save()
+				acc = Account.objects.get(user=user)
+				acc.last_activity = timezone.now()
+				acc.save()
 				return HttpResponse('Login successful', status=200)
 			else:
 				return HttpResponse('Login failed', status=401)
@@ -32,6 +37,7 @@ def login_view(request):
 def logout_view(request):
 	try:
 		toLogout = Account.objects.get(user__username=request.session['username'])
+		toLogout.last_activity = timezone.now() - timedelta(minutes=1) # set the time 1 minute behind, effectively making user offline in the next calculation
 		toLogout.save()
 		logout(request)
 		Session.objects.filter(session_key=request.session.session_key).delete()
@@ -216,6 +222,7 @@ def user_view(request):
 					'avatar_url': '/api/avatar?username=' + currentAccount.user.username,
 					'friends': allFriendsUsernames,
 					'blocked': allBlockedUsernames,
+					'is_online': currentAccount.is_online
 				}
 				return HttpResponse(json.dumps(userData), status=200)
 			except:
@@ -236,6 +243,22 @@ def user_view(request):
 					account.user.set_password(data.get('password'))
 					account.user.save()
 				return HttpResponse('User updated', status=200)
+			except Exception as e:
+				return HttpResponse(e, status=500)
+		else:
+			return HttpResponse('Method not allowed', status=405)
+	else:
+		return HttpResponse('Unauthorized', status=401)
+
+def ping_view(request):
+	if request.user.is_authenticated:
+		if (request.method == 'POST'):
+			try:
+				data = json.loads(request.body)
+				user = Account.objects.get(user__username=data.get('username'))
+				user.last_activity = timezone.now()
+				user.save()
+				return HttpResponse('Updated user last_activity', status=200)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		else:
