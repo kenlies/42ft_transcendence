@@ -36,7 +36,7 @@ def login_view(request):
 
 def logout_view(request):
 	try:
-		toLogout = Account.objects.get(user__username=request.session['username'])
+		toLogout = Account.objects.get(user__username=request.user.username)
 		toLogout.last_activity = timezone.now() - timedelta(minutes=1) # set the time 1 minute behind, effectively making user offline in the next calculation
 		toLogout.save()
 		logout(request)
@@ -60,7 +60,7 @@ def avatar_view(request):
 		if (request.method == 'POST'): #change avatar.
 			try:
 				data = request.body
-				user = Account.objects.get(user__username=data.POST.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				user.avatar = data.FILES['avatar']
 				user.save()
 				return HttpResponse('Avatar changed', status=200)
@@ -79,7 +79,7 @@ def messages_view(request):
 		if (request.method == 'POST'):
 			try:
 				data = json.loads(request.body)
-				sender = Account.objects.get(user__username=data.get('sender'))
+				sender = Account.objects.get(user__username=request.user.username)
 				receiver = Account.objects.get(user__username=data.get('receiver'))
 				newMessage = Message(
 					messageContent = data.get('content'),
@@ -97,7 +97,7 @@ def messages_view(request):
 				return HttpResponse(e, status=500)
 		if (request.method == 'GET'):
 			try:
-				user = Account.objects.get(user__username=request.GET.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				other = request.GET.get('other')
 				allSentMessages = user.sentMessages.filter(messageReceiver__user__username=other)
 				allReceivedMessages = user.receivedMessages.filter(messageSender__user__username=other)
@@ -133,7 +133,7 @@ def block_view(request):
 		if (request.method == 'POST'): ##add user to blocklist
 			try:
 				data = json.loads(request.body)
-				user = Account.objects.get(user__username=data.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				user.blockedList.add(Account.objects.get(user__username=data.get('blockUsername')))
 				user.save()
 				return HttpResponse('User blocked', status=200)
@@ -142,7 +142,7 @@ def block_view(request):
 		if (request.method == 'DELETE'): ##remove user from blocklist
 			try:
 				data = json.loads(request.body)
-				user = Account.objects.get(user__username=data.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				user.blockedList.remove(Account.objects.get(user__username=data.get('unblockUsername')))
 				user.save()
 				return HttpResponse('User unblocked', status=200)
@@ -161,7 +161,7 @@ def friend_view(request):
 		if (request.method == 'POST'): ##add friend
 			try:
 				data = json.loads(request.body)
-				user = Account.objects.get(user__username=data.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				user.friendList.add(Account.objects.get(user__username=data.get('friendUsername')))
 				user.save()
 				return HttpResponse('Friend added', status=200)
@@ -170,7 +170,7 @@ def friend_view(request):
 		if (request.method == 'DELETE'): ##delete friend from list
 			try:
 				data = json.loads(request.body)
-				user = Account.objects.get(user__username=data.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				user.friendList.remove(Account.objects.get(user__username=data.get('friendUsername')))
 				user.save()
 				return HttpResponse('Friend deleted', status=200)
@@ -224,7 +224,7 @@ def user_view(request):
 		if (request.method == 'DELETE'): ##delete user
 			try:
 				data = json.loads(request.body)
-				user = Account.objects.get(user__username=data.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				user.delete()
 				return HttpResponse('User deleted', status=200)
 			except Exception as e:
@@ -232,7 +232,7 @@ def user_view(request):
 		if (request.method == 'PUT'): ##change user password
 			try:
 				data = json.loads(request.body)
-				account = User.objects.get(username=data.get('username'))
+				account = User.objects.get(username=request.user.username)
 				if (data.get('password') != None):
 					account.user.set_password(data.get('password'))
 					account.user.save()
@@ -249,7 +249,7 @@ def ping_view(request):
 		if (request.method == 'POST'):
 			try:
 				data = json.loads(request.body)
-				user = Account.objects.get(user__username=data.get('username'))
+				user = Account.objects.get(user__username=request.user.username)
 				user.last_activity = timezone.now()
 				user.save()
 				return HttpResponse('Updated user last_activity', status=200)
