@@ -74,62 +74,56 @@ def avatar_view(request):
 
 ##### MESSAGES ENDPOINTS #####
 
-def send_messages_view(request):
-	if (request.method == 'POST'):
-		try:
-			data = json.loads(request.body)
-			sender = Account.objects.get(user__username=data.get('sender'))
-			receiver = Account.objects.get(user__username=data.get('receiver'))
-			newMessage = Message(
-				messageContent = data.get('content'),
-				messageSender = sender,
-				messageReceiver = receiver,
-			)
-			newMessage.save()
-			sender.sentMessages.add(newMessage)
-			receiver.receivedMessages.add(newMessage)
-			sender.save()
-			receiver.save()
-			return HttpResponse('Message sent', status=200)
-		except Exception as e:
-			return HttpResponse(e, status=500)
-	if (request.method == 'GET'): ## gets all messages user has sent to a receiver defined in query. Unless the receiver query is all, then it gets all messages sent by the user
-		try:
-			user = Account.objects.get(user__username=request.GET.get('username'))
-			currentReceiver = request.GET.get('receiver')
-			if (currentReceiver == 'all'):
-				allSentMessages = user.sentMessages.all()
-			else:
-				allSentMessages = user.sentMessages.filter(messageReceiver__user__username=currentReceiver)
-			allSentMessagesContent = []
-			for message in allSentMessages:
-				messageData = {
-					'sender': message.messageSender.user.username,
-					'receiver': message.messageReceiver.user.username,
-					'content': message.messageContent,
-				}
-				allSentMessagesContent.append(messageData)
-			return HttpResponse(json.dumps(allSentMessagesContent), status=200)
-		except Exception as e:
-			return HttpResponse(e, status=404)
-
-
-def received_messages_view(request): ### gets all messages received by user from another user "sender" defined in query. If sender query is all, then it gets all messages received by the user
-	if (request.method == 'GET'):
-		try:
-			user = Account.objects.get(user__username=request.GET.get('username'))
-			allMessages = user.receivedMessages.filter(messageSender__user__username=request.GET.get('sender'))
-			allMessagesContent = []
-			for message in allMessages:
-				messageData = {
-					'sender': message.messageSender.user.username,
-					'receiver': message.messageReceiver.user.username,
-					'content': message.messageContent,
-				}
-				allMessagesContent.append(messageData)
-			return HttpResponse(json.dumps(allMessagesContent), status=200)
-		except Exception as e:
-			return HttpResponse(e, status=404)
+def messages_view(request):
+	if request.user.is_authenticated:
+		if (request.method == 'POST'):
+			try:
+				data = json.loads(request.body)
+				sender = Account.objects.get(user__username=data.get('sender'))
+				receiver = Account.objects.get(user__username=data.get('receiver'))
+				newMessage = Message(
+					messageContent = data.get('content'),
+					messageSender = sender,
+					messageReceiver = receiver,
+					messageDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+				)
+				newMessage.save()
+				sender.sentMessages.add(newMessage)
+				receiver.receivedMessages.add(newMessage)
+				sender.save()
+				receiver.save()
+				return HttpResponse('Message sent', status=200)
+			except Exception as e:
+				return HttpResponse(e, status=500)
+		if (request.method == 'GET'):
+			try:
+				user = Account.objects.get(user__username=request.GET.get('username'))
+				other = request.GET.get('other')
+				allSentMessages = user.sentMessages.filter(messageReceiver__user__username=other)
+				allReceivedMessages = user.receivedMessages.filter(messageSender__user__username=other)
+				parsedMessages = []
+				for message in allSentMessages:
+					messageData = {
+						'sender': message.messageSender.user.username,
+						'receiver': message.messageReceiver.user.username,
+						'content': message.messageContent,
+						'date': message.messageDate
+					}
+					parsedMessages.append(messageData)
+				for message in allReceivedMessages:
+					messageData = {
+						'sender': message.messageSender.user.username,
+						'receiver': message.messageReceiver.user.username,
+						'content': message.messageContent,
+						'date': message.messageDate
+					}
+					parsedMessages.append(messageData)
+				sortedMessages = sorted(parsedMessages, key=lambda x: x["date"])
+				return HttpResponse(json.dumps(sortedMessages), status=200)
+			except Exception as e:
+				return HttpResponse(e, status=404)
+	else:
+		return HttpResponse('Unauthorized', status=401)
 		
 
 ##### BLOCK ENDPOINT #####
