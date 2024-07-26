@@ -33,4 +33,4 @@ class Message(models.Model):
 	messageContent = models.CharField(max_length=500)
 	messageSender = models.ForeignKey(Account, on_delete=models.CASCADE, blank=False, null=False, related_name='message_sender')
 	messageReceiver = models.ForeignKey(Account, on_delete=models.CASCADE, blank=False, null=False, related_name='message_receiver')
-	messageDate = models.CharField(max_length=50, default='')
+	messageDate = models.DateTimeField(null=True, blank=True)
