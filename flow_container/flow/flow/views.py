@@ -11,3 +11,17 @@ def index(request):
 @ensure_csrf_cookie
 def stylesheet(request):
 	return render(request, 'css/styles.css', {}, content_type="text/css")
+
+@ensure_csrf_cookie
+def content(request, content):
+	if (request.method == 'GET'):
+		if request.user.is_authenticated:
+			try:
+				template = loader.get_template('pong/' + content + '.html')
+			except:
+				return HttpResponse('Content not found', status=404)
+		else:
+			return HttpResponse('Unauthorized', status=401)
+		return HttpResponse(template.render())
+	else:
+		return HttpResponse('Method not allowed', status=405)
