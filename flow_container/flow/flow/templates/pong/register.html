@@ -6,3 +6,44 @@
     <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm password" required>
     <button type="submit">Register</button>
 </form>
+
+<script>
+    const registerForm = document.getElementById('register-form');
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm-password');
+
+        try {
+            const token = getCookie('csrftoken');
+            const response = await fetch('http://localhost:8000/api/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': token
+                },
+                body: JSON.stringify({
+                    username: username.value,
+                    email: email.value,
+                    password: password.value
+                }),
+            });
+
+            const result = await response.text();
+
+            if (response.ok) {
+                changeContainerContent(document.body, 'login');
+            }
+            else {
+                console.error(result);
+            }
+        }
+        catch (error) {
+            console.error('Error during registration:', error);
+        }
+    });
+</script>
