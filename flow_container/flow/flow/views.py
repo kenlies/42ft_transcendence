@@ -13,6 +13,10 @@ def stylesheet(request):
 	return render(request, 'css/styles.css', {}, content_type="text/css")
 
 @ensure_csrf_cookie
+def javascript(request):
+	return render(request, 'js/scripts.js', {}, content_type="text/javascript")
+
+@ensure_csrf_cookie
 def content(request, content):
 	if (request.method == 'GET'):
 		if content == 'login' or content == 'register' or request.user.is_authenticated:

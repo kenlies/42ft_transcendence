@@ -22,6 +22,7 @@ urlpatterns = [
     path('', views.index),
     path('content/<content>', views.content),
     path('styles.css', views.stylesheet),
+    path('pong.js', views.javascript),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
 ]
