@@ -15,7 +15,7 @@ def stylesheet(request):
 @ensure_csrf_cookie
 def content(request, content):
 	if (request.method == 'GET'):
-		if request.user.is_authenticated:
+		if content == 'login' or content == 'register' or request.user.is_authenticated:
 			try:
 				template = loader.get_template('pong/' + content + '.html')
 			except:
