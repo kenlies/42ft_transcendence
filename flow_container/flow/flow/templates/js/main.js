@@ -1,6 +1,7 @@
 const changeContainerContent = async (container, contentUrl) => {
     const response = await fetch('/content/' + contentUrl);
-    container.innerHTML = await response.text();
+    const html = await response.text();
+    container.replaceChildren(document.createRange().createContextualFragment(html));
 }
 
 const initPageLinks = () => {
