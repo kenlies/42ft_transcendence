@@ -4,3 +4,41 @@
     <input type="password" id="password" name="password" placeholder="Password" required>
     <button type="submit">Log in</button>
 </form>
+
+<script>
+    const loginForm = document.getElementById('login-form');
+
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+
+        try {
+            const token = getCookie('csrftoken');
+            const response = await fetch('http://localhost:8000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': token
+                },
+                body: JSON.stringify({
+                    username: username.value,
+                    password: password.value
+                }),
+            });
+
+            const result = await response.text();
+
+            if (response.ok) {
+                changeContainerContent(document.body, 'home');
+            }
+            else {
+                console.error(result);
+            }
+        }
+        catch (error) {
+            console.error('Error during login:', error);
+        }
+    });
+</script>
