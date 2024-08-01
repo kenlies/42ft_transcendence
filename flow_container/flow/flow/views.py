@@ -2,11 +2,22 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.shortcuts import render
+from api.models import Account
 
 @ensure_csrf_cookie
 def index(request):
 	template = loader.get_template('pong/index.html')
-	return HttpResponse(template.render())
+	context = {}
+	if request.user.is_authenticated:
+		try:
+			context = {
+				"user": Account.objects.get(user=request.user)
+			}
+		except:
+			context = {
+				"user": None
+			}
+	return HttpResponse(template.render(context))
 
 @ensure_csrf_cookie
 def stylesheet(request):
