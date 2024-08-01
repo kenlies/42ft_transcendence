@@ -232,14 +232,25 @@ def user_view(request):
 				return HttpResponse('User deleted', status=200)
 			except Exception as e:
 				return HttpResponse('User not found', status=404)
-		if (request.method == 'PUT'): ##change user password
+		if (request.method == 'PUT'): ##change user, email, and password
 			try:
 				data = json.loads(request.body)
-				account = User.objects.get(username=request.user.username)
-				if (data.get('password') != None):
-					account.user.set_password(data.get('password'))
-					account.user.save()
-				return HttpResponse('User updated', status=200)
+				user = Account.objects.get(user__username=request.user.username)
+				if 'new_username' in data:
+					user.user.username = data.get('new_username')
+					user.user.save()
+					return HttpResponse('Username updated', status=200)
+				if 'new_email' in data:
+					user.user.email = data.get('new_email')
+					user.user.save()
+					return HttpResponse('Email updated', status=200)
+				if 'password' in data and 'new_password' in data:
+					if user.user.check_password(data.get('password')):
+						user.user.set_password(data.get('new_password'))
+						user.user.save()
+						return HttpResponse('Password updated', status=200)
+					else:
+						return HttpResponse('Wrong password', status=401)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		else:
