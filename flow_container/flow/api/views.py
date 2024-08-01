@@ -59,11 +59,14 @@ def avatar_view(request):
 				return HttpResponse(e, status=404)
 		if (request.method == 'POST'): #change avatar.
 			try:
-				data = request.body
 				user = Account.objects.get(user__username=request.user.username)
-				user.avatar = data.FILES['avatar']
-				user.save()
-				return HttpResponse('Avatar changed', status=200)
+				avatar_file = request.FILES.get('avatar')
+				if avatar_file:
+					user.avatar = avatar_file
+					user.save()
+					return HttpResponse('Avatar changed', status=200)
+				else:
+					return HttpResponse('No avatar provided', status=400)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		else:
@@ -124,7 +127,7 @@ def messages_view(request):
 				return HttpResponse(e, status=404)
 	else:
 		return HttpResponse('Unauthorized', status=401)
-		
+
 
 ##### BLOCK ENDPOINT #####
 
