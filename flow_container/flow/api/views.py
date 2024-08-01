@@ -191,6 +191,9 @@ def user_view(request):
 	if (request.method == 'POST'): ##create user
 		try:
 			data = json.loads(request.body)
+			if User.objects.filter(username=data.get('username')).exists():
+				return HttpResponse('Username already exists', status=400)
+
 			newUser = User.objects.create_user(data.get('username'),
 											   data.get('email'),
 											   data.get('password'))
@@ -237,6 +240,8 @@ def user_view(request):
 				data = json.loads(request.body)
 				user = Account.objects.get(user__username=request.user.username)
 				if 'new_username' in data:
+					if User.objects.filter(username=data.get('new_username')).exists():
+						return HttpResponse('Username already exists', status=400)
 					user.user.username = data.get('new_username')
 					user.user.save()
 					return HttpResponse('Username updated', status=200)
