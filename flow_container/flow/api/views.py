@@ -1,14 +1,11 @@
 from django.http import HttpResponse
-import json
 from django.contrib.auth.models import User
-from .models import Account
-from .models import Message
-from django.contrib.auth import authenticate
-from django.contrib.auth import login
-from django.contrib.auth import logout
+from .models import Account, Message
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.sessions.models import Session
 from datetime import timedelta
 from django.utils import timezone
+import json
 
 
 ##### LOGIN AND LOGOUT ENDPOINTS #####
