@@ -1,0 +1,34 @@
+{% load static %}
+@font-face {
+    font-family: "Hitmarker Text";
+    src: url("{% static 'fonts/HitmarkerText-Regular.woff2' %}") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Hitmarker Text";
+    src: url("{% static 'fonts/HitmarkerText-Medium.woff2' %}") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Hitmarker Text";
+    src: url("{% static 'fonts/HitmarkerText-Bold.woff2' %}") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Hitmarker Text";
+    src: url("{% static 'fonts/HitmarkerText-Italic.woff2' %}") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Hitmarker VF";
+    src: url("{% static 'fonts/Hitmarker-VF.woff2' %}") format("woff2");
+    font-style: normal;
+}

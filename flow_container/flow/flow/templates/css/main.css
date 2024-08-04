@@ -3,7 +3,7 @@
 
     background-color: #282c34;
     color: var(--fg-color);
-    font-family: Arial, sans-serif;
+    font-family: "Hitmarker Text", sans-serif;
     font-size: 100%;
 }
 
@@ -17,7 +17,10 @@ body {
 }
 
 h1 {
+    font-family: "Hitmarker VF", sans-serif;
     text-transform: uppercase;
+    font-stretch: 80%;
     font-weight: 400;
-    font-size: 2.2rem;
+    font-size: 2.6rem;
+    cursor: default;
 }
