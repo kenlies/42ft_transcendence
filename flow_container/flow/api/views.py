@@ -1,10 +1,11 @@
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from .models import Account, Message
+from .models import Account, Message, Match
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.sessions.models import Session
 from datetime import timedelta
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
 import os
@@ -38,6 +39,35 @@ def matchmaker_view(request):
 	else:
 		return HttpResponse('Unauthorized', status=401)
 
+@csrf_exempt
+def record_match_view(request):
+	if (request.method == 'POST'):
+		try:
+			data = json.loads(request.body)
+			if (data.get('secret') != os.environ.get("MATCHMAKER_SECRET")):
+				return HttpResponse('Unauthorized', status=401)
+			newMatch = Match(
+				matchId = data.get('matchId'),
+				matchDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+				matchWinnerUsername = data.get('matchWinner'),
+				matchLoserUsername = data.get('matchLoser'),
+				matchWinnerScore = data.get('matchWinnerScore'),
+				matchLoserScore = data.get('matchLoserScore'),
+			)
+			newMatch.save()
+			matchWinnerRecord = Account.objects.get(user__username=data.get('matchWinner'))
+			matchLoserRecord = Account.objects.get(user__username=data.get('matchLoser'))
+			matchLoserRecord.matchHistory.add(newMatch)
+			matchWinnerRecord.matchHistory.add(newMatch)
+			matchLoserRecord.save()
+			matchWinnerRecord.save()
+			print("Match recorded")
+			return HttpResponse('Match recorded', status=201)
+		except Exception as e:
+			print(e)
+			return HttpResponse(e, status=500)
+	else:
+		return HttpResponse('Method not allowed', status=405)
 
 ##### LOGIN AND LOGOUT ENDPOINTS #####
 
@@ -244,13 +274,26 @@ def user_view(request):
 				allBlockedUsernames = []
 				for block in currentAccount.blockedList.all():
 					allBlockedUsernames.append(block.user.username)
+				allMatches = currentAccount.matchHistory.all()
+				allMatchesData = []
+				for match in allMatches:
+					matchData = {
+						'matchId': match.matchId,
+						'matchDate': match.matchDate,
+						'matchWinner': match.matchWinnerUsername,
+						'matchLoser': match.matchLoserUsername,
+						'matchWinnerScore': match.matchWinnerScore,
+						'matchLoserScore': match.matchLoserScore,
+					}
+					allMatchesData.append(matchData)
 				userData = {
 					'username': currentAccount.user.username,
 					'email': currentAccount.user.email,
 					'avatar_url': '/api/avatar?username=' + currentAccount.user.username,
 					'friends': allFriendsUsernames,
 					'blocked': allBlockedUsernames,
-					'is_online': currentAccount.is_online
+					'is_online': currentAccount.is_online,
+					'matches': allMatchesData
 				}
 				return HttpResponse(json.dumps(userData), status=200)
 			except:

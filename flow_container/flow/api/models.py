@@ -21,11 +21,10 @@ class Account(models.Model):
 		return timezone.now() < self.last_activity + timedelta(minutes=1)
 
 class Match(models.Model):
-	matchId = models.IntegerField()
-	matchName = models.CharField(max_length=50)
-	matchDate = models.DateTimeField()
-	matchWinner = models.ForeignKey(Account, on_delete=models.SET_NULL, blank=False, null=True, related_name='match_winner')
-	matchLoser = models.ForeignKey(Account, on_delete=models.SET_NULL, blank=False, null=True, related_name='match_loser')
+	matchId = models.CharField(max_length=50)
+	matchDate = models.CharField(max_length=50, default='')
+	matchWinnerUsername = models.CharField(max_length=15, default='')
+	matchLoserUsername = models.CharField(max_length=15, default='')
 	matchWinnerScore = models.IntegerField()
 	matchLoserScore = models.IntegerField()
 

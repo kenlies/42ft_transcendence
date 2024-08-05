@@ -11,4 +11,5 @@ urlpatterns = [
     path('friend', views.friend_view),
     path('ping', views.ping_view),
     path('matchmaker', views.matchmaker_view),
+    path('match', views.record_match_view),
 ]
