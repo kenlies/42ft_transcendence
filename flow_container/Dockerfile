@@ -10,6 +10,8 @@ COPY ./flow .
 
 EXPOSE 8000
 
+RUN apt-get update && apt-get install -y netcat
+
 COPY ./entry.sh .
 
 RUN chmod +x entry.sh
