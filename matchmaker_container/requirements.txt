@@ -1,0 +1,6 @@
+django
+channels
+requests
+daphne
+psycopg2-binary
+websockets
