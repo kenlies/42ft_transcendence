@@ -6,6 +6,37 @@ from django.contrib.sessions.models import Session
 from datetime import timedelta
 from django.utils import timezone
 import json
+import requests
+import os
+
+##### MATCHMAKER ENDPOINTS #####
+
+def matchmaker_view(request):
+	if request.user.is_authenticated:
+		if (request.method == 'GET'):
+			try:
+				gameMode = request.GET.get('gameMode')
+				matchmakerUrl = "http://matchmaker:8001/match/initiate/" + gameMode
+				data = {
+					"secret": os.environ.get("MATCHMAKER_SECRET"),
+					"username": request.GET.get('username')
+				}
+				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))		
+				if (matchmakerResponse.status_code == 200):
+					toSendToRoomId = matchmakerResponse.json()['game_room']
+					retData = {
+						"url": "ws://" + os.environ.get("HOST_IP") + ':8001/match/connect/' + gameMode + '/' + toSendToRoomId,
+						"ready": matchmakerResponse.json()['ready']
+					}
+					return HttpResponse(json.dumps(retData), status=200)
+				else:
+					return HttpResponse('Matchmaker is not available', status=503)
+			except:
+				return HttpResponse('Internal Server Error', status=500)
+		else:
+			return HttpResponse('Method not allowed', status=405)
+	else:
+		return HttpResponse('Unauthorized', status=401)
 
 
 ##### LOGIN AND LOGOUT ENDPOINTS #####
