@@ -6,6 +6,7 @@ from django.contrib.sessions.models import Session
 from datetime import timedelta
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from .validation import validate
 import json
 import requests
 import os
@@ -22,7 +23,7 @@ def matchmaker_view(request):
 					"secret": os.environ.get("MATCHMAKER_SECRET"),
 					"username": request.GET.get('username')
 				}
-				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))		
+				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))
 				if (matchmakerResponse.status_code == 200):
 					toSendToRoomId = matchmakerResponse.json()['game_room']
 					retData = {
@@ -249,12 +250,14 @@ def user_view(request):
 	if (request.method == 'POST'): ##create user
 		try:
 			data = json.loads(request.body)
-			if User.objects.filter(username=data.get('username')).exists():
-				return HttpResponse('Username already exists', status=400)
-
-			newUser = User.objects.create_user(data.get('username'),
-											   data.get('email'),
-											   data.get('password'))
+			username = data.get('username')
+			email = data.get('email')
+			password = data.get('password')
+			confirm_password = data.get('confirm_password')
+			validation_error = validate({'username': username, 'email': email, 'password': password, 'confirm_password': confirm_password})
+			if validation_error:
+				return HttpResponse(validation_error, status=400)
+			newUser = User.objects.create_user(username, email, password)
 			newUser.save()
 			newAccount = Account(
 				user= newUser,
