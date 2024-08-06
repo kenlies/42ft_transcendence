@@ -314,18 +314,30 @@ def user_view(request):
 				data = json.loads(request.body)
 				user = Account.objects.get(user__username=request.user.username)
 				if 'new_username' in data:
-					if User.objects.filter(username=data.get('new_username')).exists():
-						return HttpResponse('Username already exists', status=400)
-					user.user.username = data.get('new_username')
+					new_username = data.get('new_username')
+					validation_error = validate({'username': new_username})
+					if validation_error:
+						return HttpResponse(validation_error, status=400)
+					user.user.username = new_username
 					user.user.save()
 					return HttpResponse('Username updated', status=200)
 				if 'new_email' in data:
-					user.user.email = data.get('new_email')
+					new_email = data.get('new_email')
+					validation_error = validate({'email': new_email})
+					if validation_error:
+						return HttpResponse(validation_error, status=400)
+					user.user.email = new_email
 					user.user.save()
 					return HttpResponse('Email updated', status=200)
-				if 'password' in data and 'new_password' in data:
-					if user.user.check_password(data.get('password')):
-						user.user.set_password(data.get('new_password'))
+				if 'password' in data and 'new_password' in data and 'confirm_password' in data:
+					current_password = data.get('password')
+					new_password = data.get('new_password')
+					confirm_password = data.get('confirm_password')
+					validation_error = validate({'password': new_password, 'confirm_password': confirm_password})
+					if validation_error:
+						return HttpResponse(validation_error, status=400)
+					if user.user.check_password(current_password):
+						user.user.set_password(new_password)
 						user.user.save()
 						return HttpResponse('Password updated', status=200)
 					else:
