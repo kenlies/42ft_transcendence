@@ -320,7 +320,6 @@ def user_view(request):
 						return HttpResponse(validation_error, status=400)
 					user.user.username = new_username
 					user.user.save()
-					return HttpResponse('Username updated', status=200)
 				if 'new_email' in data:
 					new_email = data.get('new_email')
 					validation_error = validate({'email': new_email})
@@ -328,7 +327,6 @@ def user_view(request):
 						return HttpResponse(validation_error, status=400)
 					user.user.email = new_email
 					user.user.save()
-					return HttpResponse('Email updated', status=200)
 				if 'password' in data and 'new_password' in data and 'confirm_password' in data:
 					current_password = data.get('password')
 					new_password = data.get('new_password')
@@ -339,9 +337,9 @@ def user_view(request):
 					if user.user.check_password(current_password):
 						user.user.set_password(new_password)
 						user.user.save()
-						return HttpResponse('Password updated', status=200)
 					else:
 						return HttpResponse('Wrong password', status=401)
+				return HttpResponse('Information updated', status=200)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		else:
