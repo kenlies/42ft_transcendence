@@ -1,5 +1,18 @@
 :root {
     --fg-color: rgb(197, 197, 197);
+    --border-color: rgba(197, 197, 197, 0.3);
+    --accent-color: rgb(255, 165, 0);
+    --accent-glow-color: rgba(255, 165, 0, 0.4);
+    --error-color: red;
+    --dark-bg: #222;
+    --light-bg: #444;
+
+    --background-texture1: conic-gradient(from 90deg at 1px 1px, transparent 90deg, rgba(0,0,0,0.2) 0);
+    --background-texture2: conic-gradient(from 90deg at 3px 3px, rgba(255,255,255,0.1) 90deg, transparent 0);
+
+    --spacing: 30px;
+    --padding: 20px;
+    --scale-duration: 0.3s;
 
     background-color: #282c34;
     color: var(--fg-color);
