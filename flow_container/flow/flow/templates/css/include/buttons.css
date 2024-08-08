@@ -1,0 +1,79 @@
+{% load static %}
+
+padding: var(--padding);
+color: var(--fg-color);
+outline: 2px solid var(--border-color);
+{% if style == "button1" %}
+    border: 3px solid transparent;
+{% endif %}
+
+{% if uppercase != "false" %}
+    text-transform: uppercase;
+{% endif %}
+text-align: center;
+text-decoration: none;
+font-family: "Hitmarker VF";
+font-size: 1.1rem;
+font-weight: 400;
+font-stretch: 30%;
+
+background-clip: padding-box;
+background-size: 5px 5px;
+{% if style == "button1" %}
+    background-image: var(--background-texture1);
+    background-color: var(--light-bg);
+{% elif style == "button2" %}
+    background-image: var(--background-texture2);
+    background-color: var(--dark-bg);
+{% endif %}
+
+/* crosshair effect */
+position: relative;
+&::before {
+    content: "";
+    position: absolute;
+    opacity: 0;
+
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+
+    border-image: url({% static 'corner.svg' %}) 50% / 15px / 40px;
+
+    transition-duration: var(--scale-duration);
+    transition-property: border-image-outset, opacity;
+}
+
+&:active,
+&:hover,
+&:focus,
+&:focus-visible {
+    {% if style == "button1" %}
+        background-color: var(--accent-color);
+        border-color: var(--accent-glow-color);
+        box-shadow: 0 0 30px var(--accent-glow-color), inset 0 0 2em rgba(0,0,0,0.4);
+        color: var(--light-bg);
+    {% elif style == "button2" %}
+        box-shadow: 0 0 30px var(--accent-glow-color);
+    {% endif %}
+
+    outline-color: var(--accent-color);
+    transform: scale(1.05, 1.05);
+
+    &::before {
+        opacity: 1;
+        border-image-outset: 10px;
+    }
+}
+
+transition-duration: var(--scale-duration);
+transition-property:
+    {% if style == "button1" %}
+        background-color,
+        border-color,
+        color,
+    {% endif %}
+    outline-color,
+    box-shadow,
+    transform;
