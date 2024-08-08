@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="800"
+   height="300"
+   viewBox="0 0 211.66666 79.375"
+   version="1.1"
+   id="svg1"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <linearGradient
+       id="linearGradient3">
+      <stop
+         style="stop-color:#696969;stop-opacity:1;"
+         offset="0.42373368"
+         id="stop3" />
+      <stop
+         style="stop-color:#535353;stop-opacity:1;"
+         offset="1"
+         id="stop4" />
+    </linearGradient>
+    <radialGradient
+       xlink:href="#linearGradient3"
+       id="radialGradient4"
+       cx="115.68759"
+       cy="45.389648"
+       fx="115.68759"
+       fy="45.389648"
+       r="118.76304"
+       gradientTransform="matrix(1.0531825,0,0,0.51317641,-16.006811,16.394603)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     id="layer2"
+     style="display:none">
+    <rect
+       style="fill:url(#radialGradient4);stroke:none;stroke-width:0.674295;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2"
+       width="211.66667"
+       height="79.375"
+       x="0"
+       y="0" />
+  </g>
+  <g
+     id="layer1"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:37.0059px;font-family:Impact;-inkscape-font-specification:Impact;letter-spacing:0px;word-spacing:0.79375px;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.264583;stroke-dasharray:none;stroke-opacity:1"
+       x="30.889477"
+       y="51.13055"
+       id="text2"><tspan
+         id="tspan2"
+         style="letter-spacing:0px;word-spacing:0.79375px;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.264583;stroke-dasharray:none;stroke-opacity:1"
+         x="30.889477"
+         y="51.13055"
+         dx="0 -0.77330256 2.4163263e-09 -0.18057671 0 0 -0.4553428 -1.2718389 -1.2718389">CALL PONG</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.9984px;font-family:Impact;-inkscape-font-specification:Impact;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       x="93.715256"
+       y="37.692673"
+       id="text2-1"><tspan
+         id="tspan2-7"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+         x="93.715256"
+         y="37.692673"
+         dx="0 -0.38475487">OF</tspan></text>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.89806px;font-family:'Hitmarker Normal';-inkscape-font-specification:'Hitmarker Normal, ';letter-spacing:0px;word-spacing:1.66838px;fill:#ffffff;stroke-width:0.556129"
+     x="46.60117"
+     y="61.24221"
+     id="text3"><tspan
+       id="tspan3"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8.89806px;font-family:'Hitmarker Normal';-inkscape-font-specification:'Hitmarker Normal,  Medium';stroke-width:0.556129"
+       x="46.60117"
+       y="61.24221">ADVANCED PADDLEFARE</tspan></text>
+</svg>

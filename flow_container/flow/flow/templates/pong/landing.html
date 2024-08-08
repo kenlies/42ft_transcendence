@@ -1,7 +1,10 @@
-<h1>Call Of Pong</h1>
+{% load static %}
+<img src="{% static 'callofpong.svg' %}" alt="Call Of Pong">
 
-<a class="page_link" href="#login">login</a>
-<a class="page_link" href="#register">register</a>
+<div id="landing-buttons-container">
+    <a class="page_link" href="#login">Login</a>
+    <a class="page_link" href="#register">Register</a>
+</div>
 
 <script>
     initPageLinks();
