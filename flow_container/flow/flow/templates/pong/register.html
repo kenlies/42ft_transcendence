@@ -20,34 +20,45 @@
         const confirmPassword = document.getElementById('confirm-password');
         const registerError = document.getElementById('register-error');
 
-        try {
-            const token = getCookie('csrftoken');
-            const response = await fetch('http://localhost:8000/api/user', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': token
-                },
-                body: JSON.stringify({
-                    username: username.value,
-                    email: email.value,
-                    password: password.value
-                }),
-            });
+        registerError.innerHTML = '';
+        registerError.classList.remove("show");
+        username.classList.remove("error");
+        email.classList.remove("error");
+        password.classList.remove("error");
+        confirmPassword.classList.remove("error");
 
-            const result = await response.text();
+        if (validateUsername(username, registerError)
+            && validateEmail(email, registerError)
+            && validatePassword(password, confirmPassword, registerError)) {
+            try {
+                const token = getCookie('csrftoken');
+                const response = await fetch('http://localhost:8000/api/user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': token
+                    },
+                    body: JSON.stringify({
+                        username: username.value,
+                        email: email.value,
+                        password: password.value
+                    }),
+                });
 
-            if (response.ok) {
-                changeContainerContent(document.body, 'login');
+                const result = await response.text();
+
+                if (response.ok) {
+                    changeContainerContent(document.body, 'login');
+                }
+                else {
+                    registerError.innerHTML = result;
+                    registerError.classList.add("show");
+                }
             }
-            else {
+            catch (error) {
                 registerError.innerHTML = result;
                 registerError.classList.add("show");
             }
-        }
-        catch (error) {
-            registerError.innerHTML = result;
-            registerError.classList.add("show");
         }
     });
 </script>
