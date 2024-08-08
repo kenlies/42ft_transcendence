@@ -4,6 +4,7 @@
     <input type="email" id="email" name="email" placeholder="E-mail" required>
     <input type="password" id="password" name="password" placeholder="Password" required>
     <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm password" required>
+    <div id="register-error"></div>
     <button type="submit">Register</button>
 </form>
 
@@ -17,6 +18,7 @@
         const email = document.getElementById('email');
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirm-password');
+        const registerError = document.getElementById('register-error');
 
         try {
             const token = getCookie('csrftoken');
@@ -39,11 +41,13 @@
                 changeContainerContent(document.body, 'login');
             }
             else {
-                console.error(result);
+                registerError.innerHTML = result;
+                registerError.classList.add("show");
             }
         }
         catch (error) {
-            console.error('Error during registration:', error);
+            registerError.innerHTML = result;
+            registerError.classList.add("show");
         }
     });
 </script>
