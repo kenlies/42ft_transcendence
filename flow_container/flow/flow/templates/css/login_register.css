@@ -1,0 +1,32 @@
+#register-form,
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2 / 3);
+
+    align-self: center;
+    text-align: center;
+
+    & > h1 {
+        margin: 0 0 10px;
+    }
+
+    & > input[type=text],
+    & > input[type=email],
+    & > input[type=password] {
+        width: 100%;
+        display: block;
+        padding: 10px var(--padding); 
+        box-sizing: border-box;
+        font-family: "Hitmarker Text";
+
+        {% include "css/include/forms.css" %}
+    }
+
+    & > button {
+        width: 100%;
+        cursor: pointer;
+        
+        {% include "css/include/buttons.css" with style="button1" %}
+    }
+}
