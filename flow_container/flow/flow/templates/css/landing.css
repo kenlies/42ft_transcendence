@@ -2,18 +2,18 @@
     display: flex;
     flex-direction: row;
     gap: var(--spacing);
+}
 
-    & > .page_link {
-        display: block;
-        width: 300px;
+.landing-button {
+    display: block;
+    width: 300px;
 
-        {% include "css/include/buttons.css" with style="button1" %}
+    {% include "css/include/buttons.css" with style="button1" %}
 
-        font-family: "Hitmarker VF";
-        font-stretch: 40%;
-        font-size: 1.6em;
-        font-weight: 500;
+    font-family: "Hitmarker VF";
+    font-stretch: 40%;
+    font-size: 1.6em;
+    font-weight: 500;
 
-        padding: 50px var(--padding);
-    }
+    padding: 50px var(--padding);
 }
