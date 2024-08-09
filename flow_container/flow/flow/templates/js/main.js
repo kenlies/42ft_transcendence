@@ -4,18 +4,15 @@ const changeContainerContent = async (container, contentUrl) => {
     container.replaceChildren(document.createRange().createContextualFragment(html));
 }
 
-const initPageLinks = () => {
-    const pageLinks = document.getElementsByClassName('page_link');
-    
-    for (let i = 0; i < pageLinks.length; i++) {
-        pageLinks[i].addEventListener('click',
-            (event) => {
-                event.preventDefault();
-                changeContainerContent(document.body, pageLinks[i].getAttribute('href').substr(1));
-            }
-        );
-    }
+const loadPageHash = () => {
+    if (window.location.hash)
+        changeContainerContent(document.body, window.location.hash.substr(1));
+    else
+        changeContainerContent(document.body, "landing");
 }
+
+addEventListener("load", (event) => { loadPageHash() });
+addEventListener("hashchange", (event) => { loadPageHash() });
 
 function getCookie(name) {
     let cookieValue = null;

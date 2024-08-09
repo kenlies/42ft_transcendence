@@ -49,7 +49,7 @@
                 const result = await response.text();
 
                 if (response.ok) {
-                    changeContainerContent(document.body, 'login');
+                    window.location.hash = 'login'
                 }
                 else {
                     registerError.innerHTML = result;

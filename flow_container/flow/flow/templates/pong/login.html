@@ -33,7 +33,7 @@
             const result = await response.text();
 
             if (response.ok) {
-                changeContainerContent(document.body, 'home');
+                window.location.hash = 'home'
             }
             else {
                 loginError.innerHTML = result;
