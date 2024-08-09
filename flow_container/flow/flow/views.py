@@ -29,8 +29,13 @@ def javascript(request):
 
 @ensure_csrf_cookie
 def content(request, content):
+	no_auth = [
+		'login',
+		'register',
+		'landing',
+	]
 	if (request.method == 'GET'):
-		if content == 'login' or content == 'register' or request.user.is_authenticated:
+		if content in no_auth or request.user.is_authenticated:
 			try:
 				template = loader.get_template('pong/' + content + '.html')
 			except:
