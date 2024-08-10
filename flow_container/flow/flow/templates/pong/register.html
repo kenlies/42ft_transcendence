@@ -8,12 +8,12 @@
 </form>
 
 <script>
+{
     const registerForm = document.getElementById('register-form');
+    const registerError = document.getElementById('register-error');
 
     registerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        const registerError = document.getElementById('register-error');
 
         try {
             const response = await fetch('/api/logout');
@@ -30,6 +30,7 @@
             registerError.innerHTML = error;
         }
     });
+}
 </script>
 
 {% else %}
@@ -45,16 +46,16 @@
 </form>
 
 <script>
+{
     const registerForm = document.getElementById('register-form');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm-password');
+    const registerError = document.getElementById('register-error');
 
     registerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        const username = document.getElementById('username');
-        const email = document.getElementById('email');
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirm-password');
-        const registerError = document.getElementById('register-error');
 
         registerError.innerHTML = '';
         registerError.classList.remove("show");
@@ -98,6 +99,7 @@
             }
         }
     });
+}
 </script>
 
 {% endif %}

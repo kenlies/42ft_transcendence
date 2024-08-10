@@ -8,12 +8,12 @@
 </form>
 
 <script>
+{
     const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        const loginError = document.getElementById('login-error');
 
         try {
             const response = await fetch('/api/logout');
@@ -30,6 +30,7 @@
             loginError.innerHTML = error;
         }
     });
+}
 </script>
 
 {% else %}
@@ -43,14 +44,14 @@
 </form>
 
 <script>
+{
     const loginForm = document.getElementById('login-form');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+    const loginError = document.getElementById('login-error');
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        const username = document.getElementById('username');
-        const password = document.getElementById('password');
-        const loginError = document.getElementById('login-error');
 
         try {
             const token = getCookie('csrftoken');
@@ -81,6 +82,7 @@
             loginError.classList.add("show");
         }
     });
+}
 </script>
 
 {% endif %}
