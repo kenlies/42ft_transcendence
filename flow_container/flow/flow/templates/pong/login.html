@@ -1,3 +1,39 @@
+{% if user %}
+
+<form id="login-form">
+    <h1>Log in</h1>
+    <div id="login-error" class="show">Already logged in.</div>
+    <button type="submit">Log out</button>
+    <a class="button" href="#home">Continue</a>
+</form>
+
+<script>
+    const loginForm = document.getElementById('login-form');
+
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const loginError = document.getElementById('login-error');
+
+        try {
+            const response = await fetch('/api/logout');
+            const result = await response.text();
+
+            if (response.ok) {
+                loadPageHash();
+            }
+            else {
+                loginError.innerHTML = result;
+            }
+        }
+        catch (error) {
+            loginError.innerHTML = error;
+        }
+    });
+</script>
+
+{% else %}
+
 <form id="login-form">
     <h1>Log in</h1>
     <input type="text" id="username" name="username" placeholder="User name" required>
@@ -46,3 +82,5 @@
         }
     });
 </script>
+
+{% endif %}

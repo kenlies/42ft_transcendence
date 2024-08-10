@@ -23,8 +23,10 @@
         {% include "css/include/forms.css" %}
     }
 
+    & > .button,
     & > button {
         width: 100%;
+        box-sizing: border-box;
         cursor: pointer;
         
         {% include "css/include/buttons.css" with style="button1" %}

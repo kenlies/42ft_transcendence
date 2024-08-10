@@ -1,3 +1,39 @@
+{% if user %}
+
+<form id="register-form">
+    <h1>Register</h1>
+    <div id="register-error" class="show">Can not register while logged in.</div>
+    <button type="submit">Log out</button>
+    <a class="button" href="#home">Continue</a>
+</form>
+
+<script>
+    const registerForm = document.getElementById('register-form');
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const registerError = document.getElementById('register-error');
+
+        try {
+            const response = await fetch('/api/logout');
+            const result = await response.text();
+
+            if (response.ok) {
+                loadPageHash();
+            }
+            else {
+                registerError.innerHTML = result;
+            }
+        }
+        catch (error) {
+            registerError.innerHTML = error;
+        }
+    });
+</script>
+
+{% else %}
+
 <form id="register-form">
     <h1>Register</h1>
     <input type="text" id="username" name="username" placeholder="User name" required>
@@ -63,3 +99,5 @@
         }
     });
 </script>
+
+{% endif %}
