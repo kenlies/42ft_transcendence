@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,5 +9,10 @@
     <script type="text/javascript" src="/pong.js"></script>
 </head>
 <body>
+    <noscript>
+        <img src="{% static 'callofpong.svg' %}" alt="Call Of Pong">
+        <p>This page uses JavaScript, which is unsupported or disabled on your web browser.</p>
+        <p>Enable JavaScript support, or use a web browser that supports it to continue.</p>
+    </noscript>
 </body>
 </html>
