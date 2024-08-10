@@ -7,17 +7,7 @@ from api.models import Account
 @ensure_csrf_cookie
 def index(request):
 	template = loader.get_template('pong/index.html')
-	context = {}
-	if request.user.is_authenticated:
-		try:
-			context = {
-				"user": Account.objects.get(user=request.user)
-			}
-		except:
-			context = {
-				"user": None
-			}
-	return HttpResponse(template.render(context))
+	return HttpResponse(template.render())
 
 @ensure_csrf_cookie
 def stylesheet(request):
