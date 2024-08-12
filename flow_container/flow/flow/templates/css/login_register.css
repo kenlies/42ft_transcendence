@@ -1,3 +1,11 @@
+#registe-form {
+    width: 350px;
+}
+
+#login-form {
+    width: 250px;
+}
+
 #register-form,
 #login-form {
     display: flex;
