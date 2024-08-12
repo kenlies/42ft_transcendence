@@ -27,7 +27,7 @@ def matchmaker_view(request):
 				if (matchmakerResponse.status_code == 200):
 					toSendToRoomId = matchmakerResponse.json()['game_room']
 					retData = {
-						"url": "ws://" + os.environ.get("HOST_IP") + ':8001/match/connect/' + gameMode + '/' + toSendToRoomId,
+						"url": "wss://" + os.environ.get("HOST_IP") + ':443/match/connect/' + gameMode + '/' + toSendToRoomId,
 						"ready": matchmakerResponse.json()['ready']
 					}
 					return HttpResponse(json.dumps(retData), status=200)
