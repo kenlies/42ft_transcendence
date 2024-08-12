@@ -1,0 +1,29 @@
+{% load static %}
+
+--border: 2px dashed rgba(197, 197, 197, 0.15);
+--border-image-width: 15px;
+
+padding-top: var(--spacing);
+padding-bottom: var(--spacing);
+
+border: none;
+border-top: var(--border);
+border-bottom: var(--border);
+
+position: relative;
+&::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    
+    border-image-source: url({% static 'corner-border-transp-rev.svg' %});
+    border-image-slice: 50%;
+    border-image-width: var(--border-image-width);
+    border-image-outset: var(--border-image-width)
+                         calc(var(--border-image-width) + var(--spacing));
+}

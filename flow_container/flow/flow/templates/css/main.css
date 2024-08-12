@@ -40,4 +40,6 @@ h1 {
 
 noscript {
     text-align: center;
+
+    {% include "css/include/borders.css" %}
 }

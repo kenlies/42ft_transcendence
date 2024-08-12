@@ -39,7 +39,7 @@ position: relative;
     bottom: 0px;
     right: 0px;
 
-    border-image: url({% static 'corner.svg' %}) 50% / 15px / 40px;
+    border-image: url({% static 'corner-accent.svg' %}) 50% / 15px / 40px;
 
     transition-duration: var(--scale-duration);
     transition-property: border-image-outset, opacity;

@@ -1,11 +1,13 @@
 {% load static %}
-<img src="{% static 'callofpong.svg' %}" alt="Call Of Pong">
+<div id="landing-container">
+    <img src="{% static 'callofpong.svg' %}" alt="Call Of Pong">
 
-<div id="landing-buttons-container">
-    {% if user %}
-        <a class="landing-button" href="#home">Continue</a>
-    {% else %}
-        <a class="landing-button" href="#login">Login</a>
-        <a class="landing-button" href="#register">Register</a>
-    {% endif %}
+    <div id="landing-buttons-container">
+        {% if user %}
+            <a class="landing-button" href="#home">Continue</a>
+        {% else %}
+            <a class="landing-button" href="#login">Login</a>
+            <a class="landing-button" href="#register">Register</a>
+        {% endif %}
+    </div>
 </div>
