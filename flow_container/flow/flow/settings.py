@@ -26,6 +26,11 @@ SECRET_KEY = 'django-insecure-m)!7k%m38h4r8p8$*we@-+pe85_lopd)%bj)$6#^rnt=0o@^s3
 DEBUG = True
 
 ALLOWED_HOSTS = [os.environ.get("HOST_IP"), "flow"]
+CSRF_TRUSTED_ORIGINS = ['https://' + os.environ.get("HOST_IP")]
+CSRF_ALLOWED_ORIGINS = ['https://' + os.environ.get("HOST_IP")]
+CORS_ORIGINS_WHITELIST = ['https://' + os.environ.get("HOST_IP")]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
