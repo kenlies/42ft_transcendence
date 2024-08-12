@@ -1,4 +1,17 @@
 services:
+
+  proxy:
+    build: ./proxy_container
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      flow:
+        condition: service_healthy
+      matchmaker:
+        condition: service_healthy
+    restart: unless-stopped
+
   flow:
     build: ./flow_container
     ports:
