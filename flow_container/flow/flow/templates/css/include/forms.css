@@ -1,5 +1,5 @@
 color: var(--fg-color);
-outline: 3px solid var(--border-color);
+outline: 2px solid var(--border-color);
 border: none;
 
 background-clip: padding-box;
