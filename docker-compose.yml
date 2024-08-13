@@ -14,8 +14,6 @@ services:
 
   flow:
     build: ./flow_container
-    ports:
-      - "8000:8000"
     env_file:
       - ./.env
     depends_on:
@@ -46,8 +44,6 @@ services:
 
   matchmaker:
     build: ./matchmaker_container
-    ports:
-      - "8001:8001"
     env_file:
       - ./.env
     depends_on:
