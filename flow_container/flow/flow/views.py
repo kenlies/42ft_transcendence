@@ -29,6 +29,9 @@ def javascript(request):
 
 @ensure_csrf_cookie
 def content(request, content):
+	no_allow = [
+		'index',
+	]
 	no_auth = [
 		'login',
 		'register',
@@ -36,7 +39,7 @@ def content(request, content):
 	]
 	if (request.method == 'GET'):
 		context = {}
-		if content in no_auth or request.user.is_authenticated:
+		if (content in no_auth or request.user.is_authenticated) and content not in no_allow:
 			try:
 				context['user'] = Account.objects.get(user=request.user)
 			except:
