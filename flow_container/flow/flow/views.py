@@ -35,13 +35,18 @@ def content(request, content):
 		'landing',
 	]
 	if (request.method == 'GET'):
+		context = {}
 		if content in no_auth or request.user.is_authenticated:
+			try:
+				context['user'] = Account.objects.get(user=request.user)
+			except:
+				context['user'] = None
 			try:
 				template = loader.get_template('pong/' + content + '.html')
 			except:
 				return HttpResponse('Content not found', status=404)
 		else:
 			return HttpResponse('Unauthorized', status=401)
-		return HttpResponse(template.render())
+		return HttpResponse(template.render(context))
 	else:
 		return HttpResponse('Method not allowed', status=405)
