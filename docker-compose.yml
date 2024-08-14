@@ -3,8 +3,7 @@ services:
   proxy:
     build: ./proxy_container
     ports:
-      - "80:80"
-      - "443:443"
+      - "8008:8008"
     depends_on:
       flow:
         condition: service_healthy
