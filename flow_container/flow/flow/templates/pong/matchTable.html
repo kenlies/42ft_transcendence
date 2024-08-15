@@ -1,0 +1,75 @@
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Opponent</th>
+            <th>Score</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if targetUser %}
+            {% for match in matchData %}
+            <tr>
+                <td>{{ match.matchDate }}</td>
+                <td>
+                    {% if match.matchWinner == targetUser.user.username %}
+                        {{ match.matchLoserUsername }}
+                    {% else %}
+                        {{ match.matchWinnerUsername }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if match.matchWinner == targetUser.user.username %}
+                        {{ match.matchWinnerScore }} - {{ match.matchLoserScore }}
+                    {% else %}
+                        {{ match.matchLoserScore }} - {{ match.matchWinnerScore }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if match.matchWinner == targetUser.user.username %}
+                        Win
+                    {% else %}
+                        Loss
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No matches found.</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            {% for match in matchData %}
+            <tr>
+                <td>{{ match.matchDate }}</td>
+                <td>
+                    {% if match.matchWinner == user.user.username %}
+                        {{ match.matchLoserUsername }}
+                    {% else %}
+                        {{ match.matchWinnerUsername }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if match.matchWinner == user.user.username %}
+                        {{ match.matchWinnerScore }} - {{ match.matchLoserScore }}
+                    {% else %}
+                        {{ match.matchLoserScore }} - {{ match.matchWinnerScore }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if match.matchWinner == user.user.username %}
+                        Win
+                    {% else %}
+                        Loss
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No matches found.</td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
