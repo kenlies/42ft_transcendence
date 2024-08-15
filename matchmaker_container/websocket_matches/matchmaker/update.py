@@ -1,5 +1,6 @@
 from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 import random
+import math
 
 async def update_players(self):
 	while not self.player1_update_queue.empty(): # check that the bottom and top dont go over court height
@@ -42,8 +43,8 @@ async def update_ball(self):
 		self.ballDeltaY = 0.0
 	randomFactor = random.uniform(-self.ballSpeed, self.ballSpeed)
 	if (self.ball_x <= self.player1Paddle_x and self.ball_y >= self.player1Paddle_y_top and self.ball_y <= self.player1Paddle_y_top + PADDLE_HEIGHT):
-		self.ballDeltaX = -self.ballDeltaX
 		self.ballDeltaY = randomFactor
+		self.ballDeltaX = math.sqrt((self.ballSpeed ** 2) - (self.ballDeltaY ** 2))
 	elif (self.ball_x >= self.player2Paddle_x and self.ball_y >= self.player2Paddle_y_top and self.ball_y <= self.player2Paddle_y_top + PADDLE_HEIGHT):
-		self.ballDeltaX = -self.ballDeltaX
 		self.ballDeltaY = randomFactor
+		self.ballDeltaX = math.sqrt((self.ballSpeed ** 2) - (self.ballDeltaY ** 2)) * -1
