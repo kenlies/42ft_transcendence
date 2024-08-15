@@ -212,24 +212,23 @@ class MatchConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data): # handle key presses up and down
 		data = json.loads(text_data)
 		if ('type' in data):
-			if (data['type'] == 'key_press' and 'key' in data):
-				if (data['key'] == 'up' or data['key'] == 'down'):
-					if (self.role == 1):
-						await self.channel_layer.group_send(
-							self.room_group_name,
-							{
-								'type': 'key_press',
-								'player1Paddle_y_change': data["key"]
-							}
-						)
-					else:
-						await self.channel_layer.group_send(
-							self.room_group_name,
-							{
-								'type': 'key_press',
-								'player2Paddle_y_change': data["key"]
-							}
-						)
+			if (data['type'] == 'paddle_position' and 'value' in data):
+				if (self.role == 1):
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'paddle_position',
+							'player1Paddle_y_position': data["value"]
+						}
+					)
+				else:
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'paddle_position',
+							'player2Paddle_y_position': data["value"]
+						}
+					)
 			elif (data['type'] == 'room_data_request'):
 				theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 				await self.channel_layer.group_send(
@@ -377,12 +376,12 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			'sender': event['sender']
 		}))
 	
-	async def key_press(self, event):
+	async def paddle_position(self, event):
 		if (self.role == 1 and self.loopTaskActive):
-			if 'player1Paddle_y_change' in event:
-				self.player1_update_queue.put(event['player1Paddle_y_change'])
-			elif 'player2Paddle_y_change' in event:
-				self.player2_update_queue.put(event['player2Paddle_y_change'])
+			if 'player1Paddle_y_position' in event:
+				self.player1_update_queue.put(event['player1Paddle_y_position'])
+			elif 'player2Paddle_y_position' in event:
+				self.player2_update_queue.put(event['player2Paddle_y_position'])
 
 	async def game_update(self, event):
 		positions = event['positions']

@@ -4,28 +4,20 @@ import random
 async def update_players(self):
 	while not self.player1_update_queue.empty(): # check that the bottom and top dont go over court height
 		temp = self.player1_update_queue.get()
-		if (temp == 'up'):
-			if (self.player1Paddle_y_top - self.paddleSpeed >= 0):
-				self.player1Paddle_y_top -= self.paddleSpeed
-			else:
-				self.player1Paddle_y_top = 0
-		elif (temp == 'down'):
-			if (self.player1Paddle_y_top + PADDLE_HEIGHT + self.paddleSpeed <= self.courtHeight):
-				self.player1Paddle_y_top += self.paddleSpeed
-			else:
-				self.player1Paddle_y_top = self.courtHeight - PADDLE_HEIGHT
+		if (temp < 0):
+			self.player1Paddle_y_top = 0
+		elif (temp + PADDLE_HEIGHT > 1):
+			self.player1Paddle_y_top = 1 - PADDLE_HEIGHT
+		else:
+			self.player1Paddle_y_top = temp
 	while not self.player2_update_queue.empty():
 		temp = self.player2_update_queue.get()
-		if (temp == 'up'):
-			if (self.player2Paddle_y_top - self.paddleSpeed >= 0):
-				self.player2Paddle_y_top -= self.paddleSpeed
-			else:
-				self.player2Paddle_y_top = 0
-		elif (temp == 'down'):
-			if (self.player2Paddle_y_top + PADDLE_HEIGHT + self.paddleSpeed <= self.courtHeight):
-				self.player2Paddle_y_top += self.paddleSpeed
-			else:
-				self.player2Paddle_y_top = self.courtHeight - PADDLE_HEIGHT
+		if (temp < 0):
+			self.player2Paddle_y_top = 0
+		elif (temp + PADDLE_HEIGHT > 1):
+			self.player2Paddle_y_top = 1 - PADDLE_HEIGHT
+		else:
+			self.player2Paddle_y_top = temp
 
 async def update_ball(self):
 	self.ball_x += self.ballDeltaX
