@@ -7,13 +7,13 @@ import asyncio
 from queue import Queue
 import requests
 import os
+import random
 from django.utils import timezone
 
 from matchmaker.update import update_players, update_ball
 from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH, INVITE_URL
 
 channel_layer = get_channel_layer()
-matchDate = None
 
 class MatchConsumer(AsyncWebsocketConsumer):
 
@@ -27,7 +27,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 	#-Note: The client that connects first, will not be slowed down by the game loop. It runs in the background and operates independently of the client
 
 	#### INITIATE MATCH FUNCTIONS ####
-	async def init_match(self, ballSpeed, paddleSpeed):
+	async def init_match(self, ballSpeed, paddleSpeed, player1, player2):
 		self.courtHeight = COURT_HEIGHT
 		self.courtWidth = COURT_WIDTH
 		self.paddleHeight = PADDLE_HEIGHT
@@ -39,6 +39,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 		self.ball_x = COURT_WIDTH / 2
 		self.ballDeltaY = 0.0
 		self.ballDeltaX = self.ballSpeed
+		self.ballRandFact = random.uniform(-self.ballSpeed, self.ballSpeed)
 
 		self.player1Paddle_y_top = (COURT_HEIGHT - self.paddleHeight) / 2
 		self.player1Paddle_x = 0.0
@@ -51,6 +52,9 @@ class MatchConsumer(AsyncWebsocketConsumer):
 
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
+
+		self.player1_username = player1
+		self.player2_username = player2
 
 	async def initiate_start_match(self): ## this calls the start_match function below in all client instances
 		await self.channel_layer.group_send(
@@ -69,9 +73,12 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				'ball_x': self.ball_x,
 				'ballDeltaY' : self.ballDeltaY,
 				'ballDeltaX' : self.ballDeltaX,
+				'ballRandFact' : self.ballRandFact,
 				"ballSpeed": self.ballSpeed,
 				'goalsPlayer1': self.goalsPlayer1,
-				'goalsPlayer2': self.goalsPlayer2
+				'goalsPlayer2': self.goalsPlayer2,
+				'player1_username' : self.player1_username,
+				'player2_username' : self.player2_username
 			}
 		)
 
@@ -89,6 +96,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				"ball_x": self.ball_x,
 				"ballDeltaY" : self.ballDeltaY,
 				"ballDeltaX" : self.ballDeltaX,
+				"ballRandFact" : self.ballRandFact,
 				"player1Paddle_y_top": self.player1Paddle_y_top,
 				"player2Paddle_y_top": self.player2Paddle_y_top,
 				"goalsPlayer1": self.goalsPlayer1,
@@ -276,14 +284,14 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						if theMatchObject.ready:
 							ballSpeed = data['ballSpeed']
 							paddleSpeed = data['paddleSpeed']
+							player1 = theMatchObject.player1
+							player2 = theMatchObject.player2
 							theMatchObject.hasCommenced = True
 							await sync_to_async(theMatchObject.save)()
-							await self.init_match(ballSpeed, paddleSpeed)
+							await self.init_match(ballSpeed, paddleSpeed, player1, player2)
 							await self.initiate_start_match()#Twice to ensure sync
 							asyncio.sleep(0.5)
 							await self.initiate_start_match()
-							global matchDate
-							matchDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
 						else:
@@ -298,7 +306,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						'secret': os.environ.get("MATCHMAKER_SECRET", "default_secret"),
 						'sender': theMatchObject.player1,
 						'receiver': data['receiver'],
-						'url': '/match/connect/online/' + theMatchObject.roomId
+						'url': INVITE_URL + theMatchObject.roomId
 					}
 					response = requests.post(os.environ.get("FLOW_API_URL", "http://localhost:8000") + "/api/invite", data=json.dumps(data))
 					if response.status_code != 201:
@@ -421,7 +429,10 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			'ball_y': event['ball_y'],
 			'ballDeltaY': event['ballDeltaY'],
 			'ballDeltaX': event['ballDeltaX'],
+			'ballRandFact' : event['ballRandFact'],
 			'ballSpeed': event['ballSpeed'],
 			'goalsPlayer1': event['goalsPlayer1'],
-			'goalsPlayer2': event['goalsPlayer2']
+			'goalsPlayer2': event['goalsPlayer2'],
+			'player1_username' : event['player1_username'],
+			'player2_username' : event['player2_username']
 		}))

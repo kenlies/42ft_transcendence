@@ -1,0 +1,33 @@
+
+<div class="grid-container">
+  <div class="player-container"></div>
+  <div id="game-container"></div>
+  <div class="settings-container" id="settings">
+    <div class="settings-grid-item-1">
+      <div class="speed-slide-container">Speed
+        <input type="range" min="1" max="50" value="25" class="slider" id="myRange">
+        <div id="value"></div>
+      </div>
+    </div>
+    <div class="settings-grid-item-2">
+      <div class="invite-text">Invite a friend!</div>
+      <input type="text" class="invite-input" placeholder="Friends username..." />
+      <button type="submit" class="button invite-button">invite</button>
+    </div>
+    <div class="settings-grid-item-3">
+      <button type="submit" class="button start-button">start game</button>
+    </div>
+  </div>
+
+  <div class="chat-container">
+    <div class="chat-messages">
+    </div>
+
+    <form class="chat-input-form">
+      <input type="text" class="chat-input" placeholder="bro..." />
+      <button type="submit" class="button send-button">send it bro</button>
+    </form>
+  </div>
+</div>
+<script type="text/javascript" src="/lobby.js?gameMode=online"></script>
+
