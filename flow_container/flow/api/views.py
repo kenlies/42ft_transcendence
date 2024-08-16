@@ -21,7 +21,7 @@ def matchmaker_view(request):
 				matchmakerUrl = "http://matchmaker:8001/match/initiate/" + gameMode
 				data = {
 					"secret": os.environ.get("MATCHMAKER_SECRET"),
-					"username": request.GET.get('username')
+					"username": request.user.username
 				}
 				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))
 				if (matchmakerResponse.status_code == 200):
