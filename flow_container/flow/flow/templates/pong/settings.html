@@ -1,0 +1,58 @@
+<div class="container">
+    <div class="main-content box">
+        <div class="buttons">
+            <button onclick="showSection('user-info')" class="active">User Information</button>
+            <button onclick="showSection('change-avatar')">Change Avatar</button>
+            <button onclick="showSection('change-username')">Change Username</button>
+            <button onclick="showSection('change-email')">Change Email</button>
+            <button onclick="showSection('change-password')">Change Password</button>
+        </div>
+
+        <!-- User Information -->
+        <div id="user-info">
+            <h3>User Information</h3>
+            {% if user %}
+                <img src="/api/avatar?username={{ user.user.username }}" class="profile-pic" alt="User Avatar">
+            {% endif %}
+            <p><strong>{{ user.user.username }}</strong></p>
+            <p><strong>{{ user.user.email }}</strong></p>
+        </div>
+
+        <!-- Change Avatar -->
+        <form id="change-avatar" class="hidden" enctype="multipart/form-data">
+            <h3>Change Avatar</h3>
+            {% if user %}
+                <img src="/api/avatar?username={{ user.user.username}}" class="profile-pic" alt="User Avatar">
+            {% endif %}
+            <input type="file" id="new-avatar" name="new-avatar" accept="image/*">
+            <div id="avatar-error"></div>
+            <button type="submit">Upload Avatar</button>
+        </form>
+
+        <!-- Change Username -->
+        <form id="change-username" class="hidden">
+            <h3>Change Username</h3>
+            <input type="username" id="new-username" name="new-username" placeholder="Enter new username" required>
+            <div id="username-error"></div>
+            <button type="submit">Change Username</button>
+        </form>
+
+        <!-- Change Email -->
+        <form id="change-email" class="hidden">
+            <h3>Change Email</h3>
+            <input type="email" id="new-email" name="new-email" placeholder="Enter new email" required>
+            <div id="email-error"></div>
+            <button type="submit">Change Email</button>
+        </form>
+
+        <!-- Change Password -->
+        <form id="change-password" class="hidden">
+            <h3>Change Password</h3>
+            <input type="password" id="current-password" name="current-password" placeholder="Enter current password" required>
+            <input type="password" id="new-password" name="new-password" placeholder="Enter new password" required>
+            <input type="password" id="confirmNew-password" name="confirmNew-password" placeholder="Confirm new password" required>
+            <div id="password-error"></div>
+            <button type="submit">Change Password</button>
+        </form>
+    </div>
+</div>
