@@ -1,20 +1,19 @@
+import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
 from .models import OnlineMatch
 from asgiref.sync import sync_to_async
-from queue import Queue
 import asyncio
-import json
-import random
+from queue import Queue
 import requests
 import os
+from django.utils import timezone
 
-# Define constants
-COURT_HEIGHT = 1.0
-COURT_WIDTH = 1.0
-PADDLE_HEIGHT = 0.1
+from matchmaker.update import update_players, update_ball
+from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH, INVITE_URL
 
 channel_layer = get_channel_layer()
+matchDate = None
 
 class MatchConsumer(AsyncWebsocketConsumer):
 
@@ -53,7 +52,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
-	async def initiate_start_match(self): # this calls the start_match function below in all client instances
+	async def initiate_start_match(self): ## this calls the start_match function below in all client instances
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
@@ -80,58 +79,11 @@ class MatchConsumer(AsyncWebsocketConsumer):
 	############ GAME LOGIC ############
 	#-Utilized by host instance
 	#-Update player positions and ball position and echo to all clients
-	async def update_players(self):
-		if (self.role == 1):
-			while not self.player1_update_queue.empty(): # check that the bottom and top dont go over court height
-				temp = self.player1_update_queue.get()
-				if (temp == 'up'):
-					if (self.player1Paddle_y_top - self.paddleSpeed >= 0):
-						self.player1Paddle_y_top -= self.paddleSpeed
-				elif (temp == 'down'):
-					if (self.player1Paddle_y_top + PADDLE_HEIGHT + self.paddleSpeed < self.courtHeight):
-						self.player1Paddle_y_top += self.paddleSpeed
-			while not self.player2_update_queue.empty():
-				temp = self.player2_update_queue.get()
-				if (temp == 'up'):
-					if (self.player2Paddle_y_top - self.paddleSpeed >= 0):
-						self.player2Paddle_y_top -= self.paddleSpeed
-				elif (temp == 'down'):
-					if (self.player2Paddle_y_top + PADDLE_HEIGHT + self.paddleSpeed <= self.courtHeight):
-						self.player2Paddle_y_top += self.paddleSpeed
-
-	async def update_ball(self):
-		self.ball_x += self.ballDeltaX
-		self.ball_y += self.ballDeltaY
-		if (self.ball_y <= 0):
-			self.ballDeltaY = -self.ballDeltaY
-			self.ball_y = 0
-		elif (self.ball_y >= 1):
-			self.ballDeltaY = -self.ballDeltaY
-			self.ball_y = 1
-		if (self.ball_x <= 0 and self.ball_x != self.player1Paddle_x and (self.ball_y < self.player1Paddle_y_top or self.ball_y > self.player1Paddle_y_top + PADDLE_HEIGHT)):
-			self.goalsPlayer2 += 1
-			self.ball_x = COURT_WIDTH / 2
-			self.ball_y = COURT_HEIGHT / 2
-			self.ballDeltaX = -self.ballSpeed
-			self.ballDeltaY = 0.0
-		elif (self.ball_x >= 1 and self.ball_x != self.player2Paddle_x and (self.ball_y < self.player2Paddle_y_top or self.ball_y > self.player2Paddle_y_top + PADDLE_HEIGHT)):
-			self.goalsPlayer1 += 1
-			self.ball_x = COURT_WIDTH / 2
-			self.ball_y = COURT_HEIGHT / 2
-			self.ballDeltaX = self.ballSpeed
-			self.ballDeltaY = 0.0
-		randomFactor = random.uniform(-self.ballSpeed, self.ballSpeed)
-		if (self.ball_x <= self.player1Paddle_x and self.ball_y >= self.player1Paddle_y_top and self.ball_y <= self.player1Paddle_y_top + PADDLE_HEIGHT):
-			self.ballDeltaX = -self.ballDeltaX
-			self.ballDeltaY = randomFactor
-		elif (self.ball_x >= self.player2Paddle_x and self.ball_y >= self.player2Paddle_y_top and self.ball_y <= self.player2Paddle_y_top + PADDLE_HEIGHT):
-			self.ballDeltaX = -self.ballDeltaX
-			self.ballDeltaY = randomFactor
 
 	async def pong(self):
 		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5):
-			await self.update_players()
-			await self.update_ball()
+			await update_players(self)
+			await update_ball(self)
 			positions = {
 				"ball_y": self.ball_y,
 				"ball_x": self.ball_x,
@@ -159,7 +111,8 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				}
 			)
 			matchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
-			secret = os.environ.get("MATCHMAKER_SECRET")
+			flowUrl = os.environ.get("FLOW_API_URL", "http://localhost:8000") # send match score data to flow api
+			secret = os.environ.get("MATCHMAKER_SECRET", "default_secret")
 			data = {
 				'secret': secret,
 				'matchId': self.room_name,
@@ -168,7 +121,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				'matchWinnerScore': self.goalsPlayer1 if self.goalsPlayer1 >= 5 else self.goalsPlayer2,
 				'matchLoserScore': self.goalsPlayer2 if self.goalsPlayer1 >= 5 else self.goalsPlayer1
 			}
-			response = requests.post("http://flow:8000/api/match", data=json.dumps(data))
+			response = requests.post(flowUrl + "/api/match", data=json.dumps(data))
 			if response.status_code != 201:
 				print("Error sending match data to flow api")
 			matchObject.hasCommenced = False
@@ -193,12 +146,12 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			await self.accept()
 			self.role = theMatchObject.playerCount
 			theMatchObject.playerCount += 1
-			if (self.role == 2): # handle second player connecting from invite
+			if (self.role == 2):#handle second player connecting from invite
 				theMatchObject.ready = True
 			await sync_to_async(theMatchObject.save)()
 			if self.role == 1:
 				self.loopTaskActive = False
-			if self.role > 2: # handle more than 2 players through invite
+			if self.role > 2:#handle more than 2 players through invite
 				await self.close()
 		except OnlineMatch.DoesNotExist:
 			print("Match object not found")
@@ -212,7 +165,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			matchObjectExists = False
 		try:
 			if matchObjectExists:
-				if theMatchObject.hasCommenced: # if the match has started send game over and record the match to flow api
+				if theMatchObject.hasCommenced: #if the match has started send game over and record the match to flow api
 					await self.channel_layer.group_send(
 						self.room_group_name,
 						{
@@ -220,7 +173,8 @@ class MatchConsumer(AsyncWebsocketConsumer):
 							'winner': 'player1' if self.role == 2 else 'player2'
 						}
 					)
-					secret = os.environ.get("MATCHMAKER_SECRET")
+					flowUrl = os.environ.get("FLOW_API_URL", "http://localhost:8000")
+					secret = os.environ.get("MATCHMAKER_SECRET", "default_secret")
 					data = {
 						'secret': secret,
 						'matchId': self.room_name,
@@ -229,7 +183,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						'matchWinnerScore': 0,
 						'matchLoserScore': 0
 					}
-					response = requests.post("http://flow:8000/api/match", data=json.dumps(data))
+					response = requests.post(flowUrl + "/api/match", data=json.dumps(data))
 					if response.status_code != 201:
 						print("Error sending match data to flow api")
 				await self.channel_layer.group_send(
@@ -238,13 +192,13 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						'type': 'room_closed'
 					}
 				)
-				if (self.role == 1): # player 1 disconnects
+				if (self.role == 1):#player 1 disconnects
 					await sync_to_async(theMatchObject.delete)()
 					if (self.loopTaskActive):
 						self.loopTaskActive = False
 						self.game_loop_task.cancel()
 		
-			# This happens anyway always when disconnecting
+			#This happens anyway always when disconnecting
 			await self.channel_layer.group_discard(
 				self.room_group_name,
 				self.channel_name
@@ -326,9 +280,11 @@ class MatchConsumer(AsyncWebsocketConsumer):
 							theMatchObject.hasCommenced = True
 							await sync_to_async(theMatchObject.save)()
 							await self.init_match(ballSpeed, paddleSpeed)
-							await self.initiate_start_match() # twice to ensure sync
+							await self.initiate_start_match()#Twice to ensure sync
 							asyncio.sleep(0.5)
 							await self.initiate_start_match()
+							global matchDate
+							matchDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
 						else:
@@ -336,10 +292,47 @@ class MatchConsumer(AsyncWebsocketConsumer):
 								'identity': 'error',
 								'message': 'Not enough players to start the match.'
 							}))
+			elif (data['type'] == 'invite' and 'receiver' in data):
+				theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+				if (self.role == 1 and theMatchObject.playerCount == 2):
+					data = {
+						'secret': os.environ.get("MATCHMAKER_SECRET", "default_secret"),
+						'sender': theMatchObject.player1,
+						'receiver': data['receiver'],
+						'url': '/match/connect/online/' + theMatchObject.roomId
+					}
+					response = requests.post(os.environ.get("FLOW_API_URL", "http://localhost:8000") + "/api/invite", data=json.dumps(data))
+					if response.status_code != 201:
+						print("Error sending invite to flow api")
+						return
+					theMatchObject.player2 = data['receiver']
+					await sync_to_async(theMatchObject.save)()
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'live_message',
+							'message': 'Invite has been sent to ' + data['receiver'],
+							'sender': 'System'
+						}
+					)
+				else:
+					await self.send(json.dumps({
+						'identity': 'error',
+						'message': 'Cannot send invite.'
+					}))
+			elif (data['type'] == 'setting_change' and 'value' in data):
+				if (self.role == 1):
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'setting_change',
+							'value': data['value']
+						}
+					)
 			else:
 				await self.send(json.dumps({
 					'identity': 'error',
-					'message': 'Invalid data format'
+					'message': 'Invalid message type'
 				}))
 		else:
 			await self.send(json.dumps({
@@ -355,6 +348,12 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			'identity': 'room_data',
 			'player1': event['player1'],
 			'player2': event['player2']
+		}))
+
+	async def setting_change(self, event):
+		await self.send(json.dumps({
+			'identity': 'setting_change',
+			'value': event['value']
 		}))
 
 	async def room_closed(self, event):
