@@ -31,7 +31,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 		self.courtWidth = COURT_WIDTH
 		self.paddleHeight = PADDLE_HEIGHT
 
-		self.ballSpeed = float(ballSpeed)
+		self.ballSpeed = float(ballSpeed) / 10
 		self.paddleSpeed = float(paddleSpeed)
 
 		self.ball_y = COURT_HEIGHT / 2
@@ -105,7 +105,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 					'positions': positions
 				}
 			)
-			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.01)
 		if (self.goalsPlayer1 >= 5 or self.goalsPlayer2 >= 5):
 			await self.channel_layer.group_send(
 				self.room_group_name,
