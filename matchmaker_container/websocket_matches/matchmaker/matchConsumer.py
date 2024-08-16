@@ -11,7 +11,7 @@ import random
 from django.utils import timezone
 
 from matchmaker.update import update_players, update_ball
-from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH, INVITE_URL
+from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
 channel_layer = get_channel_layer()
 
@@ -306,7 +306,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						'secret': os.environ.get("MATCHMAKER_SECRET", "default_secret"),
 						'sender': theMatchObject.player1,
 						'receiver': data['receiver'],
-						'url': INVITE_URL + theMatchObject.roomId
+						'url': '/match/connect/online/' + theMatchObject.roomId
 					}
 					response = requests.post(os.environ.get("FLOW_API_URL", "http://localhost:8000") + "/api/invite", data=json.dumps(data))
 					if response.status_code != 201:
