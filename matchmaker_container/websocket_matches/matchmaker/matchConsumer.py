@@ -10,10 +10,9 @@ import os
 from django.utils import timezone
 
 from matchmaker.update import update_players, update_ball
-from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH, INVITE_URL
+from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
 channel_layer = get_channel_layer()
-matchDate = None
 
 class MatchConsumer(AsyncWebsocketConsumer):
 
@@ -27,7 +26,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 	#-Note: The client that connects first, will not be slowed down by the game loop. It runs in the background and operates independently of the client
 
 	#### INITIATE MATCH FUNCTIONS ####
-	async def init_match(self, ballSpeed, paddleSpeed):
+	async def init_match(self, ballSpeed, paddleSpeed, player1, player2):
 		self.courtHeight = COURT_HEIGHT
 		self.courtWidth = COURT_WIDTH
 		self.paddleHeight = PADDLE_HEIGHT
@@ -52,6 +51,9 @@ class MatchConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
+		self.player1_username = player1
+		self.player2_username = player2
+
 	async def initiate_start_match(self): ## this calls the start_match function below in all client instances
 		await self.channel_layer.group_send(
 			self.room_group_name,
@@ -71,7 +73,9 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				'ballDeltaX' : self.ballDeltaX,
 				"ballSpeed": self.ballSpeed,
 				'goalsPlayer1': self.goalsPlayer1,
-				'goalsPlayer2': self.goalsPlayer2
+				'goalsPlayer2': self.goalsPlayer2,
+				'player1_username' : self.player1_username,
+				'player2_username' : self.player2_username
 			}
 		)
 
@@ -276,14 +280,14 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						if theMatchObject.ready:
 							ballSpeed = data['ballSpeed']
 							paddleSpeed = data['paddleSpeed']
+							player1 = theMatchObject.player1
+							player2 = theMatchObject.player2
 							theMatchObject.hasCommenced = True
 							await sync_to_async(theMatchObject.save)()
-							await self.init_match(ballSpeed, paddleSpeed)
+							await self.init_match(ballSpeed, paddleSpeed, player1, player2)
 							await self.initiate_start_match()#Twice to ensure sync
 							asyncio.sleep(0.5)
 							await self.initiate_start_match()
-							global matchDate
-							matchDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
 						else:
@@ -423,5 +427,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			'ballDeltaX': event['ballDeltaX'],
 			'ballSpeed': event['ballSpeed'],
 			'goalsPlayer1': event['goalsPlayer1'],
-			'goalsPlayer2': event['goalsPlayer2']
+			'goalsPlayer2': event['goalsPlayer2'],
+			'player1_username' : event['player1_username'],
+			'player2_username' : event['player2_username']
 		}))
