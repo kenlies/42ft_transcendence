@@ -115,8 +115,8 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				}
 			)
 			matchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
-			flowUrl = os.environ.get("FLOW_API_URL", "http://localhost:8000") # send match score data to flow api
-			secret = os.environ.get("MATCHMAKER_SECRET", "default_secret")
+			flowUrl = "http://flow:8000" # send match score data to flow api
+			secret = os.environ.get("MATCHMAKER_SECRET")
 			data = {
 				'secret': secret,
 				'matchId': self.room_name,
@@ -177,7 +177,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 							'winner': 'player1' if self.role == 2 else 'player2'
 						}
 					)
-					flowUrl = os.environ.get("FLOW_API_URL", "http://localhost:8000")
+					flowUrl = "http://flow:8000"
 					secret = os.environ.get("MATCHMAKER_SECRET", "default_secret")
 					data = {
 						'secret': secret,
@@ -304,7 +304,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						'receiver': data['receiver'],
 						'url': '/match/connect/online/' + theMatchObject.roomId
 					}
-					response = requests.post(os.environ.get("FLOW_API_URL", "http://localhost:8000") + "/api/invite", data=json.dumps(data))
+					response = requests.post("http://flow:8000" + "/api/invite", data=json.dumps(data))
 					if response.status_code != 201:
 						print("Error sending invite to flow api")
 						return
