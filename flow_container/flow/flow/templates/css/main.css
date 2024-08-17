@@ -19,6 +19,7 @@
     background-image: radial-gradient(ellipse at 50% 1%, #3a4456 11%, #111112 97%);
     background-size: 140vw 100vh;
     background-position: center;
+    background-attachment: fixed;
     color: var(--fg-color);
     font-family: "Hitmarker Text", sans-serif;
     font-size: 100%;
