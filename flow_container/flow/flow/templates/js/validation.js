@@ -49,3 +49,20 @@ function validatePassword(password, confirmPassword, errorField) {
     errorField.classList.add('show');
     return false;
 }
+
+function validateChatMessage(message, errorField) {
+    if (message.value === '' || message.value == null)
+        return false;
+    else if (/^\s*$/.test(message.value)) {
+        message.value = '';
+        return false;
+    }
+    else if (message.value.length > 500)
+        errorField.innerHTML = "Message must be at most 500 characters long!";
+    else if (message.value.startsWith('GAME_INVITE='))
+        message.value = message.value.substring(12);
+    else
+        return true;
+    errorField.classList.add('show');
+    return false;
+}
