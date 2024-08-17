@@ -43,15 +43,3 @@ def content(request, content):
 		return HttpResponse(template.render(context))
 	else:
 		return HttpResponse('Method not allowed', status=405)
-
-# in development
-import json
-from api.views import matchmaker_view
-@ensure_csrf_cookie
-def startlobby(request):
-	response = matchmaker_view(request)
-	res = response.content.decode('utf-8')
-	context = {}
-	context["response"] = json.loads(res)
-	context["username"] = request.user.username
-	return render(request, 'js/lobby.js', context, content_type="text/javascript")
