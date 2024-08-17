@@ -19,10 +19,13 @@ def matchmaker_view(request):
 			try:
 				gameMode = request.GET.get('gameMode')
 				matchmakerUrl = "http://matchmaker:8001/match/initiate/" + gameMode
-				data = {
-					"secret": os.environ.get("MATCHMAKER_SECRET"),
-					"username": request.user.username
-				}
+				if (gameMode == 'online' or gameMode == 'onlineTournament'):
+					data = {
+						"secret": os.environ.get("MATCHMAKER_SECRET"),
+						"username": request.user.username
+					}
+				else:
+					return HttpResponse('Game mode not found', status=404)
 				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))
 				if (matchmakerResponse.status_code == 200):
 					toSendToRoomId = matchmakerResponse.json()['game_room']

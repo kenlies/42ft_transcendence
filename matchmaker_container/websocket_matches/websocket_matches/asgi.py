@@ -19,12 +19,14 @@ import django
 django.setup()
 
 from matchmaker.onlineMatchConsumer import onlineMatchConsumer
+from matchmaker.onlineTournamentConsumer import onlineTournamentConsumer
 
 
 django_asgi_application = get_asgi_application()
 
 websocket_urlpatterns = [
-	path('match/connect/online/<str:game_room>', onlineMatchConsumer.as_asgi())
+	path('match/connect/online/<str:game_room>', onlineMatchConsumer.as_asgi()),
+	path('match/connect/onlineTournament/<str:game_room>', onlineTournamentConsumer.as_asgi())
 ]
 
 application = ProtocolTypeRouter({
