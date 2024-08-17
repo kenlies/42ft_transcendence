@@ -2,3 +2,5 @@
 {% include "css/main.css" %}
 {% include "css/landing.css" %}
 {% include "css/login_register.css" %}
+{% include "css/game.css" %}
+{% include "css/lobby.css" %}

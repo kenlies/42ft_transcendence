@@ -7,13 +7,13 @@ import asyncio
 from queue import Queue
 import requests
 import os
+import random
 from django.utils import timezone
 
 from matchmaker.update import update_players, update_ball
-from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH, INVITE_URL
+from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
 channel_layer = get_channel_layer()
-matchDate = None
 
 class MatchConsumer(AsyncWebsocketConsumer):
 
@@ -27,18 +27,19 @@ class MatchConsumer(AsyncWebsocketConsumer):
 	#-Note: The client that connects first, will not be slowed down by the game loop. It runs in the background and operates independently of the client
 
 	#### INITIATE MATCH FUNCTIONS ####
-	async def init_match(self, ballSpeed, paddleSpeed):
+	async def init_match(self, ballSpeed, paddleSpeed, player1, player2):
 		self.courtHeight = COURT_HEIGHT
 		self.courtWidth = COURT_WIDTH
 		self.paddleHeight = PADDLE_HEIGHT
 
-		self.ballSpeed = float(ballSpeed)
+		self.ballSpeed = float(ballSpeed) / 10
 		self.paddleSpeed = float(paddleSpeed)
 
 		self.ball_y = COURT_HEIGHT / 2
 		self.ball_x = COURT_WIDTH / 2
 		self.ballDeltaY = 0.0
 		self.ballDeltaX = self.ballSpeed
+		self.ballRandFact = random.uniform(-self.ballSpeed, self.ballSpeed)
 
 		self.player1Paddle_y_top = (COURT_HEIGHT - self.paddleHeight) / 2
 		self.player1Paddle_x = 0.0
@@ -51,6 +52,9 @@ class MatchConsumer(AsyncWebsocketConsumer):
 
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
+
+		self.player1_username = player1
+		self.player2_username = player2
 
 	async def initiate_start_match(self): ## this calls the start_match function below in all client instances
 		await self.channel_layer.group_send(
@@ -69,9 +73,12 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				'ball_x': self.ball_x,
 				'ballDeltaY' : self.ballDeltaY,
 				'ballDeltaX' : self.ballDeltaX,
+				'ballRandFact' : self.ballRandFact,
 				"ballSpeed": self.ballSpeed,
 				'goalsPlayer1': self.goalsPlayer1,
-				'goalsPlayer2': self.goalsPlayer2
+				'goalsPlayer2': self.goalsPlayer2,
+				'player1_username' : self.player1_username,
+				'player2_username' : self.player2_username
 			}
 		)
 
@@ -89,6 +96,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				"ball_x": self.ball_x,
 				"ballDeltaY" : self.ballDeltaY,
 				"ballDeltaX" : self.ballDeltaX,
+				"ballRandFact" : self.ballRandFact,
 				"player1Paddle_y_top": self.player1Paddle_y_top,
 				"player2Paddle_y_top": self.player2Paddle_y_top,
 				"goalsPlayer1": self.goalsPlayer1,
@@ -101,7 +109,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 					'positions': positions
 				}
 			)
-			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.01)
 		if (self.goalsPlayer1 >= 5 or self.goalsPlayer2 >= 5):
 			await self.channel_layer.group_send(
 				self.room_group_name,
@@ -111,8 +119,8 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				}
 			)
 			matchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
-			flowUrl = os.environ.get("FLOW_API_URL", "http://localhost:8000") # send match score data to flow api
-			secret = os.environ.get("MATCHMAKER_SECRET", "default_secret")
+			flowUrl = "http://flow:8000" # send match score data to flow api
+			secret = os.environ.get("MATCHMAKER_SECRET")
 			data = {
 				'secret': secret,
 				'matchId': self.room_name,
@@ -173,7 +181,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 							'winner': 'player1' if self.role == 2 else 'player2'
 						}
 					)
-					flowUrl = os.environ.get("FLOW_API_URL", "http://localhost:8000")
+					flowUrl = "http://flow:8000"
 					secret = os.environ.get("MATCHMAKER_SECRET", "default_secret")
 					data = {
 						'secret': secret,
@@ -276,14 +284,14 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						if theMatchObject.ready:
 							ballSpeed = data['ballSpeed']
 							paddleSpeed = data['paddleSpeed']
+							player1 = theMatchObject.player1
+							player2 = theMatchObject.player2
 							theMatchObject.hasCommenced = True
 							await sync_to_async(theMatchObject.save)()
-							await self.init_match(ballSpeed, paddleSpeed)
+							await self.init_match(ballSpeed, paddleSpeed, player1, player2)
 							await self.initiate_start_match()#Twice to ensure sync
 							asyncio.sleep(0.5)
 							await self.initiate_start_match()
-							global matchDate
-							matchDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
 						else:
@@ -300,7 +308,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
 						'receiver': data['receiver'],
 						'url': '/match/connect/online/' + theMatchObject.roomId
 					}
-					response = requests.post(os.environ.get("FLOW_API_URL", "http://localhost:8000") + "/api/invite", data=json.dumps(data))
+					response = requests.post("http://flow:8000" + "/api/invite", data=json.dumps(data))
 					if response.status_code != 201:
 						print("Error sending invite to flow api")
 						return
@@ -421,7 +429,10 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			'ball_y': event['ball_y'],
 			'ballDeltaY': event['ballDeltaY'],
 			'ballDeltaX': event['ballDeltaX'],
+			'ballRandFact' : event['ballRandFact'],
 			'ballSpeed': event['ballSpeed'],
 			'goalsPlayer1': event['goalsPlayer1'],
-			'goalsPlayer2': event['goalsPlayer2']
+			'goalsPlayer2': event['goalsPlayer2'],
+			'player1_username' : event['player1_username'],
+			'player2_username' : event['player2_username']
 		}))
