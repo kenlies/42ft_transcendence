@@ -14,7 +14,7 @@ from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
 channel_layer = get_channel_layer()
 
-class MatchConsumer(AsyncWebsocketConsumer):
+class onlineMatchConsumer(AsyncWebsocketConsumer):
 
 
 	###################################################################
@@ -153,21 +153,26 @@ class MatchConsumer(AsyncWebsocketConsumer):
 			if (self.role == 2):#handle second player connecting from invite
 				theMatchObject.ready = True
 			await sync_to_async(theMatchObject.save)()
-			if self.role == 1:
-				self.loopTaskActive = False
+			self.loopTaskActive = False
 			if self.role > 2:#handle more than 2 players through invite
 				await self.close()
 		except OnlineMatch.DoesNotExist:
 			print("Match object not found")
 			return
 
-	async def disconnect(self, close_code): # if the role 1 disconnects, the room closes for everyone. if role 2 disconnects, the room remains open but match object ready is set to false and player2 is set to empty and playerCount is decremented
+	async def disconnect(self, close_code):
 		try:
 			theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 			matchObjectExists = True
 		except:
 			matchObjectExists = False
 		try:
+			try:
+				if self.loopTaskActive:
+					self.loopTaskActive = False
+					self.game_loop_task.cancel()
+			except:
+				print("Loop task already ended")
 			if matchObjectExists:
 				if theMatchObject.hasCommenced: #if the match has started send game over and record the match to flow api
 					await self.channel_layer.group_send(
@@ -198,9 +203,6 @@ class MatchConsumer(AsyncWebsocketConsumer):
 				)
 				if (self.role == 1):#player 1 disconnects
 					await sync_to_async(theMatchObject.delete)()
-					if (self.loopTaskActive):
-						self.loopTaskActive = False
-						self.game_loop_task.cancel()
 		
 			#This happens anyway always when disconnecting
 			await self.channel_layer.group_discard(

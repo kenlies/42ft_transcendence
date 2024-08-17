@@ -18,13 +18,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websocket_matches.settings')
 import django
 django.setup()
 
-from matchmaker.matchConsumer import MatchConsumer
+from matchmaker.onlineMatchConsumer import onlineMatchConsumer
 
 
 django_asgi_application = get_asgi_application()
 
 websocket_urlpatterns = [
-	path('match/connect/online/<str:game_room>', MatchConsumer.as_asgi()),
+	path('match/connect/online/<str:game_room>', onlineMatchConsumer.as_asgi())
 ]
 
 application = ProtocolTypeRouter({
