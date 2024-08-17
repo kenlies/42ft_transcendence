@@ -66,18 +66,18 @@ class Game {
         this.canvasContext.fillStyle = this.fgColor;
         this.canvasContext.fillRect(
             0,
-            this.leftpaddleY * this.canvas.height,
+            this.leftpaddleY * this.canvas.height + this.ballRadius,
             this.paddleThic,
-            this.paddleLen * this.canvas.height);
+            this.paddleLen * this.canvas.height - (this.ballRadius * 2));
     }
 
     drawRightpaddle() {
         this.canvasContext.fillStyle = this.fgColor;
         this.canvasContext.fillRect(
             this.canvas.width - this.paddleThic,
-            this.rightpaddleY * this.canvas.height,
+            this.rightpaddleY * this.canvas.height + this.ballRadius,
             this.paddleThic,
-            this.paddleLen * this.canvas.height);
+            this.paddleLen * this.canvas.height - (this.ballRadius * 2));
     }
 
     updatePaddlePosition() {
