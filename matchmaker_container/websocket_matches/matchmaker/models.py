@@ -10,3 +10,15 @@ class OnlineMatch(models.Model):
 
 	player1 = models.CharField(max_length=15)
 	player2 = models.CharField(max_length=15)
+
+class OnlineTournament(models.Model):
+	roomId = models.CharField(max_length=36)
+	playerCount = models.IntegerField(default=1)
+
+	ready = models.BooleanField(default=False)
+	hasCommenced = models.BooleanField(default=False)
+
+	player1 = models.CharField(max_length=15)
+	player2 = models.CharField(max_length=15)
+	player3 = models.CharField(max_length=15)
+	player4 = models.CharField(max_length=15)

@@ -19,10 +19,13 @@ def matchmaker_view(request):
 			try:
 				gameMode = request.GET.get('gameMode')
 				matchmakerUrl = "http://matchmaker:8001/match/initiate/" + gameMode
-				data = {
-					"secret": os.environ.get("MATCHMAKER_SECRET"),
-					"username": request.user.username
-				}
+				if (gameMode == 'online' or gameMode == 'onlineTournament'):
+					data = {
+						"secret": os.environ.get("MATCHMAKER_SECRET"),
+						"username": request.user.username
+					}
+				else:
+					return HttpResponse('Game mode not found', status=404)
 				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))
 				if (matchmakerResponse.status_code == 200):
 					toSendToRoomId = matchmakerResponse.json()['game_room']
@@ -66,6 +69,32 @@ def record_match_view(request):
 			return HttpResponse('Match recorded', status=201)
 		except Exception as e:
 			print(e)
+			return HttpResponse(e, status=500)
+	else:
+		return HttpResponse('Method not allowed', status=405)
+
+@csrf_exempt
+def match_invite_view(request):
+	if (request.method == 'POST'):
+		try:
+			data = json.loads(request.body)
+			if (data.get('secret') != os.environ.get("MATCHMAKER_SECRET")):
+				return HttpResponse('Unauthorized', status=401)
+			sender = Account.objects.get(user__username=data.get('sender')) #The invite comes from mathcmaking service, so user is not available through the request auth. But the username is validated by the matchmaker service.
+			receiver = Account.objects.get(user__username=data.get('receiver'))
+			newMessage = Message(
+				messageContent = "GAME_INVITE=wss://" + os.environ.get("HOST_IP") + ":8008" + data.get('url'),
+				messageSender = sender,
+				messageReceiver = receiver,
+				messageDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+			)
+			newMessage.save()
+			sender.sentMessages.add(newMessage)
+			receiver.receivedMessages.add(newMessage)
+			sender.save()
+			receiver.save()
+			return HttpResponse('Message sent', status=201)
+		except Exception as e:
 			return HttpResponse(e, status=500)
 	else:
 		return HttpResponse('Method not allowed', status=405)
