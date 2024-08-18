@@ -239,7 +239,13 @@ def block_view(request):
 			try:
 				data = json.loads(request.body)
 				user = Account.objects.get(user__username=request.user.username)
-				user.blockedList.add(Account.objects.get(user__username=data.get('blockUsername')))
+				blockUsername = data.get('blockUsername')
+				if user.user.username == blockUsername:
+					return HttpResponse('Cannot block yourself', status=400)
+				for blockedUser in user.blockedList.all():
+					if blockedUser.user.username == blockUsername:
+						return HttpResponse('User already blocked', status=400)
+				user.blockedList.add(Account.objects.get(user__username=blockUsername))
 				user.save()
 				return HttpResponse('User blocked', status=200)
 			except Exception as e:
