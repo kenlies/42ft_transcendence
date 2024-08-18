@@ -63,3 +63,56 @@
         </div>
     </div>
 </div>
+
+<script>
+{
+    const addFriendError = document.getElementById('add-friend-error');
+    const blockUserError = document.getElementById('block-user-error');
+
+    function handleAddFriend() {
+        const friendUsername = document.getElementById('friend-username').value;
+        addFriendError.innerHTML = '';
+        addFriendError.classList.remove("show");
+        if (friendUsername) {
+            addFriend(friendUsername, addFriendError);
+        }
+    }
+
+    function handleBlockUser() {
+        const blockUsername = document.getElementById('block-username').value;
+        blockUserError.innerHTML = '';
+        blockUserError.classList.remove("show");
+        if (blockUsername) {
+            blockUser(blockUsername, blockUserError);
+        }
+    }
+
+    document.getElementById('add-friend-button').addEventListener('click', handleAddFriend);
+    document.getElementById('block-user-button').addEventListener('click', handleBlockUser);
+
+    function showSection(sectionId) {
+        const sections = ['match-history', 'friend-list', 'blocked-list'];
+        sections.forEach(id => {
+            const section = document.getElementById(id);
+            if (section) {
+                if (id === sectionId) {
+                    section.classList.remove('hidden');
+                }
+                else {
+                    section.classList.add('hidden');
+                }
+            }
+        });
+
+        const buttons = document.querySelectorAll('.buttons button');
+        buttons.forEach(button => {
+            button.classList.remove('active');
+        });
+
+        const activeButton = Array.from(buttons).find(button => button.getAttribute('onclick').includes(sectionId));
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+}
+</script>
