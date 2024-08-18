@@ -267,7 +267,13 @@ def friend_view(request):
 			try:
 				data = json.loads(request.body)
 				user = Account.objects.get(user__username=request.user.username)
-				user.friendList.add(Account.objects.get(user__username=data.get('friendUsername')))
+				friendUsername = data.get('friendUsername')
+				if user.user.username == friendUsername:
+					return HttpResponse('Cannot befriend yourself', status=400)
+				for friend in user.friendList.all():
+					if friend.user.username == friendUsername:
+						return HttpResponse('Friend already added', status=400)
+				user.friendList.add(Account.objects.get(user__username=friendUsername))
 				user.save()
 				return HttpResponse('Friend added', status=200)
 			except Exception as e:
