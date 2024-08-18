@@ -1,0 +1,11 @@
+{% for friend in friends %}
+    <div class="friend-list-item">
+        <a class="landing-button" href="#profile-{{ friend.user.username }}">
+            <img src="/api/avatar?username={{ friend.user.username }}" alt="{{ friend.user.username }}" class="friend-pic">
+            <span>{{ friend.user.username }}</span>
+            <span class="status-circle {% if friend.is_online %}online-circle{% else %}offline-circle{% endif %}"></span>
+        </a>
+    </div>
+{% empty %}
+    <p>No friends found.</p>
+{% endfor %}

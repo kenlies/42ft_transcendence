@@ -1,0 +1,240 @@
+{% if targetUser == user or targetUser == None %}
+
+<div class="container">
+    <div class="profile-header box">
+        <div class="profile-left">
+            <p><strong>{{ user.user.username }}</strong></p>
+            <p><strong>{{ user.user.email }}</strong></p>
+            <a class="landing-button" href="#settings">Settings</a>
+        </div>
+
+        <div class="profile-center">
+            {% if user %}
+                <img src="/api/avatar?username={{ user.user.username }}" class="profile-pic" alt="User Avatar">
+            {% endif %}
+        </div>
+
+        <div class="profile-right">
+                <p><strong>Matches Played: </strong>{{ match.count }}</p>
+                <p><strong>Wins: </strong>{{ match.wins }}</p>
+                <p><strong>Losses: </strong>{{ match.losses }}</p>
+        </div>
+    </div>
+
+    <div class="main-content box">
+        <div class="buttons">
+            <button onclick="showSection('match-history')" class="active">Match History</button>
+            <button onclick="showSection('friend-list')">Friend List</button>
+            <button onclick="showSection('blocked-list')">Blocked List</button>
+        </div>
+
+        <!-- Match History -->
+        <div id="match-history">
+            <h2 class="tab-heading">Match History</h2>
+            <div id="match-history-content">
+                {% include 'pong/matchTable.html' %}
+            </div>
+        </div>
+
+        <!-- Friend List -->
+        <div id="friend-list" class="hidden">
+            <h2 class="tab-heading">Friend List</h2>
+            <div>
+                <input type="text" id="friend-username" placeholder="Enter username to add">
+                <div id="add-friend-error"></div>
+                <button id="add-friend-button">Add Friend</button>
+            </div>
+            <div id="friend-list-content">
+                {% include 'pong/friendList.html' %}
+            </div>
+        </div>
+
+        <!-- Blocked Users -->
+        <div id="blocked-list" class="hidden">
+            <h2 class="tab-heading">Blocked Users</h2>
+            <div>
+                <input type="text" id="block-username" placeholder="Enter username to block">
+                <div id="block-user-error"></div>
+                <button id="block-user-button">Block</button>
+            </div>
+            <div id="blocked-list-content">
+                {% include 'pong/blockedUsersList.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+{
+    const addFriendError = document.getElementById('add-friend-error');
+    const blockUserError = document.getElementById('block-user-error');
+
+    function handleAddFriend() {
+        const friendUsername = document.getElementById('friend-username').value;
+        addFriendError.innerHTML = '';
+        addFriendError.classList.remove("show");
+        if (friendUsername) {
+            addFriend(friendUsername, addFriendError);
+        }
+    }
+
+    function handleBlockUser() {
+        const blockUsername = document.getElementById('block-username').value;
+        blockUserError.innerHTML = '';
+        blockUserError.classList.remove("show");
+        if (blockUsername) {
+            blockUser(blockUsername, blockUserError);
+        }
+    }
+
+    document.getElementById('add-friend-button').addEventListener('click', handleAddFriend);
+    document.getElementById('block-user-button').addEventListener('click', handleBlockUser);
+
+    function showSection(sectionId) {
+        const sections = ['match-history', 'friend-list', 'blocked-list'];
+        sections.forEach(id => {
+            const section = document.getElementById(id);
+            if (section) {
+                if (id === sectionId) {
+                    section.classList.remove('hidden');
+                }
+                else {
+                    section.classList.add('hidden');
+                }
+            }
+        });
+
+        const buttons = document.querySelectorAll('.buttons button');
+        buttons.forEach(button => {
+            button.classList.remove('active');
+        });
+
+        const activeButton = Array.from(buttons).find(button => button.getAttribute('onclick').includes(sectionId));
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+}
+</script>
+
+{% else %}
+
+<div class="container">
+    <div class="profile-header box">
+        <div class="profile-left">
+            <p><strong>{{ targetUser.user.username }}</strong></p>
+            <p>{{ targetUser.user.email }}</p>
+        </div>
+
+        <div class="profile-center">
+            {% if targetUser %}
+                <img src="/api/avatar?username={{ targetUser.user.username }}" class="profile-pic" alt="User Avatar">
+            {% endif %}
+        </div>
+
+        <div class="profile-right">
+                <p><strong>Matches Played: </strong>{{ match.count }}</p>
+                <p><strong>Wins: </strong>{{ match.wins }}</p>
+                <p><strong>Losses: </strong>{{ match.losses }}</p>
+        </div>
+    </div>
+
+    <div class="main-content box">
+        <div class="buttons">
+            <button onclick="showSection('match-history')" class="active">Match History</button>
+            <button onclick="showSection('chat')">Chat</button>
+        </div>
+
+        <div id="match-history">
+            <h2 class="tab-heading">Match History</h2>
+            <div id="match-history-content">
+                {% include 'pong/matchTable.html' %}
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div id="chat" class="hidden">
+            <h2 class="tab-heading">Chat</h2>
+            <div id="chat-content">
+                {% include 'pong/chat.html' %}
+            </div>
+            <form id="chat-input" class="chat-input">
+                <input type="text" id="chat-message" placeholder="Type a message...">
+                <div id="chat-error"></div>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+{
+    const chatForm = document.getElementById('chat-input');
+    const chatError = document.getElementById('chat-error');
+
+    chatForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const messageContent = document.getElementById('chat-message');
+
+        chatError.innerHTML = '';
+        chatError.classList.remove('show');
+
+        if (validateChatMessage(messageContent, chatError)) {
+            const csrftoken = getCookie('csrftoken');
+            try {
+                const response = await fetch('/api/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                        receiver: `{{ targetUser.user.username }}`,
+                        content: messageContent.value,
+                    }),
+                });
+
+                const result = await response.text();
+
+                if (response.ok) {
+                    messageContent.value = '';
+                } else {
+                    chatError.innerHTML = result;
+                    chatError.classList.add('show');
+                }
+            } catch (error) {
+                chatError.innerHTML = error;
+                chatError.classList.add('show');
+            }
+        }
+    });
+
+    function showSection(sectionId) {
+        const sections = ['match-history', 'chat'];
+        sections.forEach(id => {
+            const section = document.getElementById(id);
+            if (section) {
+                if (id === sectionId) {
+                    section.classList.remove('hidden');
+                }
+                else {
+                    section.classList.add('hidden');
+                }
+            }
+        });
+
+        const buttons = document.querySelectorAll('.buttons button');
+        buttons.forEach(button => {
+            button.classList.remove('active');
+        });
+
+        const activeButton = Array.from(buttons).find(button => button.getAttribute('onclick').includes(sectionId));
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+}
+</script>
+
+{% endif %}

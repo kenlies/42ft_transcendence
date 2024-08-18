@@ -1,0 +1,14 @@
+<div class="chat-box">
+    {% for message in messages %}
+    <div class="message {% if message.messageSender == user %}sent{% else %}received{% endif %}">
+        <div class="message-content">
+            <img src="/api/avatar?username={{ message.messageSender.user.username }}" alt="{{ message.messageSender.user.username }}" class="chat-pic">
+            <div class="message-text">
+                <p>{{ message.messageContent }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <p>No messages found.</p>
+    {% endfor %}
+</div>

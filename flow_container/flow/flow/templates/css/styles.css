@@ -4,3 +4,4 @@
 {% include "css/login_register.css" %}
 {% include "css/game.css" %}
 {% include "css/lobby.css" %}
+{% include "css/profile.css" %}

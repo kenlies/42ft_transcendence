@@ -1,0 +1,266 @@
+<div class="container">
+    <div class="main-content box">
+        <div class="buttons">
+            <button onclick="showSection('user-info')" class="active">User Information</button>
+            <button onclick="showSection('change-avatar')">Change Avatar</button>
+            <button onclick="showSection('change-username')">Change Username</button>
+            <button onclick="showSection('change-email')">Change Email</button>
+            <button onclick="showSection('change-password')">Change Password</button>
+        </div>
+
+        <!-- User Information -->
+        <div id="user-info">
+            <h3>User Information</h3>
+            {% if user %}
+                <img src="/api/avatar?username={{ user.user.username }}" class="profile-pic" alt="User Avatar">
+            {% endif %}
+            <p><strong>{{ user.user.username }}</strong></p>
+            <p><strong>{{ user.user.email }}</strong></p>
+        </div>
+
+        <!-- Change Avatar -->
+        <form id="change-avatar" class="hidden" enctype="multipart/form-data">
+            <h3>Change Avatar</h3>
+            {% if user %}
+                <img src="/api/avatar?username={{ user.user.username}}" class="profile-pic" alt="User Avatar">
+            {% endif %}
+            <input type="file" id="new-avatar" name="new-avatar" accept="image/*">
+            <div id="avatar-error"></div>
+            <button type="submit">Upload Avatar</button>
+        </form>
+
+        <!-- Change Username -->
+        <form id="change-username" class="hidden">
+            <h3>Change Username</h3>
+            <input type="username" id="new-username" name="new-username" placeholder="Enter new username" required>
+            <div id="username-error"></div>
+            <button type="submit">Change Username</button>
+        </form>
+
+        <!-- Change Email -->
+        <form id="change-email" class="hidden">
+            <h3>Change Email</h3>
+            <input type="email" id="new-email" name="new-email" placeholder="Enter new email" required>
+            <div id="email-error"></div>
+            <button type="submit">Change Email</button>
+        </form>
+
+        <!-- Change Password -->
+        <form id="change-password" class="hidden">
+            <h3>Change Password</h3>
+            <input type="password" id="current-password" name="current-password" placeholder="Enter current password" required>
+            <input type="password" id="new-password" name="new-password" placeholder="Enter new password" required>
+            <input type="password" id="confirmNew-password" name="confirmNew-password" placeholder="Confirm new password" required>
+            <div id="password-error"></div>
+            <button type="submit">Change Password</button>
+        </form>
+    </div>
+</div>
+
+<script>
+{
+    const newAvatar = document.getElementById('new-avatar');
+    const newUsername = document.getElementById('new-username');
+    const newEmail = document.getElementById('new-email');
+    const currentPassword = document.getElementById('current-password');
+    const newPassword = document.getElementById('new-password');
+    const confirmNewPassword = document.getElementById('confirmNew-password');
+
+    const avatarError = document.getElementById('avatar-error');
+    const usernameError = document.getElementById('username-error');
+    const emailError = document.getElementById('email-error');
+    const passwordError = document.getElementById('password-error');
+
+    document.getElementById('change-avatar').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        avatarError.innerHTML = '';
+        avatarError.classList.remove('show');
+        newAvatar.classList.remove('error');
+
+        const avatar = newAvatar ? newAvatar.files[0] : null;
+
+        if (!avatar) {
+            avatarError.innerHTML = 'Please select an image to upload.';
+            newAvatar.classList.add('error');
+            avatarError.classList.add('show');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('avatar', avatar);
+
+        try {
+            const token = getCookie('csrftoken');
+            const response = await fetch('/api/avatar', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': token
+                },
+                body: formData
+            });
+
+            const result = await response.text();
+
+            if (response.ok) {
+                window.location.hash = 'profile-{{ user.user.username }}';
+                window.location.reload();
+            }
+            else {
+                avatarError.innerHTML = result;
+                avatarError.classList.add('show');
+            }
+        }
+        catch (error) {
+            avatarError.innerHTML = error;
+            avatarError.classList.add('show');
+        }
+    });
+
+    document.getElementById('change-username').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        usernameError.innerHTML = '';
+        usernameError.classList.remove('show');
+        newUsername.classList.remove('error');
+
+        if (!validateUsername(newUsername, usernameError))
+            return;
+
+        try {
+            const token = getCookie('csrftoken');
+            const response = await fetch('/api/user', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': token
+                },
+                body: JSON.stringify({
+                    new_username: newUsername.value
+                }),
+            });
+
+            const result = await response.text();
+
+            if (response.ok) {
+                const userProdile = 'profile-' + newUsername.value;
+                window.location.hash = 'userProfile';
+            }
+            else {
+                usernameError.innerHTML = result;
+                usernameError.classList.add('show');
+            }
+        }
+        catch (error) {
+            usernameError.innerHTML = error;
+            usernameError.classList.add('show');
+        }
+    });
+
+    document.getElementById('change-email').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        emailError.innerHTML = '';
+        emailError.classList.remove('show');
+        newEmail.classList.remove('error');
+
+        if (!validateEmail(newEmail, emailError))
+            return;
+
+        try {
+            const token = getCookie('csrftoken');
+            const response = await fetch('/api/user', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': token
+                },
+                body: JSON.stringify({
+                    new_email: newEmail.value
+                }),
+            });
+
+            const result = await response.text();
+
+            if (response.ok) {
+                window.location.hash = 'profile-{{ user.user.username }}';
+            }
+            else {
+                emailError.innerHTML = result;
+                emailError.classList.add('show');
+            }
+        }
+        catch (error) {
+            emailError.innerHTML = error;
+            emailError.classList.add('show');
+        }
+    });
+
+    document.getElementById('change-password').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        passwordError.innerHTML = '';
+        passwordError.classList.remove('show');
+        newPassword.classList.remove('error');
+        confirmNewPassword.classList.remove('error');
+
+        if (!validatePassword(newPassword, confirmNewPassword, passwordError))
+            return;
+
+        try {
+            const token = getCookie('csrftoken');
+            const response = await fetch('/api/user', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': token
+                },
+                body: JSON.stringify({
+                    password: currentPassword.value,
+                    new_password: newPassword.value,
+                    confirm_password: confirmNewPassword.value
+                }),
+            });
+
+            const result = await response.text();
+
+            if (response.ok) {
+                window.location.hash = 'login'
+            }
+            else {
+                passwordError.innerHTML = result;
+                passwordError.classList.add('show');
+            }
+        }
+        catch (error) {
+            passwordError.innerHTML = error;
+            passwordError.classList.add('show');
+        }
+    });
+
+    function showSection(sectionId) {
+        const sections = ['user-info', 'change-avatar', 'change-username', 'change-email', 'change-password'];
+        sections.forEach(id => {
+            const section = document.getElementById(id);
+            if (section) {
+                if (id === sectionId) {
+                    section.classList.remove('hidden');
+                }
+                else {
+                    section.classList.add('hidden');
+                }
+            }
+        });
+
+        const buttons = document.querySelectorAll('.buttons button');
+        buttons.forEach(button => {
+            button.classList.remove('active');
+        });
+
+        const activeButton = Array.from(buttons).find(button => button.getAttribute('onclick').includes(sectionId));
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+}
+</script>
