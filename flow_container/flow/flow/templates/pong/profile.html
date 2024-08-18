@@ -116,3 +116,53 @@
     }
 }
 </script>
+
+{% else %}
+
+<div class="container">
+    <div class="profile-header box">
+        <div class="profile-left">
+            <p><strong>{{ targetUser.user.username }}</strong></p>
+            <p>{{ targetUser.user.email }}</p>
+        </div>
+
+        <div class="profile-center">
+            {% if targetUser %}
+                <img src="/api/avatar?username={{ targetUser.user.username }}" class="profile-pic" alt="User Avatar">
+            {% endif %}
+        </div>
+
+        <div class="profile-right">
+                <p><strong>Matches Played: </strong>{{ match.count }}</p>
+                <p><strong>Wins: </strong>{{ match.wins }}</p>
+                <p><strong>Losses: </strong>{{ match.losses }}</p>
+        </div>
+    </div>
+
+    <div class="main-content box">
+        <div class="buttons">
+            <button onclick="showSection('match-history')" class="active">Match History</button>
+            <button onclick="showSection('chat')">Chat</button>
+        </div>
+
+        <div id="match-history">
+            <h2 class="tab-heading">Match History</h2>
+            <div id="match-history-content">
+                {% include 'pong/matchTable.html' %}
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div id="chat" class="hidden">
+            <h2 class="tab-heading">Chat</h2>
+            <div id="chat-content">
+                {% include 'pong/chat.html' %}
+            </div>
+            <form id="chat-input" class="chat-input">
+                <input type="text" id="chat-message" placeholder="Type a message...">
+                <div id="chat-error"></div>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
