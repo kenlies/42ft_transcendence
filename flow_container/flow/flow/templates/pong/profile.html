@@ -166,3 +166,75 @@
         </div>
     </div>
 </div>
+
+<script>
+{
+    const chatForm = document.getElementById('chat-input');
+    const chatError = document.getElementById('chat-error');
+
+    chatForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const messageContent = document.getElementById('chat-message');
+
+        chatError.innerHTML = '';
+        chatError.classList.remove('show');
+
+        if (validateChatMessage(messageContent, chatError)) {
+            const csrftoken = getCookie('csrftoken');
+            try {
+                const response = await fetch('/api/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                        receiver: `{{ targetUser.user.username }}`,
+                        content: messageContent.value,
+                    }),
+                });
+
+                const result = await response.text();
+
+                if (response.ok) {
+                    messageContent.value = '';
+                } else {
+                    chatError.innerHTML = result;
+                    chatError.classList.add('show');
+                }
+            } catch (error) {
+                chatError.innerHTML = error;
+                chatError.classList.add('show');
+            }
+        }
+    });
+
+    function showSection(sectionId) {
+        const sections = ['match-history', 'chat'];
+        sections.forEach(id => {
+            const section = document.getElementById(id);
+            if (section) {
+                if (id === sectionId) {
+                    section.classList.remove('hidden');
+                }
+                else {
+                    section.classList.add('hidden');
+                }
+            }
+        });
+
+        const buttons = document.querySelectorAll('.buttons button');
+        buttons.forEach(button => {
+            button.classList.remove('active');
+        });
+
+        const activeButton = Array.from(buttons).find(button => button.getAttribute('onclick').includes(sectionId));
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+}
+</script>
+
+{% endif %}
