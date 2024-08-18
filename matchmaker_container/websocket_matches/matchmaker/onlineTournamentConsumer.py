@@ -252,7 +252,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		await asyncio.sleep(5)
 		if self.firstLevelMatch1[0] in self.connectedPlayers and self.firstLevelMatch1[1] in self.connectedPlayers:
 			self.match1Winner = await self.single_match(self.firstLevelMatch1[0], self.firstLevelMatch1[1])
-			await self.record_match(self.match1Winner, self.firstLevelMatch1[0] if self.match1Winner == self.firstLevelMatch1[1] else self.firstLevelMatch1[1])
+			self.record_match(self.match1Winner, self.firstLevelMatch1[0] if self.match1Winner == self.firstLevelMatch1[1] else self.firstLevelMatch1[1])
 			await self.reset_match_data()
 		elif self.firstLevelMatch1[0] in self.connectedPlayers:
 			self.match1Winner = self.firstLevelMatch1[0]
@@ -270,7 +270,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		await asyncio.sleep(5)
 		if self.firstLevelMatch2[0] in self.connectedPlayers and self.firstLevelMatch2[1] in self.connectedPlayers:
 			self.match2Winner = await self.single_match(self.firstLevelMatch2[0], self.firstLevelMatch2[1])
-			await self.record_match(self.match2Winner, self.firstLevelMatch2[0] if self.match2Winner == self.firstLevelMatch2[1] else self.firstLevelMatch2[1])
+			self.record_match(self.match2Winner, self.firstLevelMatch2[0] if self.match2Winner == self.firstLevelMatch2[1] else self.firstLevelMatch2[1])
 			await self.reset_match_data()
 		elif self.firstLevelMatch2[0] in self.connectedPlayers:
 			self.match2Winner = self.firstLevelMatch2[0]
@@ -288,7 +288,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		await asyncio.sleep(5)
 		if self.match1Winner in self.connectedPlayers and self.match2Winner in self.connectedPlayers:
 			self.tournamentWinner = await self.single_match(self.match1Winner, self.match2Winner)
-			await self.record_match(self.tournamentWinner, self.match1Winner if self.tournamentWinner == self.match2Winner else self.match2Winner)
+			self.record_match(self.tournamentWinner, self.match1Winner if self.tournamentWinner == self.match2Winner else self.match2Winner)
 			await self.reset_match_data()
 		elif self.match1Winner in self.connectedPlayers:
 			self.tournamentWinner = self.match1Winner
