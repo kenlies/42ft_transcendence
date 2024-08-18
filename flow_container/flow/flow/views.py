@@ -34,7 +34,7 @@ def content(request, content, targetUsername=None):
 				user = Account.objects.get(user=request.user)
 				context['user'] = user
 				context['blocked'] = user.blockedList.all()
-				context['friends'] = user.friendList.exclude(blockedList__in=context['blocked'])
+				context['friends'] = user.friendList.all()
 
 				if targetUsername:
 					targetUser = Account.objects.get(user__username=targetUsername)

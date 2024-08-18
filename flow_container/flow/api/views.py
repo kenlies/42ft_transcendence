@@ -245,6 +245,9 @@ def block_view(request):
 				for blockedUser in user.blockedList.all():
 					if blockedUser.user.username == blockUsername:
 						return HttpResponse('User already blocked', status=400)
+				for friend in user.friendList.all():
+					if friend.user.username == blockUsername:
+						user.friendList.remove(friend)
 				user.blockedList.add(Account.objects.get(user__username=blockUsername))
 				user.save()
 				return HttpResponse('User blocked', status=200)
@@ -279,6 +282,9 @@ def friend_view(request):
 				for friend in user.friendList.all():
 					if friend.user.username == friendUsername:
 						return HttpResponse('Friend already added', status=400)
+				for blockedUser in user.blockedList.all():
+					if blockedUser.user.username == friendUsername:
+						return HttpResponse('User is blocked', status=400)
 				user.friendList.add(Account.objects.get(user__username=friendUsername))
 				user.save()
 				return HttpResponse('Friend added', status=200)
