@@ -24,8 +24,14 @@ def matchmaker_view(request):
 						"secret": os.environ.get("MATCHMAKER_SECRET"),
 						"username": request.user.username
 					}
+				elif (gameMode == 'local'):
+					data = {
+						"secret": os.environ.get("MATCHMAKER_SECRET"),
+						"player1": request.GET.get('player1'),
+						"player2": request.GET.get('player2')
+					}
 				else:
-					return HttpResponse('Game mode not found', status=404)
+					return HttpResponse('Invalid game mode', status=400)
 				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))
 				if (matchmakerResponse.status_code == 200):
 					toSendToRoomId = matchmakerResponse.json()['game_room']
