@@ -81,14 +81,27 @@ def content(request, content, targetUsername=None):
 	else:
 		return HttpResponse('Method not allowed', status=405)
 
-# in development
-import json
-from api.views import matchmaker_view
 @ensure_csrf_cookie
-def startlobby(request):
-	response = matchmaker_view(request)
-	res = response.content.decode('utf-8')
-	context = {}
-	context["response"] = json.loads(res)
-	context["username"] = request.user.username
-	return render(request, 'js/lobby.js', context, content_type="text/javascript")
+def joinlobby(request):
+	if request.user.is_authenticated:
+		if request.method == 'GET':
+			try:
+				context = {}
+				gameUrl = request.GET.get('gameUrl')
+				if 'onlineTournament' in gameUrl:
+					gameMode = 'onlineTournament'
+				elif 'localTournament' in gameUrl:
+					gameMode = 'localTournament'
+				elif 'online' in gameUrl:
+					gameMode = 'online'
+				else:
+					gameMode = 'local'
+				context["response"] = {"url": gameUrl, 'gameMode': gameMode}
+				context["username"] = request.user.username
+				return render(request, 'pong/lobby.html', context)
+			except:
+				return HttpResponse('Invalid lobby', status=400)
+		else:
+			return HttpResponse('Method not allowed', status=405)
+	else:
+		return HttpResponse('Unauthorized', status=401)

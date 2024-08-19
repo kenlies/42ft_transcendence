@@ -20,12 +20,11 @@ from . import views
 
 urlpatterns = [
     path('', views.index),
+    path('content/lobby', views.joinlobby),
 	path('content/profile-<targetUsername>/', views.content, {'content': 'profile'}),
     path('content/<content>/', views.content),
     path('styles.css', views.stylesheet),
     path('pong.js', views.javascript),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-
-    path('lobby.js', views.startlobby),
 ]
