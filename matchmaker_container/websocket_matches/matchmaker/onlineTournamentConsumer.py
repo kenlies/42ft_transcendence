@@ -392,7 +392,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 						'secret': os.environ.get("MATCHMAKER_SECRET"),
 						'sender': theTournament.player1,
 						'receiver': data['receiver'],
-						'url': '/tournament/connect/online/' + theTournament.roomId
+						'url': '/match/connect/onlineTournament/' + theTournament.roomId
 					}
 					response = requests.post("http://flow:8000/api/invite", data=json.dumps(data))
 					if response.status_code != 201:
