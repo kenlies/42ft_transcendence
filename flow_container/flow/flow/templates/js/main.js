@@ -4,6 +4,12 @@ const changeContainerContent = async (container, contentUrl) => {
     container.replaceChildren(document.createRange().createContextualFragment(html));
 }
 
+const changeContainerLobby = async (container, gameUrl) => {
+    const response = await fetch('/content/lobby' + '?gameUrl=' + gameUrl);
+    const html = await response.text();
+    container.replaceChildren(document.createRange().createContextualFragment(html));
+}
+
 const loadPageHash = () => {
     if (window.location.hash)
         changeContainerContent(document.body, window.location.hash.substr(1));
