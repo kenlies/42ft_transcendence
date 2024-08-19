@@ -4,7 +4,16 @@
         <div class="message-content">
             <img src="/api/avatar?username={{ message.messageSender.user.username }}" alt="{{ message.messageSender.user.username }}" class="chat-pic">
             <div class="message-text">
-                <p>{{ message.messageContent }}</p>
+                <p>
+                    {% if message.messageContent|length >= 11 and message.messageContent|slice:":11" == "GAME_INVITE" %}
+                        {% with game_url=message.messageContent|slice:"12:" %}
+                            Game Invite
+                            <button onclick="changeContainerLobby(document.body, '{{ game_url }}')">Join Game</button>
+                        {% endwith %}
+                    {% else %}
+                        {{ message.messageContent }}
+                    {% endif %}
+                </p>
             </div>
         </div>
     </div>
