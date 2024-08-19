@@ -1,1 +1,40 @@
 <h1>Home page</h1>
+
+<form id="startgame-form">
+    <button type="submit">start game</button>
+</form>
+
+<script>
+{
+    const startGameForm = document.getElementById('startgame-form');
+
+	startGameForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        try {
+            const token = getCookie('csrftoken');
+            const response = await fetch('/api/matchmaker?gameMode=online', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': token
+                }
+            });
+
+            const result = await response.json();
+			console.log(result);
+
+			changeContainerLobby(document.body, result.url);
+
+            if (response.ok) {
+                window.location.hash = 'home'
+            }
+            else {
+                console.log(result);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+    });
+}
+</script>
