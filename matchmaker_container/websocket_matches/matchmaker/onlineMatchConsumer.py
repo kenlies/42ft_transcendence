@@ -26,7 +26,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 	#-Note: The client that connects first, will not be slowed down by the game loop. It runs in the background and operates independently of the client
 
 	#### INITIATE MATCH FUNCTIONS ####
-	async def init_match(self, ballSpeed, paddleSpeed, player1, player2):
+	async def init_match(self, ballSpeed, paddleSpeed):
 		self.courtHeight = COURT_HEIGHT
 		self.courtWidth = COURT_WIDTH
 		self.paddleHeight = PADDLE_HEIGHT
@@ -51,9 +51,6 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
-		self.player1_username = player1
-		self.player2_username = player2
-
 	async def initiate_start_match(self): ## this calls the start_match function below in all client instances
 		await self.channel_layer.group_send(
 			self.room_group_name,
@@ -74,8 +71,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				"ballSpeed": self.ballSpeed,
 				'goalsPlayer1': self.goalsPlayer1,
 				'goalsPlayer2': self.goalsPlayer2,
-				'player1_username' : self.player1_username,
-				'player2_username' : self.player2_username
+				'player1_username' : self.player1,
+				'player2_username' : self.player2
 			}
 		)
 
@@ -290,11 +287,11 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 						if theMatchObject.ready:
 							ballSpeed = data['ballSpeed']
 							paddleSpeed = data['paddleSpeed']
-							player1 = theMatchObject.player1
-							player2 = theMatchObject.player2
+							self.player1 = theMatchObject.player1
+							self.player2 = theMatchObject.player2
 							theMatchObject.hasCommenced = True
 							await sync_to_async(theMatchObject.save)()
-							await self.init_match(ballSpeed, paddleSpeed, player1, player2)
+							await self.init_match(ballSpeed, paddleSpeed)
 							await self.initiate_start_match()
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
