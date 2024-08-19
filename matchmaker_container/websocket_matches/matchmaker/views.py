@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
-from .models import OnlineMatch, OnlineTournament, LocalMatch
+from .models import OnlineMatch, OnlineTournament, LocalMatch, LocalTournament
 from datetime import datetime
 import random
 import os
@@ -92,6 +92,24 @@ def initiate_local_match_view(request):
 				newMatch = LocalMatch(player1=data["player1"], player2=data["player2"], roomId=generatedId)
 				newMatch.save()
 				return HttpResponse(json.dumps({"status": "success", "game_room": newMatch.roomId, "ready": True}), status=200)
+			else:
+				return HttpResponse("Unauthorized", status=401)
+		else:
+			return HttpResponse('Method not allowed', status=405)
+	except Exception as e:
+		print(e)
+		return HttpResponse("error: " + str(e), status=500)
+
+@csrf_exempt
+def initiate_local_tournament_view(request):
+	try:
+		if (request.method == 'POST'):
+			data = json.loads(request.body)
+			if (data["secret"] == os.environ.get("MATCHMAKER_SECRET")):
+				generatedId = generateId()
+				newTournament = LocalTournament(player1=data["player1"], player2=data["player2"], player3=data["player3"], player4=data["player4"], roomId=generatedId)
+				newTournament.save()
+				return HttpResponse(json.dumps({"status": "success", "game_room": newTournament.roomId, "ready": True}), status=200)
 			else:
 				return HttpResponse("Unauthorized", status=401)
 		else:

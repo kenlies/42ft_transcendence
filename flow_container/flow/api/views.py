@@ -30,6 +30,14 @@ def matchmaker_view(request):
 						"player1": request.GET.get('player1'),
 						"player2": request.GET.get('player2')
 					}
+				elif (gameMode == 'localTournament'):
+					data = {
+						"secret": os.environ.get("MATCHMAKER_SECRET", "default_secret"),
+						"player1": request.GET.get('player1'),
+						"player2": request.GET.get('player2'),
+						"player3": request.GET.get('player3'),
+						"player4": request.GET.get('player4')
+					}
 				else:
 					return HttpResponse('Invalid game mode', status=400)
 				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))
