@@ -7,4 +7,5 @@ from . import views
 urlpatterns = [
 	path('initiate/online', views.initiate_online_match_view),
 	path('initiate/onlineTournament', views.initiate_online_tournament_view),
+	path('initiate/local', views.initiate_local_match_view)
 ]
