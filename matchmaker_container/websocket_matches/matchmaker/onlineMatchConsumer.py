@@ -7,7 +7,6 @@ import asyncio
 from queue import Queue
 import requests
 import os
-from django.utils import timezone
 
 from matchmaker.update import update_players, update_ball
 from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
