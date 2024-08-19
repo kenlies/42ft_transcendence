@@ -80,11 +80,13 @@ ws.onmessage = async (event) => {
 			console.log("Room closed");
 			// Example: ws.close();
 			break;
+
 		case "setting_change":
 			console.log("Setting change");
 			speedSlider.value = parsedMessage.value;
 			speedSliderValBelow.textContent = parsedMessage.value;
 			break;
+
 		case "game_update":
 			try {
 				game.updateValues(parsedMessage.positions);
@@ -92,10 +94,12 @@ ws.onmessage = async (event) => {
 				console.log('game_update: game not ready yet')
 			}
 			break;
+
 		case "tournament_over":
 			//same as game_over on 1v1
 			console.log("Tournament over");
 			break;
+
 		case "game_over":
 			clearInterval(gameDrawInterval);
 			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
@@ -107,10 +111,12 @@ ws.onmessage = async (event) => {
 				chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
 			}
 			else {
-				//1v1 logic. Show winner screen. Go home.
 				console.log("Game over");
-				break;
+				const gameModal = document.getElementById("game-modal");
+				gameModal.firstChild.textContent = "Winner is: " + parsedMessage.winner;
+				gameModal.classList.add("show");
 			}
+			break;
 
 		default:
 			console.log("Unknown message identity: " + parsedMessage.identity);
