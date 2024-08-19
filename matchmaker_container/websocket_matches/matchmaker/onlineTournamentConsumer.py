@@ -1,15 +1,14 @@
+import os
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.layers import get_channel_layer
+import random
+import asyncio
+import requests
+from queue import Queue
 from .models import OnlineTournament
 from asgiref.sync import sync_to_async
-import asyncio
-from queue import Queue
-import random
-import requests
-import os
-
+from channels.layers import get_channel_layer
 from matchmaker.update import update_players, update_ball
+from channels.generic.websocket import AsyncWebsocketConsumer
 from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
 channel_layer = get_channel_layer()
