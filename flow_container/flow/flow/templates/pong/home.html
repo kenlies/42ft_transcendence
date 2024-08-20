@@ -1,7 +1,10 @@
 <h1>Home page</h1>
 
 <form id="startgame-form">
-    <button type="submit">start game</button>
+    <button type="submit" value="online">online game</button>
+    <button type="submit" value="onlineTournament">online tournament</button>
+    <button type="submit" value="local">local game</button>
+    <button type="submit" value="localTournament">local tournament</button>
 </form>
 
 <script>
@@ -13,7 +16,13 @@
 
         try {
             const token = getCookie('csrftoken');
-            const response = await fetch('/api/matchmaker?gameMode=online', {
+            const matchmakerQuery = '?gameMode=' + event.submitter.value
+                                  + '&player1=Player1'
+                                  + '&player2=Player2'
+                                  + '&player3=Player3'
+                                  + '&player4=Player4';
+
+            const response = await fetch('/api/matchmaker' matchmakerQuery, {
                 method: 'GET',
                 headers: {
                     'X-CSRFToken': token
