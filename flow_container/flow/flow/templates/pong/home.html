@@ -20,16 +20,15 @@
                 }
             });
 
-            const result = await response.json();
-			console.log(result);
-
-			changeContainerLobby(document.body, result.url);
-
             if (response.ok) {
-                window.location.hash = 'home'
+                const result = await response.json();
+                console.log(result);
+
+                changeContainerLobby(document.body, result.url);
+                window.location.hash = 'home';
             }
             else {
-                console.log(result);
+                console.log(await response.text());
             }
         }
         catch (error) {
