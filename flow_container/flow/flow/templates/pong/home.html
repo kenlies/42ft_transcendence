@@ -22,7 +22,7 @@
                                   + '&player3=Player3'
                                   + '&player4=Player4';
 
-            const response = await fetch('/api/matchmaker' matchmakerQuery, {
+            const response = await fetch('/api/matchmaker' + matchmakerQuery, {
                 method: 'GET',
                 headers: {
                     'X-CSRFToken': token
