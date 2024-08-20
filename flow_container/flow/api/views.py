@@ -32,7 +32,7 @@ def matchmaker_view(request):
 					}
 				elif (gameMode == 'localTournament'):
 					data = {
-						"secret": os.environ.get("MATCHMAKER_SECRET", "default_secret"),
+						"secret": os.environ.get("MATCHMAKER_SECRET"),
 						"player1": request.GET.get('player1'),
 						"player2": request.GET.get('player2'),
 						"player3": request.GET.get('player3'),
