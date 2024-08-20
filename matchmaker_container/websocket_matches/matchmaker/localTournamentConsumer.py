@@ -9,7 +9,7 @@ import random
 from matchmaker.update import update_players, update_ball
 from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
-class LocalTournamentConsumer(AsyncWebsocketConsumer):
+class localTournamentConsumer(AsyncWebsocketConsumer):
 
 	async def init_match_meta_data(self, ballSpeed, paddleSpeed):
 		self.courtHeight = COURT_HEIGHT
