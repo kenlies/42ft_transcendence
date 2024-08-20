@@ -17,8 +17,8 @@ const loadPageHash = () => {
         changeContainerContent(document.body, "landing");
 }
 
-addEventListener("load", (event) => { loadPageHash() });
-addEventListener("hashchange", (event) => { loadPageHash() });
+addEventListener("load", loadPageHash );
+addEventListener("hashchange", loadPageHash );
 
 function getCookie(name) {
     let cookieValue = null;
