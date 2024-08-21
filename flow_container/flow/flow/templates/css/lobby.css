@@ -217,6 +217,7 @@
 }
 
 #lobby-container,
+#settings-container,
 #game-container {
 	&.hide {
 		display: none;

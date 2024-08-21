@@ -9,6 +9,7 @@ var host = false;
 {% include "js/game.js" %}
 
 const lobbyContainer = document.getElementById("lobby-container");
+const settingsContainer = document.getElementById("settings-container");
 const gameContainer = document.getElementById("game-container");
 const playerContainer = document.getElementById("player-container");
 const chatMessages = document.getElementById('lobby-chat-messages');
@@ -51,6 +52,7 @@ ws.onmessage = async (event) => {
 		case "start_match":
 			console.clear();
 			lobbyContainer.classList.add("hide");
+			settingsContainer.classList.add("hide");
 			gameContainer.classList.remove("hide");
 			await changeContainerContent(gameContainer, "game");
 			const canvas = document.getElementById("game-canvas");
