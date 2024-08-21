@@ -215,3 +215,10 @@
 	align-self: end;
 	justify-self: center;
 }
+
+#lobby-container,
+#game-container {
+	&.hide {
+		display: none;
+	}
+}

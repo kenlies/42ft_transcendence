@@ -8,6 +8,9 @@ var role;
 var host = false;
 {% include "js/game.js" %}
 
+const lobbyContainer = document.getElementById("lobby-container");
+const gameContainer = document.getElementById("game-container");
+
 ws.onopen = (event) => {
 	ws.send(JSON.stringify({"type": "room_data_request"}))
 };
@@ -45,8 +48,9 @@ ws.onmessage = async (event) => {
 
 		case "start_match":
 			console.clear();
-			gameContainer = document.getElementById("game-container");
-			await changeContainerContent(document.body, "game");
+			lobbyContainer.classList.add("hide");
+			gameContainer.classList.remove("hide");
+			await changeContainerContent(gameContainer, "game");
 			const canvas = document.getElementById("game-canvas");
 			game = new Game(canvas, parsedMessage);
 			role = (parsedMessage.player1 === username) ? 1 : 2;
@@ -78,6 +82,8 @@ ws.onmessage = async (event) => {
 		case "game_over":
 			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
 				console.log("Game over");
+				lobbyContainer.classList.remove("hide");
+				gameContainer.classList.add("hide");
 				winnerMessage = {message: "Winner is: " + parsedMessage.winner, sender: "System"};
 				chatMessages.innerHTML += createChatMessageElement(winnerMessage);
 				chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
