@@ -1,6 +1,7 @@
 const url = '{{ response.url }}';
 const username = '{{ username }}';
 const blocklist = {{ blocked|safe }};
+const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
 var game;
 var role;

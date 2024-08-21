@@ -42,7 +42,10 @@
 		const paddleSpeed = ballSpeed;
 		console.log(ballSpeed);
 		console.log(paddleSpeed);
-		ws.send(JSON.stringify({"type": "start_match", "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}));
+		if (gameMode === "onlineTournament" || gameMode === "localTournament")
+			ws.send(JSON.stringify({"type": "start_tournament", "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}));
+		else
+			ws.send(JSON.stringify({"type": "start_match", "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}));
 	});
 
 	inviteButton.addEventListener('click', (e) => {
