@@ -16,7 +16,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 		self.courtWidth = COURT_WIDTH
 		self.paddleHeight = PADDLE_HEIGHT
 
-		self.ballSpeed = float(ballSpeed)
+		self.ballSpeed = float(ballSpeed) / 10
 		self.paddleSpeed = float(paddleSpeed)
 
 		self.ball_y = COURT_HEIGHT / 2
