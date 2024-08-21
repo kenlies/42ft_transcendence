@@ -67,6 +67,22 @@ ws.onmessage = async (event) => {
 				console.log('game_update: game not ready yet')
 			}
 			break;
+		case "tournament_over":
+			//same as game_over on 1v1
+			console.log("Tournament over");
+			break;
+		case "game_over":
+			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
+				console.log("Game over");
+				winnerMessage = {message: "Winner is: " + parsedMessage.winner, sender: "System"};
+				chatMessages.innerHTML += createChatMessageElement(winnerMessage);
+				chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
+			}
+			else {
+				//1v1 logic. Show winner screen. Go home.
+				console.log("Game over");
+				break;
+			}
 
 		default:
 			console.log("Unknown message identity: " + parsedMessage.identity);
