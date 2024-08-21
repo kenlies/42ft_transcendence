@@ -24,6 +24,10 @@ ws.onmessage = async (event) => {
 				host = true
 			playersInRoom.push(parsedMessage.player1);
 			playersInRoom.push(parsedMessage.player2);
+			if (gameMode === "onlineTournament") {
+				playersInRoom.push(parsedMessage.player3);
+				playersInRoom.push(parsedMessage.player4);
+			}
 			playersInRoom.forEach((element) => {
 				players.innerHTML += `<div class="player-name">${element}</div>`
 			});
