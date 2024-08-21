@@ -86,6 +86,7 @@ def joinlobby(request):
 	if request.user.is_authenticated:
 		if request.method == 'GET':
 			try:
+				user = Account.objects.get(user=request.user)
 				context = {}
 				gameUrl = request.GET.get('gameUrl')
 				if 'onlineTournament' in gameUrl:
@@ -98,6 +99,7 @@ def joinlobby(request):
 					gameMode = 'local'
 				context["response"] = {"url": gameUrl, 'gameMode': gameMode}
 				context["username"] = request.user.username
+				context['blocked'] = [blocked_user.user.username for blocked_user in user.blockedList.all()]
 				return render(request, 'pong/lobby.html', context)
 			except:
 				return HttpResponse('Invalid lobby', status=400)

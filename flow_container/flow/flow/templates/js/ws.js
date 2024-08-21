@@ -1,5 +1,6 @@
 const url = '{{ response.url }}';
 const username = '{{ username }}';
+const blocklist = {{ blocked|safe }};
 const ws = new WebSocket(url);
 var game;
 var role;
@@ -29,6 +30,8 @@ ws.onmessage = async (event) => {
 
 		case "error":
 		case "message":
+			if (blocklist.includes(parsedMessage.sender))
+				break ;
 			if (!('sender' in parsedMessage))
 				parsedMessage.sender = 'Error';
 			chatMessages.innerHTML += createChatMessageElement(parsedMessage);
