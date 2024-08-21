@@ -10,6 +10,8 @@ var host = false;
 
 const lobbyContainer = document.getElementById("lobby-container");
 const gameContainer = document.getElementById("game-container");
+const playerContainer = document.getElementById("player-container");
+const chatMessages = document.getElementById('lobby-chat-messages');
 
 ws.onopen = (event) => {
 	ws.send(JSON.stringify({"type": "room_data_request"}))
@@ -21,7 +23,7 @@ ws.onmessage = async (event) => {
 
 	switch (parsedMessage.identity) {
 		case "room_data":
-			players.innerHTML = "";
+			playerContainer.innerHTML = "";
 			playersInRoom = [];
 			if (parsedMessage.player1 === username)
 				host = true
@@ -32,7 +34,7 @@ ws.onmessage = async (event) => {
 				playersInRoom.push(parsedMessage.player4);
 			}
 			playersInRoom.forEach((element) => {
-				players.innerHTML += `<div class="player-name">${element}</div>`
+				playerContainer.innerHTML += `<div class="player-name">${element}</div>`
 			});
 			break;
 

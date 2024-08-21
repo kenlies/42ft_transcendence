@@ -1,13 +1,11 @@
 {
 	{% include "js/ws.js" %}
 
-	const chatInput = document.querySelector('.chat-input');
-	const inviteInput = document.querySelector('.invite-input');
-	const chatMessages = document.querySelector('.chat-messages');
-	const chatInputForm = document.querySelector('.chat-input-form');
-	const players = document.querySelector('.player-container');
-	const startButton= document.querySelector('.start-button');
-	const inviteButton= document.querySelector('.invite-button');
+	const chatInput = document.getElementById('lobby-chat-input');
+	const inviteInput = document.getElementById('lobby-invite-input');
+	const chatInputForm = document.getElementById('lobby-chat-input-form');
+	const startButton = document.getElementById('lobby-start-button');
+	const inviteButton = document.getElementById('lobby-invite-button');
 
 	var host = false;
 
@@ -55,7 +53,6 @@
 	});
 
 	var slider = document.getElementById("myRange");
-	var output = document.getElementById("settings");
 	var value = document.getElementById("value"); // change name
 	value.innerHTML = slider.value; // Display the default slider value 
 
