@@ -106,3 +106,32 @@ def view_friends():
 			print("Avatar not downloaded.\n")
 	else:
 		print("Friend not viewed.\n")
+
+def search_user():
+	os.system('clear')
+	print_banner()
+	print_available_commands()
+	toSearch = input("Enter the username of the user you would like to search for: ")
+	try:
+		response = Config.session.get(Config.flowUrl + "/api/user?username=" + toSearch, headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, verify=False)
+		response.raise_for_status()
+	except requests.exceptions.HTTPError:
+		print("User not found. Please try again.")
+		return
+	yesOrNo = input("Would you like to add " + toSearch + " as a friend? (y/n): ")
+	if yesOrNo == "y" or yesOrNo == "Y" or yesOrNo == "yes" or yesOrNo == "Yes":
+		response = Config.session.get(Config.flowUrl + "/api/user?username=" + Config.username, headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, verify=False)
+		response.raise_for_status()
+		currentUsername = response.json()["username"]
+		if toSearch == currentUsername:
+			print("You cannot befriend yourself.\n")
+			return
+		currentFriends = response.json()["friends"]
+		if toSearch in currentFriends:
+			print(f"You and {toSearch} are already friends.\n")
+			return
+		response = Config.session.post(Config.flowUrl + "/api/friend", headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, data=json.dumps({"username": Config.username, "friendUsername": toSearch}), verify=False)
+		response.raise_for_status()
+		print("Friend added!\n")
+	else:
+		print("User " + toSearch + " not added to friends.\n")
