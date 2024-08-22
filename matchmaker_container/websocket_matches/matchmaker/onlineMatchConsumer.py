@@ -287,8 +287,6 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 							theMatchObject.hasCommenced = True
 							await sync_to_async(theMatchObject.save)()
 							await self.init_match(ballSpeed, paddleSpeed, player1, player2)
-							await self.initiate_start_match()#Twice to ensure sync
-							asyncio.sleep(0.5)
 							await self.initiate_start_match()
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
