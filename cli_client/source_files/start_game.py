@@ -8,6 +8,7 @@ from .config import Config, init_ssl_context
 from .utils_and_signals import handle_sigstop, receive_no_wait
 from .print_banners_docs import print_banner, print_available_commands
 from .online_lobby import render_online_chat, online_editor, send_invite
+from .local_lobby import render_local_notifications_board, local_editor
 
 
 ##############################################################################################################
@@ -21,6 +22,7 @@ def choose_mode():
 	print("|                                                  CHOOSE GAME MODE                                                   |")
 	print("-----------------------------------------------------------------------------------------------------------------------")
 	print("|  1. Play online 1v1                                                                                                 |")
+	print("|  2. Play local 1v1                                                                                                  |")
 	print("-----------------------------------------------------------------------------------------------------------------------")
 	print("")
 	print("")
@@ -28,7 +30,10 @@ def choose_mode():
 		while True:
 			userInput = input("Enter the number of the mode you want to play: ")
 			if userInput == '1':
-				asyncio.get_event_loop().run_until_complete(start_1v1_game())
+				asyncio.get_event_loop().run_until_complete(start_1v1_game(is_local=False))
+				break
+			elif userInput == '2':
+				asyncio.get_event_loop().run_until_complete(start_1v1_game(is_local=True))
 				break
 			print("Invalid command. Please try again.")
 	except:
@@ -94,20 +99,74 @@ def ask_settings():
 ############################################ START GAME ######################################################
 ##############################################################################################################
 
-async def start_1v1_game():
+async def start_1v1_game(is_local=False):
     os.system('clear')
     print_banner()
+    if is_local:
+        player1 = input("Enter the name of the first player: ")
+        player2 = input("Enter the name of the second player: ")
     print('Connecting to the server...')
-    urlWithQuery = Config.flowUrl + "/api/matchmaker?username=" + Config.username + "&gameMode=online"
+    if is_local:
+        urlWithQuery = Config.flowUrl + "/api/matchmaker?player1=" + player1 + "&player2=" + player2 + "&gameMode=local"
+    else:
+        urlWithQuery = Config.flowUrl + "/api/matchmaker?username=" + Config.username + "&gameMode=online"
     response = Config.session.get(urlWithQuery, verify=False)
     response.raise_for_status()
     url = response.json()["url"]
     ssl_context = init_ssl_context()
     async with websockets.connect(url, ssl=ssl_context) as ws:
         Config.currentWebSocket = ws
-        await online_room(ws)
+        if is_local:
+            await local_room(ws, [player1, player2])
+        else:
+            await online_room(ws)
         await ws.close()
         Config.currentWebSocket = None
+
+
+##############################################################################################################
+############################################ LOCAL ROOM ######################################################
+##############################################################################################################
+
+async def local_room(ws, players):
+	signal.signal(signal.SIGTSTP, handle_sigstop)
+	Config.openEditor = False
+	notifications = ['Players']
+	for i, player in enumerate(players):
+		notifications.append(f"Player{i+1}: {player}")
+	notifications.append('')
+	render_local_notifications_board(notifications)
+
+	while True:
+		if Config.openEditor:
+			userInput = local_editor()
+			if (userInput == 'start'):
+				os.system('clear')
+				render_match_options_selection()
+				ballSpeed, paddleSpeed = ask_settings()
+				message_type = "start_match"
+				await ws.send(json.dumps({"type": message_type, "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}))
+			elif (userInput == 'exit'):
+				break
+			elif (userInput == 'close'):
+				os.system('clear')
+				render_local_notifications_board(notifications)
+		
+		message = await receive_no_wait(ws)
+		if message is not None:
+			message = json.loads(message)
+			if message["identity"] == "start_match":
+				os.system('clear')
+				os.system('stty echo')
+				Config.openEditor = False
+				break
+
+			elif message["identity"] == "message":
+				notifications.append(message["sender"] + ": " + message["message"])
+				render_local_notifications_board(notifications)
+			elif message["identity"] == "error":
+				notifications.append("Error: " + message["message"])
+				render_local_notifications_board(notifications)
 
 
 ##############################################################################################################
