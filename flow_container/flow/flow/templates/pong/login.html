@@ -23,11 +23,11 @@
                 loadPageHash();
             }
             else {
-                loginError.innerHTML = result;
+                loginError.textContent = result;
             }
         }
         catch (error) {
-            loginError.innerHTML = error;
+            loginError.textContent = error;
         }
     });
 }
@@ -73,12 +73,12 @@
                 window.location.hash = 'home'
             }
             else {
-                loginError.innerHTML = result;
+                loginError.textContent = result;
                 loginError.classList.add("show");
             }
         }
         catch (error) {
-            loginError.innerHTML = error;
+            loginError.textContent = error;
             loginError.classList.add("show");
         }
     });

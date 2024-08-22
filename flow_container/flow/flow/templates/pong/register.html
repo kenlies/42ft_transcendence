@@ -23,11 +23,11 @@
                 loadPageHash();
             }
             else {
-                registerError.innerHTML = result;
+                registerError.textContent = result;
             }
         }
         catch (error) {
-            registerError.innerHTML = error;
+            registerError.textContent = error;
         }
     });
 }
@@ -57,7 +57,7 @@
     registerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        registerError.innerHTML = '';
+        registerError.textContent = '';
         registerError.classList.remove("show");
         username.classList.remove("error");
         email.classList.remove("error");
@@ -89,12 +89,12 @@
                     window.location.hash = 'login'
                 }
                 else {
-                    registerError.innerHTML = result;
+                    registerError.textContent = result;
                     registerError.classList.add("show");
                 }
             }
             catch (error) {
-                registerError.innerHTML = error;
+                registerError.textContent = error;
                 registerError.classList.add("show");
             }
         }

@@ -30,7 +30,7 @@ ws.onmessage = async (event) => {
 
 	switch (parsedMessage.identity) {
 		case "room_data":
-			playerContainer.innerHTML = "";
+			playerContainer.textContent = "";
 			playersInRoom = [];
 			if (parsedMessage.player1 === username)
 				host = true
@@ -41,7 +41,10 @@ ws.onmessage = async (event) => {
 				playersInRoom.push(parsedMessage.player4);
 			}
 			playersInRoom.forEach((element) => {
-				playerContainer.innerHTML += `<div class="player-name">${element}</div>`
+				const playerElement = document.createElement('div');
+				playerElement.classList.add('player-name');
+				playerElement.textContent = element;
+				playerContainer.appendChild(playerElement);
 			});
 			break;
 
@@ -51,7 +54,8 @@ ws.onmessage = async (event) => {
 				break ;
 			if (!('sender' in parsedMessage))
 				parsedMessage.sender = 'Error';
-			chatMessages.innerHTML += createChatMessageElement(parsedMessage);
+			const messageElement = createChatMessageElement(parsedMessage);
+			chatMessages.appendChild(messageElement);
 			chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'}); // scroll gracefully
 			break;
 
@@ -71,7 +75,7 @@ ws.onmessage = async (event) => {
 			},
 			{ once: true });
 			break;
-		
+
 		case "room_closed":
 			// Example handling for room closed, such as closing the WebSocket connection
 			console.log("Room closed");
@@ -80,7 +84,7 @@ ws.onmessage = async (event) => {
 		case "setting_change":
 			console.log("Setting change");
 			slider.value = parsedMessage.value;
-			value.innerHTML = parsedMessage.value;
+			value.textContent = parsedMessage.value;
 			break;
 		case "game_update":
 			try {
@@ -99,8 +103,8 @@ ws.onmessage = async (event) => {
 				console.log("Game over");
 				lobbyContainer.classList.remove("hide");
 				gameContainer.classList.add("hide");
-				winnerMessage = {message: "Winner is: " + parsedMessage.winner, sender: "System"};
-				chatMessages.innerHTML += createChatMessageElement(winnerMessage);
+				const winnerMessage = {message: "Winner is: " + parsedMessage.winner, sender: "System"};
+				chatMessages.appendChild(createChatMessageElement(winnerMessage));
 				chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
 			}
 			else {

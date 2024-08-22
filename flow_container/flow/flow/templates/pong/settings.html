@@ -74,14 +74,14 @@
     document.getElementById('change-avatar').addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        avatarError.innerHTML = '';
+        avatarError.textContent = '';
         avatarError.classList.remove('show');
         newAvatar.classList.remove('error');
 
         const avatar = newAvatar ? newAvatar.files[0] : null;
 
         if (!avatar) {
-            avatarError.innerHTML = 'Please select an image to upload.';
+            avatarError.textContent = 'Please select an image to upload.';
             newAvatar.classList.add('error');
             avatarError.classList.add('show');
             return;
@@ -107,12 +107,12 @@
                 window.location.reload();
             }
             else {
-                avatarError.innerHTML = result;
+                avatarError.textContent = result;
                 avatarError.classList.add('show');
             }
         }
         catch (error) {
-            avatarError.innerHTML = error;
+            avatarError.textContent = error;
             avatarError.classList.add('show');
         }
     });
@@ -120,7 +120,7 @@
     document.getElementById('change-username').addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        usernameError.innerHTML = '';
+        usernameError.textContent = '';
         usernameError.classList.remove('show');
         newUsername.classList.remove('error');
 
@@ -146,12 +146,12 @@
                 window.location.hash = 'profile';
             }
             else {
-                usernameError.innerHTML = result;
+                usernameError.textContent = result;
                 usernameError.classList.add('show');
             }
         }
         catch (error) {
-            usernameError.innerHTML = error;
+            usernameError.textContent = error;
             usernameError.classList.add('show');
         }
     });
@@ -159,7 +159,7 @@
     document.getElementById('change-email').addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        emailError.innerHTML = '';
+        emailError.textContent = '';
         emailError.classList.remove('show');
         newEmail.classList.remove('error');
 
@@ -185,12 +185,12 @@
                 window.location.hash = 'profile';
             }
             else {
-                emailError.innerHTML = result;
+                emailError.textContent = result;
                 emailError.classList.add('show');
             }
         }
         catch (error) {
-            emailError.innerHTML = error;
+            emailError.textContent = error;
             emailError.classList.add('show');
         }
     });
@@ -198,7 +198,7 @@
     document.getElementById('change-password').addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        passwordError.innerHTML = '';
+        passwordError.textContent = '';
         passwordError.classList.remove('show');
         newPassword.classList.remove('error');
         confirmNewPassword.classList.remove('error');
@@ -227,12 +227,12 @@
                 window.location.hash = 'login'
             }
             else {
-                passwordError.innerHTML = result;
+                passwordError.textContent = result;
                 passwordError.classList.add('show');
             }
         }
         catch (error) {
-            passwordError.innerHTML = error;
+            passwordError.textContent = error;
             passwordError.classList.add('show');
         }
     });

@@ -7,12 +7,23 @@
 	const startButton = document.getElementById('lobby-start-button');
 	const inviteButton = document.getElementById('lobby-invite-button');
 
-	const createChatMessageElement = (message) => `
-	<div class="message">
-		<div class="message-sender">${message.sender}</div>
-		<div class="message-text">${message.message}</div>
-	</div>
-	`
+	const createChatMessageElement = (message) => {
+		const messageElement = document.createElement('div');
+		messageElement.classList.add('message');
+
+		const senderElement = document.createElement('div');
+		senderElement.classList.add('message-sender');
+		senderElement.textContent = message.sender;
+
+		const textElement = document.createElement('div');
+		textElement.classList.add('message-text');
+		textElement.textContent = message.message;
+
+		messageElement.appendChild(senderElement);
+		messageElement.appendChild(textElement);
+
+		return messageElement;
+	};
 
 	const sendMessage = (e) => {
 		e.preventDefault(); // prevent page reload when message is sent
@@ -34,7 +45,7 @@
 
 	startButton.addEventListener('click', (e) => {
 		e.preventDefault();
-		const ballSpeed = value.innerHTML / 1000;
+		const ballSpeed = value.textContent / 1000;
 		const paddleSpeed = ballSpeed;
 		console.log(ballSpeed);
 		console.log(paddleSpeed);
@@ -52,14 +63,14 @@
 
 	const slider = document.getElementById("myRange");
 	const value = document.getElementById("value"); // change name
-	value.innerHTML = slider.value; // Display the default slider value 
+	value.textContent = slider.value; // Display the default slider value
 
 	// Update the current slider value (each time you drag the slider handle)
 	slider.oninput = function() {
 		if (host === true)
 			ws.send(JSON.stringify({"type": "setting_change", "value": this.value}));
 		else
-			this.value = value.innerHTML;
+			this.value = value.textContent;
 	}
 
 	chatInput.focus();

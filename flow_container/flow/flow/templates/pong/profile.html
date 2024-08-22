@@ -81,7 +81,7 @@
 
     function handleAddFriend() {
         const friendUsername = document.getElementById('friend-username').value;
-        addFriendError.innerHTML = '';
+        addFriendError.textContent = '';
         addFriendError.classList.remove("show");
         if (friendUsername) {
             addFriend(friendUsername, addFriendError);
@@ -90,7 +90,7 @@
 
     function handleBlockUser() {
         const blockUsername = document.getElementById('block-username').value;
-        blockUserError.innerHTML = '';
+        blockUserError.textContent = '';
         blockUserError.classList.remove("show");
         if (blockUsername) {
             blockUser(blockUsername, blockUserError);
@@ -194,7 +194,7 @@
 
         const messageContent = document.getElementById('chat-message');
 
-        chatError.innerHTML = '';
+        chatError.textContent = '';
         chatError.classList.remove('show');
 
         if (validateChatMessage(messageContent, chatError)) {
@@ -217,11 +217,11 @@
                 if (response.ok) {
                     messageContent.value = '';
                 } else {
-                    chatError.innerHTML = result;
+                    chatError.textContent = result;
                     chatError.classList.add('show');
                 }
             } catch (error) {
-                chatError.innerHTML = error;
+                chatError.textContent = error;
                 chatError.classList.add('show');
             }
         }
