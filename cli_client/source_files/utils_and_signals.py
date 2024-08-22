@@ -1,6 +1,17 @@
 import os
 import signal
+import asyncio
 from .config import Config
+
+async def receive_no_wait(websocket):
+	recv_task = asyncio.create_task(websocket.recv())
+	try:
+		done = await asyncio.wait_for(recv_task, timeout=0.001)
+		if len(done) == 0:
+			return None
+		return done
+	except asyncio.TimeoutError:
+		return None
 
 def handle_sigstop(sig, frame):
 	Config.openEditor = True

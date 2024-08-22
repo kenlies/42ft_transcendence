@@ -4,6 +4,7 @@ import time
 import json
 import requests
 from source_files.private_chat import chat
+from source_files.start_game import choose_mode
 from source_files.config import Config, init_globals
 from source_files.user_management import view_me, view_friends, search_user, block_user
 from source_files.print_banners_docs import print_banner, print_available_commands, help, docs
@@ -39,6 +40,8 @@ def main():
 					help()
 				case "docs":
 					docs()
+				case "start game":
+					choose_mode()
 				case "exit":
 					logout()
 					print("Goodbye!")

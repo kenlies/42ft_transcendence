@@ -1,4 +1,5 @@
 import re
+import ssl
 import requests
 
 class Config:
@@ -29,3 +30,9 @@ def init_globals(hostIp):
 	response = Config.session.get(Config.flowUrl, timeout=3, verify=False)
 	if (response.status_code != 200):
 		raise Exception("Failed to connect to server.")
+
+def init_ssl_context():
+	ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+	ssl_context.check_hostname = False
+	ssl_context.verify_mode = ssl.CERT_NONE
+	return ssl_context
