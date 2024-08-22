@@ -156,6 +156,14 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			self.loopTaskActive = False
 			if self.role > 2:#handle more than 2 players through invite
 				await self.close()
+			if self.role == 1:
+				self.speed = 25
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{
+					'type': 'player_connected'
+				}
+			)
 		except OnlineMatch.DoesNotExist:
 			print("Match object not found")
 			return
@@ -353,7 +361,19 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			'player2': event['player2']
 		}))
 
+	async def player_connected(self, event):
+		if self.role == 1:
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{
+					'type': 'setting_change',
+					'value': self.speed
+				}
+			)
+
 	async def setting_change(self, event):
+		if self.role == 1:
+			self.speed = event['value']
 		await self.send(json.dumps({
 			'identity': 'setting_change',
 			'value': event['value']
