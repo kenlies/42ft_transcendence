@@ -5,6 +5,7 @@ import signal
 import asyncio
 import websockets
 from .config import Config, init_ssl_context
+from .game_loop import pong, print_game_over
 from .utils_and_signals import handle_sigstop, receive_no_wait
 from .print_banners_docs import print_banner, print_available_commands
 from .online_lobby import render_online_chat, online_editor, send_invite
@@ -249,8 +250,21 @@ async def online_room(ws, is_tournament=False):
 			elif message["identity"] == "start_match":
 				os.system('clear')
 				os.system('stty echo')
+				if is_tournament:
+					winner = await pong(ws, message)
+					if winner == None:
+						os.system('clear')
+						print_banner()
+						print("Host has left the room. The tournament is interrupted.")
+						input("Press enter to return home.")
+						break
+					chatHistory.append("Winner is: " + winner)
+					render_online_chat(chatHistory, playersInRoom)
+				else:
+					print_game_over(await pong(ws, message))
 				Config.openEditor = False
-				break
+				if not is_tournament:
+					break
 
 			elif message["identity"] == "error":
 				chatHistory.append("Error: " + message["message"])
@@ -264,4 +278,13 @@ async def online_room(ws, is_tournament=False):
 					playersInRoom.append(message["player4"])
 				render_online_chat(chatHistory, playersInRoom)
 			elif message['identity'] == 'room_closed':
+				break
+
+			elif message["identity"] == "tournament_over" and is_tournament:
+				os.system('clear')
+				os.system('stty echo')
+				print_banner()
+				print("The tournament is over. The winner is: " + message["winner"])
+				print("\n\n")
+				input("Press enter to return home.")
 				break
