@@ -103,7 +103,7 @@
             const result = await response.text();
 
             if (response.ok) {
-                window.location.hash = 'profile-{{ user.user.username }}';
+                window.location.hash = 'profile';
                 window.location.reload();
             }
             else {
@@ -143,8 +143,7 @@
             const result = await response.text();
 
             if (response.ok) {
-                const userProdile = 'profile-' + newUsername.value;
-                window.location.hash = 'userProfile';
+                window.location.hash = 'profile';
             }
             else {
                 usernameError.innerHTML = result;
@@ -183,7 +182,7 @@
             const result = await response.text();
 
             if (response.ok) {
-                window.location.hash = 'profile-{{ user.user.username }}';
+                window.location.hash = 'profile';
             }
             else {
                 emailError.innerHTML = result;
