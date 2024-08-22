@@ -21,7 +21,7 @@ from . import views
 urlpatterns = [
     path('', views.index),
     path('content/lobby', views.joinlobby),
-	path('content/profile-<targetUsername>/', views.content, {'content': 'profile'}),
+    path('content/<content>-<targetUsername>/', views.content),
     path('content/<content>/', views.content),
     path('styles.css', views.stylesheet),
     path('pong.js', views.javascript),
