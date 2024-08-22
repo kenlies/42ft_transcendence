@@ -66,6 +66,16 @@
 
 <script>
 {
+    const friendList = document.getElementById('friend-list-content');
+    const blockedUsersList = document.getElementById('blocked-list-content');
+    const friendListInterval = setInterval(() => changeContainerContent(friendList, 'friendList'), 1000);
+    const blockedUsersInterval = setInterval(() => changeContainerContent(blockedUsersList, 'blockedUsersList'), 1000);
+
+    addEventListener("hashchange", (event) => {
+        clearInterval(friendListInterval);
+        clearInterval(blockedUsersInterval);
+    }, { once: true });
+
     const addFriendError = document.getElementById('add-friend-error');
     const blockUserError = document.getElementById('block-user-error');
 
