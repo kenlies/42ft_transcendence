@@ -7,7 +7,7 @@ import websockets
 from .config import Config, init_ssl_context
 from .utils_and_signals import handle_sigstop, receive_no_wait
 from .print_banners_docs import print_banner, print_available_commands
-from .online_lobby import render_online_chat, online_editor
+from .online_lobby import render_online_chat, online_editor, send_invite
 
 
 ##############################################################################################################
@@ -137,6 +137,9 @@ async def online_room(ws):
 			elif (userInput == 'exit'):
 				break
 			elif (userInput == 'close'):
+				render_online_chat(chatHistory, playersInRoom)
+			elif (userInput == 'invite'):
+				await send_invite(ws)
 				render_online_chat(chatHistory, playersInRoom)
 			else:
 				await ws.send(json.dumps({"type": "message", "message": userInput, "sender": Config.username}))

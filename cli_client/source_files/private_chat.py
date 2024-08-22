@@ -2,9 +2,29 @@ import os
 import time
 import json
 import signal
-from .config import Config
+import asyncio
+import datetime
+import websockets
+from datetime import timedelta
+from .start_game import online_room
+from .config import Config, init_ssl_context
 from .utils_and_signals import handle_sigstop
 from .print_banners_docs import print_banner, print_available_commands, print_live_chat_help
+
+async def connect_to_match(invite_url):
+	ssl_context = init_ssl_context()
+	async with websockets.connect(invite_url, ssl=ssl_context) as ws:
+		Config.currentWebSocket = ws
+		await online_room(ws)
+		await ws.close()
+		Config.currentWebSocket = None
+
+def check_invite_time(invite_time_str):
+	invite_datetime = datetime.datetime.strptime(invite_time_str, "%Y-%m-%d %H:%M:%S")
+	invite_datetime += timedelta(hours=3)
+	current_datetime = datetime.datetime.now()
+	time_difference = current_datetime - invite_datetime
+	return time_difference < datetime.timedelta(minutes=3)
 
 def private_message_editor(toChat):
 	os.system('clear')
@@ -14,6 +34,7 @@ def private_message_editor(toChat):
 	print("-----------------------------------------------------------------------------------------------------------------------")
 	print("|  close            -  Close this editor                                                                              |")
 	print("|  exit             -  Leave the chat                                                                                 |")
+	print("|  accept           -  Accept a game invite                                                                           |")
 	print("|  Type something and press enter to send a message to the chat!                                                      |")
 	print("-----------------------------------------------------------------------------------------------------------------------")
 	print("")
@@ -27,6 +48,19 @@ def private_message_editor(toChat):
 	elif userInput == "exit":
 		os.system('stty echo')
 		return "exit"
+	elif userInput == "accept":
+		try:
+			if Config.currentInviteUrl != "":
+				invite_url = Config.currentInviteUrl
+				if ("/online/" in invite_url):
+					asyncio.get_event_loop().run_until_complete(connect_to_match(invite_url))
+					Config.currentInviteUrl = ""
+				else:
+					print("Invalid invite URL.")
+				return "close"
+		except:
+			print("Invite expired.")
+			return "close"
 	else:
 		Config.session.post(Config.flowUrl + "/api/message", headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, data=json.dumps({"receiver": toChat, "content": userInput}), verify=False)
 		load_chat(toChat)
@@ -56,6 +90,13 @@ def load_chat(toChat):
 		print("  No messages with " + toChat + " yet.")
 	print("|                                                                                                                     |")
 	print("-----------------------------------------------------------------------------------------------------------------------\n")
+	if messages is not []:
+		for message in reversed(messages):
+			if message["sender"] != Config.username and message["content"].startswith("GAME_INVITE="):
+				if check_invite_time(message["date"]):
+					print("You have received a game invite from " + message["sender"] + ". You can accept it in the editor.")
+					Config.currentInviteUrl = message["content"].split("=")[1]
+				break
 
 def chat():
 	signal.signal(signal.SIGTSTP, handle_sigstop)
