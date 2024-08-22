@@ -50,8 +50,8 @@
 		ws.send(JSON.stringify({"type": "invite", "receiver": receiver}));
 	});
 
-	var slider = document.getElementById("myRange");
-	var value = document.getElementById("value"); // change name
+	const slider = document.getElementById("myRange");
+	const value = document.getElementById("value"); // change name
 	value.innerHTML = slider.value; // Display the default slider value 
 
 	// Update the current slider value (each time you drag the slider handle)
