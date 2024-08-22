@@ -3,6 +3,7 @@ import re
 import time
 import json
 import requests
+from source_files.private_chat import chat
 from source_files.config import Config, init_globals
 from source_files.user_management import view_me, view_friends, search_user, block_user
 from source_files.print_banners_docs import print_banner, print_available_commands
@@ -32,6 +33,8 @@ def main():
 					search_user()
 				case "block user":
 					block_user()
+				case "chat":
+					chat()
 				case "exit":
 					logout()
 					print("Goodbye!")
