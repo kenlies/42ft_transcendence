@@ -24,6 +24,7 @@ def choose_mode():
 	print("|  1. Play online 1v1                                                                                                 |")
 	print("|  2. Play local 1v1                                                                                                  |")
 	print("|  3. Play online tournament                                                                                          |")
+	print("|  4. Play local tournament                                                                                           |")
 	print("-----------------------------------------------------------------------------------------------------------------------")
 	print("")
 	print("")
@@ -37,7 +38,10 @@ def choose_mode():
 				asyncio.get_event_loop().run_until_complete(start_1v1_game(is_local=True))
 				break
 			elif userInput == '3':
-				asyncio.get_event_loop().run_until_complete(start_tournament())
+				asyncio.get_event_loop().run_until_complete(start_tournament(is_local=False))
+				break
+			elif userInput == '4':
+				asyncio.get_event_loop().run_until_complete(start_tournament(is_local=True))
 				break
 			print("Invalid command. Please try again.")
 	except:
@@ -121,24 +125,35 @@ async def start_1v1_game(is_local=False):
     async with websockets.connect(url, ssl=ssl_context) as ws:
         Config.currentWebSocket = ws
         if is_local:
-            await local_room(ws, [player1, player2])
+            await local_room(ws, [player1, player2], is_tournament=False)
         else:
             await online_room(ws, is_tournament=False)
         await ws.close()
         Config.currentWebSocket = None
 
-async def start_tournament():
+async def start_tournament(is_local=False):
     os.system('clear')
     print_banner()
+    if is_local:
+        player1 = input("Enter the name of the first player: ")
+        player2 = input("Enter the name of the second player: ")
+        player3 = input("Enter the name of the third player: ")
+        player4 = input("Enter the name of the fourth player: ")
     print('Connecting to the server...')
-    urlWithQuery = Config.flowUrl + "/api/matchmaker?username=" + Config.username + "&gameMode=onlineTournament"
+    if is_local:
+        urlWithQuery = Config.flowUrl + "/api/matchmaker?player1=" + player1 + "&player2=" + player2 + "&player3=" + player3 + "&player4=" + player4 + "&gameMode=localTournament"
+    else:
+        urlWithQuery = Config.flowUrl + "/api/matchmaker?username=" + Config.username + "&gameMode=onlineTournament"
     response = Config.session.get(urlWithQuery, verify=False)
     response.raise_for_status()
     url = response.json()["url"]
     ssl_context = init_ssl_context()
     async with websockets.connect(url, ssl=ssl_context) as ws:
         Config.currentWebSocket = ws
-        await online_room(ws, is_tournament=True)
+        if is_local:
+            await local_room(ws, [player1, player2, player3, player4], is_tournament=True)
+        else:
+             await online_room(ws, is_tournament=True)
         await ws.close()
         Config.currentWebSocket = None
 
@@ -147,7 +162,7 @@ async def start_tournament():
 ############################################ LOCAL ROOM ######################################################
 ##############################################################################################################
 
-async def local_room(ws, players):
+async def local_room(ws, players, is_tournament=False):
 	signal.signal(signal.SIGTSTP, handle_sigstop)
 	Config.openEditor = False
 	notifications = ['Players']
@@ -163,7 +178,7 @@ async def local_room(ws, players):
 				os.system('clear')
 				render_match_options_selection()
 				ballSpeed, paddleSpeed = ask_settings()
-				message_type = "start_match"
+				message_type = "start_tournament" if is_tournament else "start_match"
 				await ws.send(json.dumps({"type": message_type, "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}))
 			elif (userInput == 'exit'):
 				break
