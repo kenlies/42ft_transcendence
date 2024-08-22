@@ -193,8 +193,15 @@ async def local_room(ws, players, is_tournament=False):
 			if message["identity"] == "start_match":
 				os.system('clear')
 				os.system('stty echo')
+				winner = await pong(ws, message, is_local=True)
+				if is_tournament:
+					notifications.append("Winner is: " + winner)
+					render_local_notifications_board(notifications)
+				else:
+					print_game_over(winner)
 				Config.openEditor = False
-				break
+				if not is_tournament:
+					break
 
 			elif message["identity"] == "message":
 				notifications.append(message["sender"] + ": " + message["message"])
@@ -202,6 +209,15 @@ async def local_room(ws, players, is_tournament=False):
 			elif message["identity"] == "error":
 				notifications.append("Error: " + message["message"])
 				render_local_notifications_board(notifications)
+
+			elif message["identity"] == "tournament_over" and is_tournament:
+				os.system('clear')
+				os.system('stty echo')
+				print_banner()
+				print("The tournament is over. The winner is: " + message["winner"])
+				print("\n\n")
+				input("Press enter to return home.")
+				break
 
 
 ##############################################################################################################
@@ -251,7 +267,7 @@ async def online_room(ws, is_tournament=False):
 				os.system('clear')
 				os.system('stty echo')
 				if is_tournament:
-					winner = await pong(ws, message)
+					winner = await pong(ws, message, is_local=False)
 					if winner == None:
 						os.system('clear')
 						print_banner()
@@ -261,7 +277,7 @@ async def online_room(ws, is_tournament=False):
 					chatHistory.append("Winner is: " + winner)
 					render_online_chat(chatHistory, playersInRoom)
 				else:
-					print_game_over(await pong(ws, message))
+					print_game_over(await pong(ws, message, is_local=False))
 				Config.openEditor = False
 				if not is_tournament:
 					break

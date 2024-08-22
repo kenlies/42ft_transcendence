@@ -23,6 +23,9 @@ def print_game_over(winner):
 	input()
 	os.system('stty -echo')
 
+async def send_to_server_local(websocket, value, player):
+	await websocket.send(json.dumps({"type": "paddle_position", "value": value, "player": player}))
+
 async def send_to_server(websocket, value):
 	await websocket.send(json.dumps({"type": "paddle_position", "value": value}))
 
@@ -43,6 +46,20 @@ def on_press_online(key):
 			Config.inputQueue.put(oldPosition - Config.paddleSpeed)
 		elif key == keyboard.Key.down:
 			Config.inputQueue.put(oldPosition + Config.paddleSpeed)
+	except:
+		pass
+
+def on_press_local(key):
+	try:
+		if hasattr(key, 'char'):
+			if key.char == 'w':
+				Config.inputQueue.put((Config.game_state.player1_paddle_y - Config.paddleSpeed, "player1"))
+			elif key.char == 's':
+				Config.inputQueue.put((Config.game_state.player1_paddle_y + Config.paddleSpeed, "player1"))
+		elif key == keyboard.Key.up:
+			Config.inputQueue.put((Config.game_state.player2_paddle_y - Config.paddleSpeed, "player2"))
+		elif key == keyboard.Key.down:
+			Config.inputQueue.put((Config.game_state.player2_paddle_y + Config.paddleSpeed, "player2"))
 	except:
 		pass
 
@@ -86,14 +103,15 @@ def print_game(game_state: GameState):
 	current_time = time.strftime("%H:%M:%S", time.localtime())
 	print(f"\nPlayer 1: {game_state.goals_player1} | Player 2: {game_state.goals_player2} | Time: {current_time}")
 
-def initialize_game(websocket, matchMetaData):
+def initialize_game(websocket, matchMetaData, is_local):
 	Config.currentWebSocket = websocket
 	Config.inputQueue = queue.Queue()
 
-	if (matchMetaData['player1_username'] == Config.username):
-		Config.myRole = 1
-	elif (matchMetaData['player2_username'] == Config.username):
-		Config.myRole = 2
+	if not is_local:
+		if (matchMetaData['player1_username'] == Config.username):
+			Config.myRole = 1
+		elif (matchMetaData['player2_username'] == Config.username):
+			Config.myRole = 2
 
 	court_height = 60
 	court_width = 180
@@ -118,11 +136,14 @@ def initialize_game(websocket, matchMetaData):
 	)
 	return court_width, court_height
 
-async def pong(websocket, matchMetaData):
+async def pong(websocket, matchMetaData, is_local=False):
 	try:
-		court_width, court_height = initialize_game(websocket, matchMetaData)
+		court_width, court_height = initialize_game(websocket, matchMetaData, is_local)
 
-		listener = keyboard.Listener(on_press=on_press_online)
+		if is_local:
+			listener = keyboard.Listener(on_press=on_press_local)
+		else:
+			listener = keyboard.Listener(on_press=on_press_online)
 		listener.start()
 
 		print_game(Config.game_state)
@@ -154,12 +175,16 @@ async def pong(websocket, matchMetaData):
 				elif latest_data["identity"] == "game_over":
 					listener.stop()
 					return latest_data["winner"]
-				elif latest_data["identity"] == "room_closed":
+				elif latest_data["identity"] == "room_closed" and not is_local:
 					listener.stop()
 					return None
 			while not Config.inputQueue.empty():
-				value = Config.inputQueue.get()
-				await send_to_server(websocket, value)
+				if is_local:
+					value, player = Config.inputQueue.get()
+					await send_to_server_local(websocket, value, player)
+				else:
+					value = Config.inputQueue.get()
+					await send_to_server(websocket, value)
 
 			current_time = time.time()
 			if current_time - last_draw_time >= 0.1:
