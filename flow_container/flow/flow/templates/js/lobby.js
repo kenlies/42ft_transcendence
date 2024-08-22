@@ -7,8 +7,6 @@
 	const startButton = document.getElementById('lobby-start-button');
 	const inviteButton = document.getElementById('lobby-invite-button');
 
-	var host = false;
-
 	const createChatMessageElement = (message) => `
 	<div class="message">
 		<div class="message-sender">${message.sender}</div>

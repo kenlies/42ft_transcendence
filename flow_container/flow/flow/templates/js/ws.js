@@ -3,9 +3,9 @@ const username = '{{ username }}';
 const blocklist = {{ blocked|safe }};
 const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
-var game;
-var role;
-var host = false;
+let game;
+let role;
+let host = false;
 let gameDrawInterval;
 
 {% include "js/game.js" %}
