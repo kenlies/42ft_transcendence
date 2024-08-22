@@ -135,3 +135,28 @@ def search_user():
 		print("Friend added!\n")
 	else:
 		print("User " + toSearch + " not added to friends.\n")
+
+def block_user():
+	os.system('clear')
+	print_banner()
+	print_available_commands()
+	toBlock = input("Enter the username of the user you would like to block: ")
+	try:
+		response = Config.session.get(Config.flowUrl + "/api/user?username=" + toBlock, headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, verify=False)
+		response.raise_for_status()
+	except requests.exceptions.HTTPError:
+		print("User not found. Please try again.\n")
+		return
+	response = Config.session.get(Config.flowUrl + "/api/user?username=" + Config.username, headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, verify=False)
+	response.raise_for_status()
+	currentUsername = response.json()["username"]
+	if toBlock == currentUsername:
+		print("You cannot block yourself.\n")
+		return
+	currentlyBlocked = response.json()["blocked"]
+	if toBlock in currentlyBlocked:
+		print(f"You have already blocked {toBlock}.\n")
+		return
+	response = Config.session.post(Config.flowUrl + "/api/block", headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, data=json.dumps({"username": Config.username, "blockUsername": toBlock}), verify=False)
+	response.raise_for_status()
+	print("User " + toBlock + " blocked!\n")
