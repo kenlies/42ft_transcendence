@@ -6,7 +6,7 @@ import requests
 from source_files.private_chat import chat
 from source_files.config import Config, init_globals
 from source_files.user_management import view_me, view_friends, search_user, block_user
-from source_files.print_banners_docs import print_banner, print_available_commands
+from source_files.print_banners_docs import print_banner, print_available_commands, help, docs
 from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -35,6 +35,10 @@ def main():
 					block_user()
 				case "chat":
 					chat()
+				case "help":
+					help()
+				case "docs":
+					docs()
 				case "exit":
 					logout()
 					print("Goodbye!")
