@@ -17,7 +17,7 @@ const loadPageHash = () => {
         changeContainerContent(document.body, "landing");
 }
 
-function getCookie(name) {
+const getCookie = (name) => {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
