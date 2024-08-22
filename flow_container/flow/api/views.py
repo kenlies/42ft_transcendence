@@ -412,7 +412,6 @@ def ping_view(request):
 	if request.user.is_authenticated:
 		if (request.method == 'POST'):
 			try:
-				data = json.loads(request.body)
 				user = Account.objects.get(user__username=request.user.username)
 				user.last_activity = timezone.now()
 				user.save()
