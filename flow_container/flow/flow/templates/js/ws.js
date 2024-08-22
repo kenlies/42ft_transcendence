@@ -6,6 +6,8 @@ const ws = new WebSocket(url);
 var game;
 var role;
 var host = false;
+let gameDrawInterval;
+
 {% include "js/game.js" %}
 
 const lobbyContainer = document.getElementById("lobby-container");
@@ -63,7 +65,7 @@ ws.onmessage = async (event) => {
 			game = new Game(canvas, parsedMessage);
 			role = (parsedMessage.player1 === username) ? 1 : 2;
 			game.initKeyEvents();
-			const gameDrawInterval = setInterval(() => game.draw(), 10);
+			gameDrawInterval = setInterval(() => game.draw(), 10);
 			addEventListener("hashchange", (event) => {
 				clearInterval(gameDrawInterval);
 			},
@@ -92,6 +94,7 @@ ws.onmessage = async (event) => {
 			console.log("Tournament over");
 			break;
 		case "game_over":
+			clearInterval(gameDrawInterval);
 			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
 				console.log("Game over");
 				lobbyContainer.classList.remove("hide");
