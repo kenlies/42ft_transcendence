@@ -63,7 +63,11 @@ ws.onmessage = async (event) => {
 			game = new Game(canvas, parsedMessage);
 			role = (parsedMessage.player1 === username) ? 1 : 2;
 			game.initKeyEvents();
-			const interval = setInterval(() => game.draw(), 10);
+			const gameDrawInterval = setInterval(() => game.draw(), 10);
+			addEventListener("hashchange", (event) => {
+				clearInterval(gameDrawInterval);
+			},
+			{ once: true });
 			break;
 		
 		case "room_closed":
