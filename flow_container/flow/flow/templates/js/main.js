@@ -17,9 +17,6 @@ const loadPageHash = () => {
         changeContainerContent(document.body, "landing");
 }
 
-addEventListener("load", loadPageHash );
-addEventListener("hashchange", loadPageHash );
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -34,3 +31,16 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+const pingServer = () => {
+    fetch('/api/ping', {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken')}
+    });
+}
+
+addEventListener("load", loadPageHash );
+addEventListener("load", pingServer );
+addEventListener("hashchange", loadPageHash );
+
+const pingInterval = setInterval(pingServer, 55000);
