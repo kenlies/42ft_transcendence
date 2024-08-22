@@ -23,6 +23,7 @@ def choose_mode():
 	print("-----------------------------------------------------------------------------------------------------------------------")
 	print("|  1. Play online 1v1                                                                                                 |")
 	print("|  2. Play local 1v1                                                                                                  |")
+	print("|  3. Play online tournament                                                                                          |")
 	print("-----------------------------------------------------------------------------------------------------------------------")
 	print("")
 	print("")
@@ -34,6 +35,9 @@ def choose_mode():
 				break
 			elif userInput == '2':
 				asyncio.get_event_loop().run_until_complete(start_1v1_game(is_local=True))
+				break
+			elif userInput == '3':
+				asyncio.get_event_loop().run_until_complete(start_tournament())
 				break
 			print("Invalid command. Please try again.")
 	except:
@@ -119,7 +123,22 @@ async def start_1v1_game(is_local=False):
         if is_local:
             await local_room(ws, [player1, player2])
         else:
-            await online_room(ws)
+            await online_room(ws, is_tournament=False)
+        await ws.close()
+        Config.currentWebSocket = None
+
+async def start_tournament():
+    os.system('clear')
+    print_banner()
+    print('Connecting to the server...')
+    urlWithQuery = Config.flowUrl + "/api/matchmaker?username=" + Config.username + "&gameMode=onlineTournament"
+    response = Config.session.get(urlWithQuery, verify=False)
+    response.raise_for_status()
+    url = response.json()["url"]
+    ssl_context = init_ssl_context()
+    async with websockets.connect(url, ssl=ssl_context) as ws:
+        Config.currentWebSocket = ws
+        await online_room(ws, is_tournament=True)
         await ws.close()
         Config.currentWebSocket = None
 
@@ -173,7 +192,7 @@ async def local_room(ws, players):
 ############################################ ONLINE ROOM #####################################################
 ##############################################################################################################
 
-async def online_room(ws):
+async def online_room(ws, is_tournament=False):
 	signal.signal(signal.SIGTSTP, handle_sigstop)
 	await ws.send(json.dumps({"type": "room_data_request"}))
 	chatHistory = []
@@ -191,7 +210,7 @@ async def online_room(ws):
 				os.system('clear')
 				render_match_options_selection()
 				ballSpeed, paddleSpeed = ask_settings()
-				message_type = "start_match"
+				message_type = "start_tournament" if is_tournament else "start_match"
 				await ws.send(json.dumps({"type": message_type, "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}))
 			elif (userInput == 'exit'):
 				break
@@ -225,6 +244,9 @@ async def online_room(ws):
 				playersInRoom = []
 				playersInRoom.append(message["player1"])
 				playersInRoom.append(message["player2"])
+				if is_tournament:
+					playersInRoom.append(message["player3"])
+					playersInRoom.append(message["player4"])
 				render_online_chat(chatHistory, playersInRoom)
 			elif message['identity'] == 'room_closed':
 				break

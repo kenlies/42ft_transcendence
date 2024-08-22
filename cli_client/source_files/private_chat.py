@@ -11,11 +11,19 @@ from .config import Config, init_ssl_context
 from .utils_and_signals import handle_sigstop
 from .print_banners_docs import print_banner, print_available_commands, print_live_chat_help
 
+async def connect_to_tournament(invite_url):
+	ssl_context = init_ssl_context()
+	async with websockets.connect(invite_url, ssl=ssl_context) as ws:
+		Config.currentWebSocket = ws
+		await online_room(ws, is_tournament=True)
+		await ws.close()
+		Config.currentWebSocket = None
+
 async def connect_to_match(invite_url):
 	ssl_context = init_ssl_context()
 	async with websockets.connect(invite_url, ssl=ssl_context) as ws:
 		Config.currentWebSocket = ws
-		await online_room(ws)
+		await online_room(ws, is_tournament=False)
 		await ws.close()
 		Config.currentWebSocket = None
 
@@ -52,7 +60,10 @@ def private_message_editor(toChat):
 		try:
 			if Config.currentInviteUrl != "":
 				invite_url = Config.currentInviteUrl
-				if ("/online/" in invite_url):
+				if ("/onlineTournament/" in invite_url):
+					asyncio.get_event_loop().run_until_complete(connect_to_tournament(invite_url))
+					Config.currentInviteUrl = ""
+				elif ("/online/" in invite_url):
 					asyncio.get_event_loop().run_until_complete(connect_to_match(invite_url))
 					Config.currentInviteUrl = ""
 				else:
