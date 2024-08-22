@@ -41,7 +41,7 @@ async def update_ball(self):
 		self.ball_y = COURT_HEIGHT / 2
 		self.ballDeltaX = self.ballSpeed
 		self.ballDeltaY = 0.0
-	randomFactor = random.uniform(-self.ballSpeed, self.ballSpeed)
+	randomFactor = random.uniform(-self.ballSpeed, self.ballSpeed) * 0.9
 	if (self.ball_x <= self.player1Paddle_x and self.ball_y >= self.player1Paddle_y_top and self.ball_y <= self.player1Paddle_y_top + PADDLE_HEIGHT):
 		self.ballDeltaY = randomFactor
 		self.ballDeltaX = math.sqrt((self.ballSpeed ** 2) - (self.ballDeltaY ** 2))
