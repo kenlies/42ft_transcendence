@@ -179,6 +179,13 @@
 
 <script>
 {
+    const chatContent = document.getElementById('chat-content');
+    const chatInterval = setInterval(() => changeContainerContent(chatContent, 'chat-{{ targetUser.user.username }}'), 1000);
+
+    addEventListener("hashchange", (event) => {
+        clearInterval(chatInterval);
+    }, { once: true });
+
     const chatForm = document.getElementById('chat-input');
     const chatError = document.getElementById('chat-error');
 
