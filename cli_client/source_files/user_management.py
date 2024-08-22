@@ -54,3 +54,55 @@ def view_me():
 			print("Avatar downloaded as avatar.png\n")
 	else:
 		print("Avatar not downloaded.\n")
+
+def view_friends():
+	os.system('clear')
+	print_banner()
+	print_available_commands()
+	print("Getting your friends list...\n")
+	response = Config.session.get(Config.flowUrl + "/api/user?username=" + Config.username, headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, verify=False)
+	response.raise_for_status()
+	toPrintFriends = response.json()["friends"]
+	if toPrintFriends == []:
+		toPrintFriends = ["No friends yet."]
+	print("-----------------------------------------------------------------------------------------------------------------------")
+	print("|                                                      MY FRIENDS                                                     |")
+	print("-----------------------------------------------------------------------------------------------------------------------")
+	print("|                                                                                                                     |")
+	for friend in toPrintFriends:
+		print("  " + friend)
+	print("|                                                                                                                     |")
+	print("-----------------------------------------------------------------------------------------------------------------------\n")
+	if toPrintFriends[0] == "No friends yet.":
+		return
+	yesOrNo = input("Would you like to view a friend's profile? (y/n): ")
+	if yesOrNo == "y" or yesOrNo == "Y" or yesOrNo == "yes" or yesOrNo == "Yes":
+		toView = input("Enter the username of the friend you would like to view: ")
+		if toView not in toPrintFriends:
+			print("Invalid friend. Please try again.")
+			return
+		response = Config.session.get(Config.flowUrl + "/api/user?username=" + toView, headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, verify=False)
+		response.raise_for_status()
+		toPrintUsername = response.json()["username"]
+		toPrintEmail = response.json()["email"]
+
+		print("-----------------------------------------------------------------------------------------------------------------------")
+		print("|                                                    FRIENDS PROFILE                                                  |")
+		print("-----------------------------------------------------------------------------------------------------------------------")
+		print("|                                                                                                                     |")
+		print("  Username: " + toPrintUsername)
+		print("  Email: " + toPrintEmail)
+		print("|                                                                                                                     |")
+		print("-----------------------------------------------------------------------------------------------------------------------\n")
+		yesOrNo = input("Would you like to download " + toView + "'s avatar? (y/n): ")
+		if yesOrNo == "y" or yesOrNo == "Y" or yesOrNo == "yes" or yesOrNo == "Yes":
+			avatarEndpoint = response.json()["avatar_url"]
+			avatarResponse = Config.session.get(Config.flowUrl + "" + avatarEndpoint, headers={"Content-Type": "application/json", "X-CSRFToken": Config.session.cookies["csrftoken"], "session-id": Config.session.cookies["sessionid"], "Referer": Config.flowReferer}, verify=False)
+			avatar = avatarResponse.content
+			with open("avatar.png", "wb") as f:
+				f.write(avatar)
+				print("Avatar downloaded as avatar.png\n")
+		else:
+			print("Avatar not downloaded.\n")
+	else:
+		print("Friend not viewed.\n")

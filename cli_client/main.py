@@ -4,7 +4,7 @@ import time
 import json
 import requests
 from source_files.config import Config, init_globals
-from source_files.user_management import view_me
+from source_files.user_management import view_me, view_friends
 from source_files.print_banners_docs import print_banner, print_available_commands
 from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -26,6 +26,8 @@ def main():
 			match command:
 				case "view me":
 					view_me()
+				case "view friends":
+					view_friends()
 				case "exit":
 					logout()
 					print("Goodbye!")
