@@ -81,8 +81,8 @@ ws.onmessage = async (event) => {
 			break;
 		case "setting_change":
 			console.log("Setting change");
-			slider.value = parsedMessage.value;
-			value.textContent = parsedMessage.value;
+			speedSlider.value = parsedMessage.value;
+			speedSliderValBelow.textContent = parsedMessage.value;
 			break;
 		case "game_update":
 			try {

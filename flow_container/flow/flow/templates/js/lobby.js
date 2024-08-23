@@ -45,7 +45,7 @@
 
 	startButton.addEventListener('click', (e) => {
 		e.preventDefault();
-		const ballSpeed = value.textContent / 1000;
+		const ballSpeed = speedSliderValBelow.textContent / 1000;
 		const paddleSpeed = ballSpeed;
 		console.log(ballSpeed);
 		console.log(paddleSpeed);
@@ -61,16 +61,16 @@
 		ws.send(JSON.stringify({"type": "invite", "receiver": receiver}));
 	});
 
-	const slider = document.getElementById("myRange");
-	const value = document.getElementById("value"); // change name
-	value.textContent = slider.value; // Display the default slider value
+	const speedSlider = document.getElementById("speed-slider");
+	const speedSliderValBelow = document.getElementById("speed-slider-val-below"); // change name
+	speedSliderValBelow.textContent = speedSlider.value; // Display the default slider value
 
 	// Update the current slider value (each time you drag the slider handle)
-	slider.oninput = function() {
+	speedSlider.oninput = function() {
 		if (host === true)
 			ws.send(JSON.stringify({"type": "setting_change", "value": this.value}));
 		else
-			this.value = value.textContent;
+			this.value = speedSliderValBelow.textContent;
 	}
 
 	chatInput.focus();
