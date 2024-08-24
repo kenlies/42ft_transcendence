@@ -108,7 +108,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				self.room_group_name,
 				{
 					'type': 'game_over',
-					'winner': 'player1' if self.goalsPlayer1 >= 5 else 'player2'
+					'winner': self.player1 if self.goalsPlayer1 >= 5 else self.player2
 				}
 			)
 			matchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
@@ -184,7 +184,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 						self.room_group_name,
 						{
 							'type': 'game_over',
-							'winner': 'player1' if self.role == 2 else 'player2'
+							'winner': self.player1 if self.role == 2 else self.player2
 						}
 					)
 					flowUrl = "http://flow:8000"
