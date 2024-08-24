@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from .models import Account, Message, Match
+from .models import Account, Message, Match, MatchRecords
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.sessions.models import Session
 from datetime import timedelta
@@ -75,10 +75,24 @@ def record_match_view(request):
 			newMatch.save()
 			matchWinnerRecord = Account.objects.get(user__username=data.get('matchWinner'))
 			matchLoserRecord = Account.objects.get(user__username=data.get('matchLoser'))
-			matchLoserRecord.matchHistory.add(newMatch)
+			winnerRecords = MatchRecords(
+				account = matchWinnerRecord,
+				match = newMatch,
+				opponent = matchLoserRecord.user.username,
+				score = str(data.get('matchWinnerScore')) + '-' + str(data.get('matchLoserScore')),
+				result = 'Win'
+			)
+			winnerRecords.save()
+			loserRecords = MatchRecords(
+				account = matchLoserRecord,
+				match = newMatch,
+				opponent = matchWinnerRecord.user.username,
+				score = str(data.get('matchLoserScore')) + '-' + str(data.get('matchWinnerScore')),
+				result = 'Loss'
+			)
+			loserRecords.save()
 			matchWinnerRecord.matchHistory.add(newMatch)
-			matchLoserRecord.save()
-			matchWinnerRecord.save()
+			matchLoserRecord.matchHistory.add(newMatch)
 			print("Match recorded")
 			return HttpResponse('Match recorded', status=201)
 		except Exception as e:

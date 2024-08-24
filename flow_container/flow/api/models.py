@@ -8,7 +8,7 @@ class Account(models.Model):
 	avatar = models.ImageField(upload_to='api/static/avatars/')
 	friendList = models.ManyToManyField('self', blank=True)
 	blockedList = models.ManyToManyField('self', blank=True)
-	matchHistory = models.ManyToManyField('Match', blank=True)
+	matchHistory = models.ManyToManyField('Match', through='MatchRecords', blank=True)
 	sentMessages = models.ManyToManyField('Message', blank=True, related_name='sent_messages')
 	receivedMessages = models.ManyToManyField('Message', blank=True, related_name='received_messages')
 	last_activity = models.DateTimeField(default=datetime.min)
@@ -27,6 +27,13 @@ class Match(models.Model):
 	matchLoserUsername = models.CharField(max_length=15, default='')
 	matchWinnerScore = models.IntegerField()
 	matchLoserScore = models.IntegerField()
+
+class MatchRecords(models.Model):
+	account = models.ForeignKey(Account, on_delete=models.CASCADE)
+	match = models.ForeignKey(Match, on_delete=models.CASCADE)
+	opponent = models.CharField(max_length=15)
+	score =  models.CharField(max_length=5)
+	result = models.CharField(max_length=5)
 
 class Message(models.Model):
 	messageContent = models.CharField(max_length=500)
