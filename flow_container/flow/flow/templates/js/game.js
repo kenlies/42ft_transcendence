@@ -23,6 +23,9 @@ class Game {
         this.goalsPlayer1 = startValues.goalsPlayer1;
         this.goalsPlayer2 = startValues.goalsPlayer2;
 
+        this.player1 = startValues.player1_username;
+        this.player2 = startValues.player2_username;
+
         this.pressedKeys = [];
     }
 
@@ -82,7 +85,7 @@ class Game {
 
     updatePaddlePosition() {
         if (this.pressedKeys[38] || this.pressedKeys[40] || this.pressedKeys[83] || this.pressedKeys[87]) {
-            if (host) {
+            if (this.player1 === username) {
                 // W or up
                 if ((this.pressedKeys[87] || this.pressedKeys[38]) && this.leftpaddleY  > 0) {
                     this.leftpaddleY -= this.paddleSpeed / 10;
@@ -93,7 +96,7 @@ class Game {
                 }
                 ws.send(JSON.stringify({"type": "paddle_position", "value": this.leftpaddleY}));
             }
-            else {
+            else if (this.player2 === username) {
                 // W or up
                 if ((this.pressedKeys[87] || this.pressedKeys[38]) && this.rightpaddleY > 0) {
                     this.rightpaddleY -= this.paddleSpeed / 10;
