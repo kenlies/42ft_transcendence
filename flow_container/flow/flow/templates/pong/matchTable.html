@@ -11,28 +11,10 @@
         {% if targetUser %}
             {% for match in matchData %}
             <tr>
-                <td>{{ match.matchDate }}</td>
-                <td>
-                    {% if match.matchWinner == targetUser.user.username %}
-                        {{ match.matchLoserUsername }}
-                    {% else %}
-                        {{ match.matchWinnerUsername }}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if match.matchWinner == targetUser.user.username %}
-                        {{ match.matchWinnerScore }} - {{ match.matchLoserScore }}
-                    {% else %}
-                        {{ match.matchLoserScore }} - {{ match.matchWinnerScore }}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if match.matchWinner == targetUser.user.username %}
-                        Win
-                    {% else %}
-                        Loss
-                    {% endif %}
-                </td>
+                <td>{{ match.match__matchDate }}</td>
+                <td>{{ match.opponent }}</td>
+                <td>{{ match.score }}</td>
+                <td>{{ match.result }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -42,28 +24,10 @@
         {% else %}
             {% for match in matchData %}
             <tr>
-                <td>{{ match.matchDate }}</td>
-                <td>
-                    {% if match.matchWinner == user.user.username %}
-                        {{ match.matchLoserUsername }}
-                    {% else %}
-                        {{ match.matchWinnerUsername }}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if match.matchWinner == user.user.username %}
-                        {{ match.matchWinnerScore }} - {{ match.matchLoserScore }}
-                    {% else %}
-                        {{ match.matchLoserScore }} - {{ match.matchWinnerScore }}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if match.matchWinner == user.user.username %}
-                        Win
-                    {% else %}
-                        Loss
-                    {% endif %}
-                </td>
+                <td>{{ match.match__matchDate }}</td>
+                <td>{{ match.opponent }}</td>
+                <td>{{ match.score }}</td>
+                <td>{{ match.result }}</td>
             </tr>
             {% empty %}
             <tr>

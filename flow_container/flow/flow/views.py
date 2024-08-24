@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.shortcuts import render
-from api.models import Account
+from api.models import Account, MatchRecords
 
 @ensure_csrf_cookie
 def index(request):
@@ -39,13 +39,13 @@ def content(request, content, targetUsername=None):
 				if targetUsername:
 					targetUser = Account.objects.get(user__username=targetUsername)
 					context['targetUser'] = targetUser
-					matches = targetUser.matchHistory.all()
+					matches = MatchRecords.objects.filter(account=targetUser)
 					context['match'] = {
 						"count": matches.count(),
-						"wins": matches.filter(matchWinnerUsername=targetUser).count(),
-						"losses": matches.filter(matchLoserUsername=targetUser).count()
+						"wins": matches.filter(result='Win').count(),
+						"losses": matches.filter(result='Loss').count()
 					}
-					context['matchData'] = matches.values('matchDate', 'matchWinnerUsername', 'matchLoserUsername', 'matchWinnerScore', 'matchLoserScore')
+					context['matchData'] = matches.values('match__matchDate', 'opponent', 'score', 'result')
 
 					if targetUser not in context['blocked']:
 						receivedMessages = user.receivedMessages.filter(messageSender=targetUser).order_by('messageDate')
@@ -54,13 +54,13 @@ def content(request, content, targetUsername=None):
 					else:
 						context['messages'] = None
 				else:
-					matches = user.matchHistory.all()
+					matches = MatchRecords.objects.filter(account=user)
 					context['match'] = {
 						"count": matches.count(),
-						"wins": matches.filter(matchWinnerUsername=user).count(),
-						"losses": matches.filter(matchLoserUsername=user).count()
+						"wins": matches.filter(result='Win').count(),
+						"losses": matches.filter(result='Loss').count()
 					}
-					context['matchData'] = matches.values('matchDate', 'matchWinnerUsername', 'matchLoserUsername', 'matchWinnerScore', 'matchLoserScore')
+					context['matchData'] = matches.values('match__matchDate', 'opponent', 'score', 'result')
 					context['targetUser'] = None
 					context['messages'] = None
 			except:
