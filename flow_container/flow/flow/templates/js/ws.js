@@ -4,7 +4,6 @@ const blocklist = {{ blocked|safe }};
 const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
 let game;
-let role;
 let host = false;
 let gameDrawInterval;
 
@@ -67,7 +66,6 @@ ws.onmessage = async (event) => {
 			await changeContainerContent(gameContainer, "game");
 			const canvas = document.getElementById("game-canvas");
 			game = new Game(canvas, parsedMessage);
-			role = (parsedMessage.player1 === username) ? 1 : 2;
 			game.initKeyEvents();
 			gameDrawInterval = setInterval(() => game.draw(), 10);
 			addEventListener("hashchange", (event) => {
