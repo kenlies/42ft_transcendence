@@ -96,20 +96,20 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 			self.inGame = False
 			if self.role == 1:
 				self.loopTaskActive = False
-				self.connectedPlayers = [1]
+				self.connectedPlayers = []
 				self.gameOnGoing = False
 				self.currentPLayer1 = 0
 				self.currentPLayer2 = 0
+				self.speed = 25
 			elif self.role > 4: #handle more than 4 players through invite
 				self.close()
-			else:
-				await self.channel_layer.group_send(
-					self.room_group_name,
-					{
-						'type': 'player_connected',
-						'role': self.role
-					}
-				)
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{
+					'type': 'player_connected',
+					'role': self.role
+				}
+			)
 		except thetournament.DoesNotExist:
 			print("Match object not found")
 			return
@@ -452,6 +452,8 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		}))
 
 	async def setting_change(self, event):
+		if self.role == 1:
+			self.speed = event['value']
 		await self.send(json.dumps({
 			'identity': 'setting_change',
 			'value': event['value']
@@ -520,6 +522,13 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 	async def player_connected(self, event):
 		if self.role == 1:
 			self.connectedPlayers.append(event['role'])
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{
+					'type': 'setting_change',
+					'value': self.speed
+				}
+			)
 
 	async def tournament_over(self, event):
 		await self.send(json.dumps({
