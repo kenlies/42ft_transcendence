@@ -16,7 +16,8 @@ const playerContainer = document.getElementById("player-container");
 const chatMessages = document.getElementById('lobby-chat-messages');
 
 ws.onopen = (event) => {
-	ws.send(JSON.stringify({"type": "room_data_request"}))
+	if (gameMode === "onlineTournament" || gameMode === "online")
+		ws.send(JSON.stringify({"type": "room_data_request"}))
 	addEventListener("hashchange", (event) => {
 		ws.close();
 	},
