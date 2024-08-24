@@ -85,28 +85,50 @@ class Game {
 
     updatePaddlePosition() {
         if (this.pressedKeys[38] || this.pressedKeys[40] || this.pressedKeys[83] || this.pressedKeys[87]) {
-            if (this.player1 === username) {
-                // W or up
-                if ((this.pressedKeys[87] || this.pressedKeys[38]) && this.leftpaddleY  > 0) {
-                    this.leftpaddleY -= this.paddleSpeed / 10;
-                }
-                // S or down
-                if ((this.pressedKeys[83] || this.pressedKeys[40]) && this.leftpaddleY  < 1.0 - this.paddleLen) {
-                    this.leftpaddleY += this.paddleSpeed / 10;
-                }
-                ws.send(JSON.stringify({"type": "paddle_position", "value": this.leftpaddleY}));
-            }
-            else if (this.player2 === username) {
-                // W or up
-                if ((this.pressedKeys[87] || this.pressedKeys[38]) && this.rightpaddleY > 0) {
-                    this.rightpaddleY -= this.paddleSpeed / 10;
-                }
-                // S or down
-                if ((this.pressedKeys[83] || this.pressedKeys[40]) && this.rightpaddleY < 1.0 - this.paddleLen) {
-                    this.rightpaddleY += this.paddleSpeed / 10;
-                }
-                ws.send(JSON.stringify({"type": "paddle_position", "value": this.rightpaddleY}));
-            }
+			if (gameMode == "local" || gameMode == "localTournament") {
+				if (this.pressedKeys[87] || this.pressedKeys[83]) {
+					// W
+					if (this.pressedKeys[87] && this.leftpaddleY > 0)
+						this.leftpaddleY -= this.paddleSpeed / 10;
+					// S
+					if (this.pressedKeys[83] && this.leftpaddleY < 1.0 - this.paddleLen)
+						this.leftpaddleY += this.paddleSpeed / 10;
+					ws.send(JSON.stringify({"type": "paddle_position", "value": this.leftpaddleY, "player": "player1"}));
+				}
+				else {
+					// up
+					if (this.pressedKeys[38] && this.rightpaddleY > 0)
+						this.rightpaddleY -= this.paddleSpeed / 10;
+					// down
+					if (this.pressedKeys[40] && this.rightpaddleY < 1.0 - this.paddleLen)
+						this.rightpaddleY += this.paddleSpeed / 10;
+					ws.send(JSON.stringify({"type": "paddle_position", "value": this.rightpaddleY, "player": "player2"}));
+				}
+			}
+			else {
+				if (this.player1 === username) {
+					// W or up
+					if ((this.pressedKeys[87] || this.pressedKeys[38]) && this.leftpaddleY  > 0) {
+						this.leftpaddleY -= this.paddleSpeed / 10;
+					}
+					// S or down
+					if ((this.pressedKeys[83] || this.pressedKeys[40]) && this.leftpaddleY  < 1.0 - this.paddleLen) {
+						this.leftpaddleY += this.paddleSpeed / 10;
+					}
+					ws.send(JSON.stringify({"type": "paddle_position", "value": this.leftpaddleY}));
+				}
+				else if (this.player2 === username) {
+					// W or up
+					if ((this.pressedKeys[87] || this.pressedKeys[38]) && this.rightpaddleY > 0) {
+						this.rightpaddleY -= this.paddleSpeed / 10;
+					}
+					// S or down
+					if ((this.pressedKeys[83] || this.pressedKeys[40]) && this.rightpaddleY < 1.0 - this.paddleLen) {
+						this.rightpaddleY += this.paddleSpeed / 10;
+					}
+					ws.send(JSON.stringify({"type": "paddle_position", "value": this.rightpaddleY}));
+				}
+			}
         }
     }
 
