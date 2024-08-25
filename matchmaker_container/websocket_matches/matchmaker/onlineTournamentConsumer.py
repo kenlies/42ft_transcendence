@@ -245,7 +245,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 			self.room_group_name,
 			{
 				'type': 'live_message',
-				'message': 'First level matches are about to begin. The first match is between ' + self.get_username_from_role(self.firstLevelMatch1[0]) + ' and ' + self.get_username_from_role(self.firstLevelMatch1[1]),
+				'message': 'The first match is between ' + self.get_username_from_role(self.firstLevelMatch1[0]) + ' and ' + self.get_username_from_role(self.firstLevelMatch1[1]),
 				'sender': 'System'
 			}
 		)
@@ -294,7 +294,6 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 			self.tournamentWinner = self.match1Winner
 		else:
 			self.tournamentWinner = self.match2Winner
-		await asyncio.sleep(5)
 		for _ in range(2):
 			await self.channel_layer.group_send(
 				self.room_group_name,
