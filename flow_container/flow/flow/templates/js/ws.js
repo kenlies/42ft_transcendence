@@ -6,6 +6,7 @@ const ws = new WebSocket(url);
 let game;
 let host = false;
 let gameDrawInterval;
+let matchLevel = 0;
 
 {% include "js/game.js" %}
 
@@ -14,6 +15,12 @@ const settingsContainer = document.getElementById("settings-container");
 const gameContainer = document.getElementById("game-container");
 const playerContainer = document.getElementById("player-container");
 const chatMessages = document.getElementById('lobby-chat-messages');
+
+const displayWinner = (text) => {
+	const gameModal = document.getElementById("game-modal");
+	gameModal.firstChild.textContent = text;
+	gameModal.classList.add("show");
+}
 
 ws.onopen = (event) => {
 	if (gameMode === "onlineTournament" || gameMode === "online")
@@ -96,25 +103,25 @@ ws.onmessage = async (event) => {
 			break;
 
 		case "tournament_over":
-			//same as game_over on 1v1
 			console.log("Tournament over");
+			displayWinner("Tournament winner: " + parsedMessage.winner);
 			break;
 
 		case "game_over":
 			clearInterval(gameDrawInterval);
 			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
-				console.log("Game over");
-				lobbyContainer.classList.remove("hide");
-				gameContainer.classList.add("hide");
-				const winnerMessage = {message: "Winner is: " + parsedMessage.winner, sender: "System"};
-				chatMessages.appendChild(createChatMessageElement(winnerMessage));
-				chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
+				if (matchLevel++ < 2) {
+					console.log("Game over");
+					lobbyContainer.classList.remove("hide");
+					gameContainer.classList.add("hide");
+					const winnerMessage = {message: "Winner is: " + parsedMessage.winner, sender: "System"};
+					chatMessages.appendChild(createChatMessageElement(winnerMessage));
+					chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
+				}
 			}
 			else {
 				console.log("Game over");
-				const gameModal = document.getElementById("game-modal");
-				gameModal.firstChild.textContent = "Winner is: " + parsedMessage.winner;
-				gameModal.classList.add("show");
+				displayWinner("Match winner: " + parsedMessage.winner);
 			}
 			break;
 
