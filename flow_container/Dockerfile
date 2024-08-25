@@ -6,12 +6,11 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ./flow .
-
 EXPOSE 8000
 
 RUN apt-get update && apt-get install -y netcat
 
+COPY ./flow .
 COPY ./entry.sh .
 
 RUN chmod +x entry.sh
