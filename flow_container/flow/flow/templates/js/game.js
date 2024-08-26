@@ -1,35 +1,55 @@
 class Game {
-    constructor(canvas, startValues){
+    constructor(canvas) {
         this.canvas = canvas;
         this.canvasContext = canvas.getContext("2d");
         this.fgColor = window.getComputedStyle(document.documentElement).getPropertyValue('--fg-color');
 
         this.paddleThic = 10;
+        this.paddleLen = null;
+        this.paddleSpeed = null;
+        this.leftpaddleY = null;
+        this.rightpaddleY = null;
+
+        this.ballRadius = 10;
+        this.ballX = null;
+        this.ballY = null;
+        this.ballSpeed = null;
+
+        this.ballSpeedX = null;
+        this.ballSpeedY = null;
+        this.ballDirectionX = 1;
+        this.ballDirectionY = 1;
+
+        this.goalsPlayer1 = null;
+        this.goalsPlayer2 = null;
+
+        this.player1 = null;
+        this.player2 = null;
+
+        this.pressedKeys = [];
+    }
+
+    initStartValues(startValues) {
         this.paddleLen = startValues.paddleHeight;
         this.paddleSpeed = startValues.paddleSpeed;
         this.leftpaddleY = startValues.player1Paddle_y_top;
         this.rightpaddleY = startValues.player2Paddle_y_top;
 
-        this.ballRadius = 10;
         this.ballX = startValues.ball_x;
         this.ballY = startValues.ball_y;
         this.ballSpeed = startValues.ballSpeed;
 
         this.ballSpeedX = startValues.ballDeltaX;
         this.ballSpeedY = startValues.ballDeltaY;
-        this.ballDirectionX = 1;
-        this.ballDirectionY = 1;
 
         this.goalsPlayer1 = startValues.goalsPlayer1;
         this.goalsPlayer2 = startValues.goalsPlayer2;
 
         this.player1 = startValues.player1_username;
         this.player2 = startValues.player2_username;
-
-        this.pressedKeys = [];
     }
 
-    updateValues(newValues){
+    updateValues(newValues) {
         this.leftpaddleY = newValues.player1Paddle_y_top;
         this.rightpaddleY = newValues.player2Paddle_y_top;
 

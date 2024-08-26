@@ -73,7 +73,8 @@ ws.onmessage = async (event) => {
 			gameContainer.classList.remove("hide");
 			await changeContainerContent(gameContainer, "game");
 			const canvas = document.getElementById("game-canvas");
-			game = new Game(canvas, parsedMessage);
+			game = new Game(canvas);
+			game.initStartValues(parsedMessage);
 			game.initKeyEvents();
 			gameDrawInterval = setInterval(() => game.draw(), 10);
 			addEventListener("hashchange", (event) => {
