@@ -109,6 +109,7 @@ ws.onmessage = async (event) => {
 
 		case "game_over":
 			clearInterval(gameDrawInterval);
+			game.stopKeyEvents();
 			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
 				if (matchLevel++ < 2) {
 					console.log("Game over");

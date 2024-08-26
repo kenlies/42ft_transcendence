@@ -52,8 +52,15 @@ class Game {
     }
 
     initKeyEvents() {
-        window.addEventListener('keydown', (e) => this.keyPressEvent(e), false);
-        window.addEventListener('keyup', (e) => this.keyReleaseEvent(e), false);
+        this.keyPressEvent = this.keyPressEvent.bind(this);
+        this.keyReleaseEvent = this.keyReleaseEvent.bind(this);
+        window.addEventListener('keydown', this.keyPressEvent, false);
+        window.addEventListener('keyup', this.keyReleaseEvent, false);
+    }
+
+    stopKeyEvents() {
+        window.removeEventListener('keydown', this.keyPressEvent, false);
+        window.removeEventListener('keyup', this.keyReleaseEvent, false);
     }
 
     drawBall() {
