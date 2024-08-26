@@ -87,6 +87,7 @@ class Game {
     }
 
     initKeyEvents() {
+        this.stopKeyEvents();
         if (this.spectator)
             return;
         this.keyPressEvent = this.keyPressEvent.bind(this);
