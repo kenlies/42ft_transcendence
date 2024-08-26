@@ -25,8 +25,17 @@ class Game {
 
         this.player1 = null;
         this.player2 = null;
+        this.spectator = false;
 
         this.pressedKeys = [];
+    }
+
+    playerIsSpectator() {
+        if (gameMode == "local" || gameMode == "localTournament")
+            return false;
+        if (this.player1 === username || this.player2 === username)
+            return false;
+        return true;
     }
 
     initCanvas(canvas) {
@@ -52,6 +61,7 @@ class Game {
 
         this.player1 = startValues.player1_username;
         this.player2 = startValues.player2_username;
+        this.spectator = this.playerIsSpectator();
     }
 
     updateValues(newValues) {
