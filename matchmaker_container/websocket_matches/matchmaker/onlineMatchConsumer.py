@@ -206,7 +206,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				)
 				if (self.role == 1):#player 1 disconnects
 					await sync_to_async(theMatchObject.delete)()
-		
+
 			#This happens anyway always when disconnecting
 			await self.channel_layer.group_discard(
 				self.room_group_name,
@@ -290,6 +290,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 							theMatchObject.hasCommenced = True
 							await sync_to_async(theMatchObject.save)()
 							await self.init_match(ballSpeed, paddleSpeed)
+							await self.initiate_start_match()#Twice to ensure sync
+							asyncio.sleep(0.5)
 							await self.initiate_start_match()
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
@@ -394,7 +396,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			'message': event['message'],
 			'sender': event['sender']
 		}))
-	
+
 	async def paddle_position(self, event):
 		if (self.role == 1 and self.loopTaskActive):
 			if 'player1Paddle_y_position' in event:
@@ -408,7 +410,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			'identity': 'game_update',
 			'positions': positions
 		}))
-	
+
 	async def game_over(self, event):
 		await self.send(json.dumps({
 			'identity': 'game_over',
