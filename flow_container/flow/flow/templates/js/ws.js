@@ -28,6 +28,7 @@ ws.onopen = (event) => {
 		ws.send(JSON.stringify({"type": "room_data_request"}))
 	addEventListener("hashchange", (event) => {
 		ws.close();
+		game.stopKeyEvents();
 	},
 	{ once: true });
 };
