@@ -3,12 +3,13 @@ const username = '{{ username }}';
 const blocklist = {{ blocked|safe }};
 const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
-let game;
 let host = false;
 let gameDrawInterval;
 let matchLevel = 0;
 
 {% include "js/game.js" %}
+
+const game = new Game();
 
 const lobbyContainer = document.getElementById("lobby-container");
 const settingsContainer = document.getElementById("settings-container");
@@ -73,7 +74,6 @@ ws.onmessage = async (event) => {
 			gameContainer.classList.remove("hide");
 			await changeContainerContent(gameContainer, "game");
 			const canvas = document.getElementById("game-canvas");
-			game = new Game();
 			game.initCanvas(canvas);
 			game.initStartValues(parsedMessage);
 			game.initKeyEvents();
