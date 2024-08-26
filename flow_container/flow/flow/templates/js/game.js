@@ -190,6 +190,7 @@ class Game {
     }
 
     startRedraw() {
+        this.stopRedraw();
         this.drawInterval = setInterval(() => this.draw(), 10);
     }
 
