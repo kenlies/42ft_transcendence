@@ -41,11 +41,15 @@ const getCookie = (name) => {
     return cookieValue;
 }
 
-const pingServer = () => {
-    fetch('/api/ping', {
-        method: 'POST',
-        headers: {'X-CSRFToken': getCookie('csrftoken')}
-    });
+const pingServer = async () => {
+    try {
+        await fetch('/api/ping', {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')}
+        });
+    } catch (error) {
+        console.log('Error pinging server: ' + error);
+    }
 }
 
 addEventListener("load", loadPageHash );
