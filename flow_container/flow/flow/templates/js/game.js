@@ -1,7 +1,7 @@
 class Game {
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.canvasContext = canvas.getContext("2d");
+    constructor() {
+        this.canvas = null;
+        this.canvasContext = null;
         this.fgColor = window.getComputedStyle(document.documentElement).getPropertyValue('--fg-color');
 
         this.paddleThic = 10;
@@ -27,6 +27,11 @@ class Game {
         this.player2 = null;
 
         this.pressedKeys = [];
+    }
+
+    initCanvas(canvas) {
+        this.canvas = canvas;
+        this.canvasContext = canvas.getContext("2d");
     }
 
     initStartValues(startValues) {
