@@ -28,6 +28,8 @@ class Game {
         this.spectator = false;
 
         this.pressedKeys = [];
+
+        this.drawInterval = null;
     }
 
     playerIsSpectator() {
@@ -185,5 +187,13 @@ class Game {
         this.drawLeftpaddle();
         this.drawRightpaddle();
         this.drawBall();
+    }
+
+    startRedraw() {
+        this.drawInterval = setInterval(() => this.draw(), 10);
+    }
+
+    stopRedraw() {
+        clearInterval(this.drawInterval);
     }
 }

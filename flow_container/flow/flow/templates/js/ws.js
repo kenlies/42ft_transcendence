@@ -4,7 +4,6 @@ const blocklist = {{ blocked|safe }};
 const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
 let host = false;
-let gameDrawInterval;
 let matchLevel = 0;
 
 {% include "js/game.js" %}
@@ -78,9 +77,9 @@ ws.onmessage = async (event) => {
 			game.initCanvas(canvas);
 			game.initStartValues(parsedMessage);
 			game.initKeyEvents();
-			gameDrawInterval = setInterval(() => game.draw(), 10);
+			game.startRedraw();
 			addEventListener("hashchange", (event) => {
-				clearInterval(gameDrawInterval);
+				game.stopRedraw();
 			},
 			{ once: true });
 			break;
@@ -111,7 +110,7 @@ ws.onmessage = async (event) => {
 			break;
 
 		case "game_over":
-			clearInterval(gameDrawInterval);
+			game.stopRedraw();
 			game.stopKeyEvents();
 			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
 				if (matchLevel++ < 2) {
