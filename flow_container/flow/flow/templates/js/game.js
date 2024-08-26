@@ -87,6 +87,8 @@ class Game {
     }
 
     initKeyEvents() {
+        if (this.spectator)
+            return;
         this.keyPressEvent = this.keyPressEvent.bind(this);
         this.keyReleaseEvent = this.keyReleaseEvent.bind(this);
         window.addEventListener('keydown', this.keyPressEvent, false);
