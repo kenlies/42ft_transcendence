@@ -175,7 +175,9 @@ class Game {
     }
 
     draw() {
-        this.updatePaddlePosition();
+        if (!this.spectator)
+            this.updatePaddlePosition();
+
         this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawLeftpaddle();
         this.drawRightpaddle();
