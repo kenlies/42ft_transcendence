@@ -1,7 +1,16 @@
 const changeContainerContent = async (container, contentUrl) => {
-    const response = await fetch('/content/' + contentUrl);
-    const html = await response.text();
-    container.replaceChildren(document.createRange().createContextualFragment(html));
+    try {
+        const response = await fetch('/content/' + contentUrl);
+        const html = await response.text();
+
+        if (response.ok) {
+            container.replaceChildren(document.createRange().createContextualFragment(html));
+        } else {
+            container.textContent = 'Error fetching content: ' + html;
+        }
+    } catch (error) {
+        container.textContent = 'Error fetching content: ' + error;
+    }
 }
 
 const changeContainerLobby = async (container, gameUrl) => {
