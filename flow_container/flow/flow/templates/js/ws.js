@@ -131,6 +131,10 @@ ws.onmessage = async (event) => {
 			}
 			break;
 
+		case "player_disconnected":
+			console.log(parsedMessage.username + " disconnected!");
+			break;
+
 		default:
 			console.log("Unknown message identity: " + parsedMessage.identity);
 	}

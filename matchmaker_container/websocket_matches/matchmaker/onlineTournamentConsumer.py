@@ -88,6 +88,15 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 			)
 			await self.accept()
 			self.role = thetournament.playerCount
+			match self.role:
+				case 1:
+					self.username = thetournament.player1
+				case 2:
+					self.username = thetournament.player2
+				case 3:
+					self.username = thetournament.player3
+				case 4:
+					self.username = thetournament.player4
 			thetournament.playerCount += 1
 			if (self.role == 4): #handle last player joining through invite
 				thetournament.ready = True
@@ -137,7 +146,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 					self.room_group_name,
 					{
 						'type': 'player_disconnected',
-						'role': self.role
+						'username': self.username
 					}
 				)
 			await self.channel_layer.group_discard(
@@ -514,8 +523,10 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		}))
 
 	async def player_disconnected(self, event):
-		if self.role == 1:
-			self.connectedPlayers.remove(event['role'])
+		await self.send(json.dumps({
+			'identity': 'player_disconnected',
+			'username': event['username']
+		}))
 
 	async def player_connected(self, event):
 		if self.role == 1:
