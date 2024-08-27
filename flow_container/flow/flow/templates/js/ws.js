@@ -52,7 +52,7 @@ const sendSystemMessage = (username, mode) => {
 
 ws.onopen = (event) => {
 	if (gameMode === "onlineTournament" || gameMode === "online")
-		ws.send(JSON.stringify({"type": "room_data_request"}))
+		ws.send(JSON.stringify({"type": "room_data_request"}));
 	addEventListener("hashchange", (event) => {
 		ws.close();
 		game.stopKeyEvents();
@@ -72,7 +72,7 @@ ws.onmessage = async (event) => {
 			playerContainer.textContent = "";
 			playersInRoom = [];
 			if (parsedMessage.player1 === username)
-				host = true
+				host = true;
 			playersInRoom.push(parsedMessage.player1);
 			playersInRoom.push(parsedMessage.player2);
 			if (gameMode === "onlineTournament") {
@@ -131,7 +131,7 @@ ws.onmessage = async (event) => {
 			try {
 				game.updateValues(parsedMessage.positions);
 			} catch (TypeError) {
-				console.log('game_update: game not ready yet')
+				console.log('game_update: game not ready yet');
 			}
 			break;
 
