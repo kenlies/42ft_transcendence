@@ -38,9 +38,9 @@ def on_press_online(key):
 		else:
 			return
 		if hasattr(key, 'char'):
-			if key.char == 'w':
+			if key.char == 'w' or key.char == 'W':
 				Config.inputQueue.put(oldPosition - Config.paddleSpeed)
-			elif key.char == 's':
+			elif key.char == 's' or key.char == 'S':
 				Config.inputQueue.put(oldPosition + Config.paddleSpeed)
 		elif key == keyboard.Key.up:
 			Config.inputQueue.put(oldPosition - Config.paddleSpeed)
@@ -52,9 +52,9 @@ def on_press_online(key):
 def on_press_local(key):
 	try:
 		if hasattr(key, 'char'):
-			if key.char == 'w':
+			if key.char == 'w' or key.char == 'W':
 				Config.inputQueue.put((Config.game_state.player1_paddle_y - Config.paddleSpeed, "player1"))
-			elif key.char == 's':
+			elif key.char == 's' or key.char == 'S':
 				Config.inputQueue.put((Config.game_state.player1_paddle_y + Config.paddleSpeed, "player1"))
 		elif key == keyboard.Key.up:
 			Config.inputQueue.put((Config.game_state.player2_paddle_y - Config.paddleSpeed, "player2"))
