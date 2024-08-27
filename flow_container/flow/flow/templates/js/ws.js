@@ -77,8 +77,7 @@ ws.onmessage = async (event) => {
 				break ;
 			if (!('sender' in parsedMessage))
 				parsedMessage.sender = 'Error';
-			const messageElement = createChatMessageElement(parsedMessage);
-			chatMessages.appendChild(messageElement);
+			chatMessages.appendChild(createChatMessageElement(parsedMessage));
 			chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'}); // scroll gracefully
 			break;
 
