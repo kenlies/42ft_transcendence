@@ -3,6 +3,7 @@ const username = '{{ username }}';
 const blocklist = {{ blocked|safe }};
 const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
+let room_closed = false;
 let host = false;
 let matchLevel = 0;
 
@@ -16,6 +17,8 @@ const gameContainer = document.getElementById("game-container");
 const playerContainer = document.getElementById("player-container");
 const chatMessages = document.getElementById('lobby-chat-messages');
 
+const startButton = document.getElementById('lobby-start-button');
+
 const displayWinner = (text) => {
 	const gameModal = document.getElementById("game-modal");
 	gameModal.firstChild.textContent = text;
@@ -28,8 +31,10 @@ const sendSystemMessage = (username, mode) => {
 		msg = {message: "Winner is: " + username, sender: "System"};
 	else if (mode === "closed")
 		msg = {message: "Room closed: " + username + " disconnected!", sender: "System"};
-	else
+	else if (mode === "disconnect")
 		msg = {message: username + " disconnected!", sender: "System"};
+	else
+		msg = {message: "Cannot start: Room closed!", sender: "System"};
 	chatMessages.appendChild(createChatMessageElement(msg));
 	chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
 }
@@ -101,6 +106,7 @@ ws.onmessage = async (event) => {
 		case "room_closed":
 			console.log("Room closed: " + parsedMessage.username + " disconnected!");
 			sendSystemMessage(parsedMessage.username, "closed");
+			room_closed = true;
 			break;
 
 		case "setting_change":
@@ -141,7 +147,7 @@ ws.onmessage = async (event) => {
 
 		case "player_disconnected":
 			console.log(parsedMessage.username + " disconnected!");
-			sendSystemMessage(parsedMessage.username, "dc");
+			sendSystemMessage(parsedMessage.username, "disconnect");
 			break;
 
 		default:

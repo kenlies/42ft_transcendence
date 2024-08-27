@@ -4,7 +4,6 @@
 	const chatInput = document.getElementById('lobby-chat-input');
 	const inviteInput = document.getElementById('lobby-invite-input');
 	const chatInputForm = document.getElementById('lobby-chat-input-form');
-	const startButton = document.getElementById('lobby-start-button');
 	const inviteButton = document.getElementById('lobby-invite-button');
 
 	const createChatMessageElement = (message) => {
@@ -45,6 +44,10 @@
 
 	startButton.addEventListener('click', (e) => {
 		e.preventDefault();
+		if (room_closed) {
+			sendSystemMessage(null, "cant_start");
+			return ;
+		}
 		const ballSpeed = speedSliderValBelow.textContent / 1000;
 		const paddleSpeed = ballSpeed;
 		console.log(ballSpeed);
