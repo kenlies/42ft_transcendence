@@ -22,6 +22,18 @@ const displayWinner = (text) => {
 	gameModal.classList.add("show");
 }
 
+const sendSystemMessage = (username, mode) => {
+	let msg;
+	if (mode === "winner")
+		msg = {message: "Winner is: " + username, sender: "System"};
+	else if (mode === "closed")
+		msg = {message: "Room closed: " + username + " disconnected!", sender: "System"};
+	else
+		msg = {message: username + " disconnected!", sender: "System"};
+	chatMessages.appendChild(createChatMessageElement(msg));
+	chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
+}
+
 ws.onopen = (event) => {
 	if (gameMode === "onlineTournament" || gameMode === "online")
 		ws.send(JSON.stringify({"type": "room_data_request"}))
@@ -89,6 +101,7 @@ ws.onmessage = async (event) => {
 
 		case "room_closed":
 			console.log("Room closed: " + parsedMessage.username + " disconnected!");
+			sendSystemMessage(parsedMessage.username, "closed");
 			break;
 
 		case "setting_change":
@@ -118,9 +131,7 @@ ws.onmessage = async (event) => {
 					console.log("Game over");
 					lobbyContainer.classList.remove("hide");
 					gameContainer.classList.add("hide");
-					const winnerMessage = {message: "Winner is: " + parsedMessage.winner, sender: "System"};
-					chatMessages.appendChild(createChatMessageElement(winnerMessage));
-					chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
+					sendSystemMessage(parsedMessage.winner, "winner");
 				}
 			}
 			else {
@@ -131,6 +142,7 @@ ws.onmessage = async (event) => {
 
 		case "player_disconnected":
 			console.log(parsedMessage.username + " disconnected!");
+			sendSystemMessage(parsedMessage.username, "dc");
 			break;
 
 		default:
