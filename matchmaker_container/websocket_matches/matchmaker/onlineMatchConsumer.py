@@ -144,6 +144,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			)
 			await self.accept()
 			self.role = theMatchObject.playerCount
+			self.username = theMatchObject.player1 if self.role == 1 else theMatchObject.player2
 			theMatchObject.playerCount += 1
 			if (self.role == 2):#handle second player connecting from invite
 				theMatchObject.ready = True
@@ -201,7 +202,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
-						'type': 'room_closed'
+						'type': 'room_closed',
+						'username': self.username
 					}
 				)
 				if (self.role == 1):#player 1 disconnects
@@ -378,7 +380,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 
 	async def room_closed(self, event):
 		await self.send(json.dumps({
-			'identity': 'room_closed'
+			'identity': 'room_closed',
+			'username': event['username']
 		}))
 		if (self.role == 1):
 			try:
