@@ -45,7 +45,7 @@
 	startButton.addEventListener('click', (e) => {
 		e.preventDefault();
 		if (room_closed) {
-			sendSystemMessage(null, "cant_start");
+			sendSystemMessage(null, "cannot");
 			return ;
 		}
 		const ballSpeed = speedSliderValBelow.textContent / 1000;

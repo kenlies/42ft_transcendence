@@ -32,14 +32,19 @@ const isScrolledToBottom = () => {
 
 const sendSystemMessage = (username, mode) => {
 	let msg;
-	if (mode === "winner")
-		msg = {message: "Winner is: " + username, sender: "System"};
-	else if (mode === "closed")
-		msg = {message: "Room closed: " + username + " disconnected!", sender: "System"};
-	else if (mode === "disconnect")
-		msg = {message: username + " disconnected!", sender: "System"};
-	else
-		msg = {message: "Cannot start: Room closed!", sender: "System"};
+	switch (mode) {
+		case "winner":
+			msg = {message: "Winner is: " + username, sender: "System"};
+			break;
+		case "closed":
+			msg = {message: "Room closed: " + username + " disconnected!", sender: "System"};
+			break;
+		case "disconnect":
+			msg = {message: username + " disconnected!", sender: "System"};
+			break;
+		case "cannot":
+			msg = {message: "Cannot start: Room closed!", sender: "System"};
+	}
 	chatMessages.appendChild(createChatMessageElement(msg));
 	if (isScrolledToBottom())
 		chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
