@@ -134,7 +134,8 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
-						'type': 'room_closed'
+						'type': 'room_closed',
+						'username': self.username
 					}
 				)
 				await sync_to_async(thetournament.delete)()
@@ -468,7 +469,8 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 
 	async def room_closed(self, event):
 		await self.send(json.dumps({
-			'identity': 'room_closed'
+			'identity': 'room_closed',
+			'username': event['username']
 		}))
 
 	async def live_message(self, event):

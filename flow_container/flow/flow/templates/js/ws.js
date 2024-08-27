@@ -88,9 +88,7 @@ ws.onmessage = async (event) => {
 			break;
 
 		case "room_closed":
-			// Example handling for room closed, such as closing the WebSocket connection
-			console.log("Room closed");
-			// Example: ws.close();
+			console.log("Room closed: " + parsedMessage.username + " disconnected!");
 			break;
 
 		case "setting_change":
