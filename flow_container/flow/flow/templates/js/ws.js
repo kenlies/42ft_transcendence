@@ -30,6 +30,9 @@ ws.onopen = (event) => {
 		game.stopKeyEvents();
 	},
 	{ once: true });
+	addEventListener("beforeunload", (event) => {
+		ws.close();
+	});
 };
 
 ws.onmessage = async (event) => {
