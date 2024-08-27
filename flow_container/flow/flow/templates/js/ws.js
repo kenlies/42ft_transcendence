@@ -25,6 +25,11 @@ const displayWinner = (text) => {
 	gameModal.classList.add("show");
 }
 
+const isScrolledToBottom = () => {
+	const threshold = 150;
+	return chatMessages.scrollHeight - chatMessages.scrollTop - threshold <= chatMessages.clientHeight;
+};
+
 const sendSystemMessage = (username, mode) => {
 	let msg;
 	if (mode === "winner")
@@ -36,7 +41,8 @@ const sendSystemMessage = (username, mode) => {
 	else
 		msg = {message: "Cannot start: Room closed!", sender: "System"};
 	chatMessages.appendChild(createChatMessageElement(msg));
-	chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
+	if (isScrolledToBottom())
+		chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'});
 }
 
 ws.onopen = (event) => {
@@ -83,7 +89,8 @@ ws.onmessage = async (event) => {
 			if (!('sender' in parsedMessage))
 				parsedMessage.sender = 'Error';
 			chatMessages.appendChild(createChatMessageElement(parsedMessage));
-			chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'}); // scroll gracefully
+			if (isScrolledToBottom())
+				chatMessages.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end'}); // scroll gracefully
 			break;
 
 		case "start_match":
