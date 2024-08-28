@@ -28,8 +28,7 @@ def init_globals(hostIp):
 	Config.game_state = None
 	Config.inputQueue = None
 	response = Config.session.get(Config.flowUrl, timeout=3, verify=False)
-	if (response.status_code != 200):
-		raise Exception("Failed to connect to server.")
+	response.raise_for_status()
 
 def init_ssl_context():
 	ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)

@@ -62,11 +62,14 @@ while True:
 	try:
 		hostIp = input("Please enter the host (example https://127.0.0.1:8008 ): ")
 		init_globals(hostIp)
-	except requests.exceptions.RequestException:
+		break
+	except (requests.exceptions.RequestException, requests.exceptions.HTTPError):
 		print("Host IP invalid or service unavailable. Please try again.")
-		time.sleep(Config.wait_time)
-		continue
-	break
+	except:
+		print("An error occurred. Please try again.")
+	time.sleep(Config.wait_time)
+	continue
+
 while True:
 	os.system('clear')
 	print_banner()
