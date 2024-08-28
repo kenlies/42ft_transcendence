@@ -18,7 +18,7 @@ def javascript(request):
 	return render(request, 'js/scripts.js', {}, content_type="text/javascript")
 
 @ensure_csrf_cookie
-def content(request, content, targetUsername=None):
+def content(request, content, subdir=None, targetUsername=None):
 	no_allow = [
 		'index',
 	]
@@ -72,7 +72,10 @@ def content(request, content, targetUsername=None):
 				context['matchData'] = None
 				context['messages'] = None
 			try:
-				template = loader.get_template('pong/' + content + '.html')
+				if subdir:
+					template = loader.get_template('pong/' + subdir + '/' + content + '.html')
+				else:
+					template = loader.get_template('pong/' + content + '.html')
 			except:
 				return HttpResponse('Content not found', status=404)
 		else:
