@@ -21,7 +21,7 @@ const changeContainerLobby = async (container, gameUrl) => {
 
 const loadPageHash = () => {
     if (window.location.hash)
-        changeContainerContent(document.body, window.location.hash.substr(1));
+        changeContainerContent(document.body, window.location.hash.substr(1).replace('/', ''));
     else
         changeContainerContent(document.body, "landing");
 }
