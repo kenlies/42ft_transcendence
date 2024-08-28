@@ -4,7 +4,7 @@ import asyncio
 import requests
 from queue import Queue
 from .models import OnlineMatch
-from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from matchmaker.update import update_players, update_ball
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -109,7 +109,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 					'winner': self.player1 if self.goalsPlayer1 >= 5 else self.player2
 				}
 			)
-			matchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+			matchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 			flowUrl = "http://flow:8000" # send match score data to flow api
 			secret = os.environ.get("MATCHMAKER_SECRET")
 			data = {
@@ -124,7 +124,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			if response.status_code != 201:
 				print("Error sending match data to flow api")
 			matchObject.hasCommenced = False
-			await sync_to_async(matchObject.save)()
+			await database_sync_to_async(matchObject.save)()
 
 
 	###################################################################
@@ -136,7 +136,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		try:
 			self.room_name = self.scope['url_route']['kwargs']['game_room']
-			theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+			theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 			self.room_group_name = 'match_%s' % self.room_name
 			await self.channel_layer.group_add(
 				self.room_group_name,
@@ -148,7 +148,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			theMatchObject.playerCount += 1
 			if (self.role == 2):#handle second player connecting from invite
 				theMatchObject.ready = True
-			await sync_to_async(theMatchObject.save)()
+			await database_sync_to_async(theMatchObject.save)()
 			self.loopTaskActive = False
 			if self.role > 2:#handle more than 2 players through invite
 				await self.close()
@@ -166,7 +166,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		try:
-			theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+			theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 			matchObjectExists = True
 		except:
 			matchObjectExists = False
@@ -207,7 +207,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 					}
 				)
 				if (self.role == 1):#player 1 disconnects
-					await sync_to_async(theMatchObject.delete)()
+					await database_sync_to_async(theMatchObject.delete)()
 
 			#This happens anyway always when disconnecting
 			await self.channel_layer.group_discard(
@@ -241,7 +241,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 						}
 					)
 			elif (data['type'] == 'room_data_request'):
-				theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+				theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
@@ -283,14 +283,14 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 						}))
 					else:
 						print("Match initiated")
-						theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+						theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 						if theMatchObject.ready:
 							ballSpeed = data['ballSpeed']
 							paddleSpeed = data['paddleSpeed']
 							self.player1 = theMatchObject.player1
 							self.player2 = theMatchObject.player2
 							theMatchObject.hasCommenced = True
-							await sync_to_async(theMatchObject.save)()
+							await database_sync_to_async(theMatchObject.save)()
 							await self.init_match(ballSpeed, paddleSpeed)
 							await self.initiate_start_match()#Twice to ensure sync
 							asyncio.sleep(0.5)
@@ -303,7 +303,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 								'message': 'Not enough players to start the match.'
 							}))
 			elif (data['type'] == 'invite' and 'receiver' in data):
-				theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+				theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 				if (self.role == 1 and theMatchObject.playerCount == 2):
 					data = {
 						'secret': os.environ.get("MATCHMAKER_SECRET", "default_secret"),
@@ -316,7 +316,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 						print("Error sending invite to flow api")
 						return
 					theMatchObject.player2 = data['receiver']
-					await sync_to_async(theMatchObject.save)()
+					await database_sync_to_async(theMatchObject.save)()
 					await self.channel_layer.group_send(
 						self.room_group_name,
 						{
@@ -385,8 +385,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 		}))
 		if (self.role == 1):
 			try:
-				theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
-				await sync_to_async(theMatchObject.delete)()
+				theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+				await database_sync_to_async(theMatchObject.delete)()
 			except:
 				print("Match object allready deleted")
 			if self.loopTaskActive:
@@ -421,8 +421,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 		}))
 		if (self.role == 1):
 			try:
-				theMatchObject = await sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
-				await sync_to_async(theMatchObject.delete)()
+				theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
+				await database_sync_to_async(theMatchObject.delete)()
 			except:
 				print("Match object allready deleted")
 			if self.loopTaskActive:

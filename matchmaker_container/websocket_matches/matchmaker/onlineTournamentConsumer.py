@@ -5,7 +5,7 @@ import asyncio
 import requests
 from queue import Queue
 from .models import OnlineTournament
-from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from matchmaker.update import update_players, update_ball
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -80,7 +80,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		try:
 			self.room_name = self.scope['url_route']['kwargs']['game_room']
-			thetournament = await sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
+			thetournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 			self.room_group_name = 'match_%s' % self.room_name
 			await self.channel_layer.group_add(
 				self.room_group_name,
@@ -100,7 +100,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 			thetournament.playerCount += 1
 			if (self.role == 4): #handle last player joining through invite
 				thetournament.ready = True
-			await sync_to_async(thetournament.save)()
+			await database_sync_to_async(thetournament.save)()
 			self.inGame = False
 			if self.role == 1:
 				self.loopTaskActive = False
@@ -125,7 +125,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		try:
-			thetournament = await sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
+			thetournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 			matchObjectExists = True
 		except:
 			matchObjectExists = False
@@ -138,7 +138,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 						'username': self.username
 					}
 				)
-				await sync_to_async(thetournament.delete)()
+				await database_sync_to_async(thetournament.delete)()
 				if (self.loopTaskActive):
 					self.loopTaskActive = False
 					self.game_loop_task.cancel()
@@ -245,7 +245,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		random.shuffle(shuffled)
 		self.firstLevelMatch1 = [shuffled[0], shuffled[1]]
 		self.firstLevelMatch2 = [shuffled[2], shuffled[3]]
-		theTournament = await sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
+		theTournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 		self.player1Username = theTournament.player1
 		self.player2Username = theTournament.player2
 		self.player3Username = theTournament.player3
@@ -327,7 +327,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 						}
 					)
 			elif (data['type'] == 'room_data_request'):
-				theTournament = await sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
+				theTournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
@@ -371,12 +371,12 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 						}))
 					else:
 						print("Received start tournament")
-						theTournament = await sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
+						theTournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 						if theTournament.ready:
 							ballSpeed = data['ballSpeed']
 							paddleSpeed = data['paddleSpeed']
 							theTournament.hasCommenced = True
-							await sync_to_async(theTournament.save)()
+							await database_sync_to_async(theTournament.save)()
 							await self.init_match_meta_data(ballSpeed, paddleSpeed)
 							await self.channel_layer.group_send(
 								self.room_group_name,
@@ -394,7 +394,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 								'message': 'Not enough players to start the Tournament.'
 							}))
 			elif (data['type'] == 'invite' and 'receiver' in data):
-				theTournament = await sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
+				theTournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 				if (self.role == 1 and theTournament.playerCount < 5):
 					data = {
 						'secret': os.environ.get("MATCHMAKER_SECRET"),
@@ -414,7 +414,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 						theTournament.player4 = data['receiver']
 					else:
 						return
-					await sync_to_async(theTournament.save)()
+					await database_sync_to_async(theTournament.save)()
 					await self.channel_layer.group_send(
 						self.room_group_name,
 						{

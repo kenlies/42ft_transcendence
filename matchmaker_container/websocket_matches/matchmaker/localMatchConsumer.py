@@ -3,7 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
 from .models import LocalMatch
 from queue import Queue
-from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 from matchmaker.update import update_players, update_ball
 from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
@@ -86,7 +86,7 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 				self.loopTaskActive = False
 				self.game_loop_task.cancel()
 			try:
-				await sync_to_async(LocalMatch.objects.get)(roomId=self.room_name).delete()
+				await database_sync_to_async(LocalMatch.objects.get)(roomId=self.room_name).delete()
 			except:
 				print("Match object not found")
 			self.close()
@@ -95,7 +95,7 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		try:
 			self.room_name = self.scope['url_route']['kwargs']['game_room']
-			matchObject = await sync_to_async(LocalMatch.objects.get)(roomId=self.room_name)
+			matchObject = await database_sync_to_async(LocalMatch.objects.get)(roomId=self.room_name)
 			self.player1 = matchObject.player1
 			self.player2 = matchObject.player2
 			self.loopTaskActive = False
@@ -107,7 +107,7 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		try:
-			await sync_to_async(LocalMatch.objects.get)(roomId=self.room_name).delete()
+			await database_sync_to_async(LocalMatch.objects.get)(roomId=self.room_name).delete()
 			if (self.loopTaskActive):
 				self.loopTaskActive = False
 				self.game_loop_task.cancel()

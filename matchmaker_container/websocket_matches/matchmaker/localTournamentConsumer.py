@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import LocalTournament
-from asgiref.sync import sync_to_async
+from channels.db import database_sync_to_async
 import asyncio
 from queue import Queue
 import random
@@ -72,7 +72,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		try:
 			self.room_name = self.scope['url_route']['kwargs']['game_room']
-			thetournament = await sync_to_async(LocalTournament.objects.get)(roomId=self.room_name)
+			thetournament = await database_sync_to_async(LocalTournament.objects.get)(roomId=self.room_name)
 			self.player1 = thetournament.player1
 			self.player2 = thetournament.player2
 			self.player3 = thetournament.player3
@@ -85,7 +85,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 		
 	async def disconnect(self, close_code):
 		try:
-			await sync_to_async(LocalTournament.objects.get)(roomId=self.room_name).delete()
+			await database_sync_to_async(LocalTournament.objects.get)(roomId=self.room_name).delete()
 			if (self.loopTaskActive):
 				self.loopTaskActive = False
 				self.game_loop_task.cancel()
@@ -156,7 +156,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 		random.shuffle(shuffled)
 		self.firstLevelMatch1 = [shuffled[0], shuffled[1]]
 		self.firstLevelMatch2 = [shuffled[2], shuffled[3]]
-		theTournament = await sync_to_async(LocalTournament.objects.get)(roomId=self.room_name)
+		theTournament = await database_sync_to_async(LocalTournament.objects.get)(roomId=self.room_name)
 		self.player1Username = theTournament.player1
 		self.player2Username = theTournament.player2
 		self.player3Username = theTournament.player3
@@ -221,11 +221,11 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 					}))
 				else:
 					print("Received start tournament")
-					theTournament = await sync_to_async(LocalTournament.objects.get)(roomId=self.room_name)
+					theTournament = await database_sync_to_async(LocalTournament.objects.get)(roomId=self.room_name)
 					ballSpeed = data['ballSpeed']
 					paddleSpeed = data['paddleSpeed']
 					theTournament.hasCommenced = True
-					await sync_to_async(theTournament.save)()
+					await database_sync_to_async(theTournament.save)()
 					await self.init_match_meta_data(ballSpeed, paddleSpeed)
 					await self.send(json.dumps({
 						'identity': 'message',
