@@ -61,7 +61,7 @@ def content(request, content, subdir=None, targetUsername=None):
 						"losses": matches.filter(result='Loss').count()
 					}
 					context['matchData'] = matches.values('match__matchDate', 'opponent', 'score', 'result')
-					context['targetUser'] = None
+					context['targetUser'] = user
 					context['messages'] = None
 			except:
 				context['user'] = None

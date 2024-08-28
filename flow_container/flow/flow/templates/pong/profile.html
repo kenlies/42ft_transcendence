@@ -1,17 +1,15 @@
-{% if targetUser == user or targetUser == None %}
-
 <div class="container">
     <div class="profile-header box">
         <div class="profile-left">
-            <p><strong>{{ user.user.username }}</strong></p>
-            <p><strong>{{ user.user.email }}</strong></p>
-            <a class="landing-button" href="#settings">Settings</a>
+            <p><strong>{{ targetUser.user.username }}</strong></p>
+            <p><strong>{{ targetUser.user.email }}</strong></p>
+            {% if targetUser == user %}
+                <a class="landing-button" href="#settings">Settings</a>
+            {% endif %}
         </div>
 
         <div class="profile-center">
-            {% if user %}
-                <img src="/api/avatar?username={{ user.user.username }}" class="profile-pic" alt="User Avatar">
-            {% endif %}
+            <img src="/api/avatar?username={{ targetUser.user.username }}" class="profile-pic" alt="User Avatar">
         </div>
 
         <div class="profile-right">
@@ -24,8 +22,12 @@
     <div class="main-content box">
         <div class="buttons">
             <button onclick="showSection('match-history')" class="active">Match History</button>
-            <button onclick="showSection('friend-list')">Friend List</button>
-            <button onclick="showSection('blocked-list')">Blocked List</button>
+            {% if targetUser == user %}
+                <button onclick="showSection('friend-list')">Friend List</button>
+                <button onclick="showSection('blocked-list')">Blocked List</button>
+            {% else %}
+                <button onclick="showSection('chat')">Chat</button>
+            {% endif %}
         </div>
 
         <!-- Match History -->
@@ -36,33 +38,50 @@
             </div>
         </div>
 
-        <!-- Friend List -->
-        <div id="friend-list" class="hidden">
-            <h2 class="tab-heading">Friend List</h2>
-            <div>
-                <input type="text" id="friend-username" placeholder="Enter username to add">
-                <div id="add-friend-error"></div>
-                <button id="add-friend-button">Add Friend</button>
+        {% if targetUser == user %}
+            <!-- Friend List -->
+            <div id="friend-list" class="hidden">
+                <h2 class="tab-heading">Friend List</h2>
+                <div>
+                    <input type="text" id="friend-username" placeholder="Enter username to add">
+                    <div id="add-friend-error"></div>
+                    <button id="add-friend-button">Add Friend</button>
+                </div>
+                <div id="friend-list-content">
+                    {% include 'pong/friendList.html' %}
+                </div>
             </div>
-            <div id="friend-list-content">
-                {% include 'pong/friendList.html' %}
-            </div>
-        </div>
 
-        <!-- Blocked Users -->
-        <div id="blocked-list" class="hidden">
-            <h2 class="tab-heading">Blocked Users</h2>
-            <div>
-                <input type="text" id="block-username" placeholder="Enter username to block">
-                <div id="block-user-error"></div>
-                <button id="block-user-button">Block</button>
+            <!-- Blocked Users -->
+            <div id="blocked-list" class="hidden">
+                <h2 class="tab-heading">Blocked Users</h2>
+                <div>
+                    <input type="text" id="block-username" placeholder="Enter username to block">
+                    <div id="block-user-error"></div>
+                    <button id="block-user-button">Block</button>
+                </div>
+                <div id="blocked-list-content">
+                    {% include 'pong/blockedUsersList.html' %}
+                </div>
             </div>
-            <div id="blocked-list-content">
-                {% include 'pong/blockedUsersList.html' %}
+        {% else %}
+            <!-- Chat -->
+            <div id="chat" class="hidden">
+                <h2 class="tab-heading">Chat</h2>
+                <div id="chat-content">
+                    {% include 'pong/chat.html' %}
+                </div>
+                <form id="chat-input" class="chat-input">
+                    <input type="text" id="chat-message" placeholder="Type a message...">
+                    <div id="chat-error"></div>
+                    <button type="submit">Send</button>
+                </form>
             </div>
-        </div>
+        {% endif %}
     </div>
 </div>
+
+{% if targetUser == user %}
 
 <script>
 {
@@ -128,54 +147,6 @@
 </script>
 
 {% else %}
-
-<div class="container">
-    <div class="profile-header box">
-        <div class="profile-left">
-            <p><strong>{{ targetUser.user.username }}</strong></p>
-            <p>{{ targetUser.user.email }}</p>
-        </div>
-
-        <div class="profile-center">
-            {% if targetUser %}
-                <img src="/api/avatar?username={{ targetUser.user.username }}" class="profile-pic" alt="User Avatar">
-            {% endif %}
-        </div>
-
-        <div class="profile-right">
-                <p><strong>Matches Played: </strong>{{ match.count }}</p>
-                <p><strong>Wins: </strong>{{ match.wins }}</p>
-                <p><strong>Losses: </strong>{{ match.losses }}</p>
-        </div>
-    </div>
-
-    <div class="main-content box">
-        <div class="buttons">
-            <button onclick="showSection('match-history')" class="active">Match History</button>
-            <button onclick="showSection('chat')">Chat</button>
-        </div>
-
-        <div id="match-history">
-            <h2 class="tab-heading">Match History</h2>
-            <div id="match-history-content">
-                {% include 'pong/matchTable.html' %}
-            </div>
-        </div>
-
-        <!-- Chat -->
-        <div id="chat" class="hidden">
-            <h2 class="tab-heading">Chat</h2>
-            <div id="chat-content">
-                {% include 'pong/chat.html' %}
-            </div>
-            <form id="chat-input" class="chat-input">
-                <input type="text" id="chat-message" placeholder="Type a message...">
-                <div id="chat-error"></div>
-                <button type="submit">Send</button>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
 {
