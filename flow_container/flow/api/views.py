@@ -286,6 +286,10 @@ def block_view(request):
 				user.blockedList.add(Account.objects.get(user__username=blockUsername))
 				user.save()
 				return HttpResponse('User blocked', status=200)
+			except json.JSONDecodeError:
+				return HttpResponse('Invalid JSON', status=400)
+			except KeyError:
+				return HttpResponse('Missing parameters', status=400)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		if (request.method == 'DELETE'): ##remove user from blocklist
@@ -295,6 +299,10 @@ def block_view(request):
 				user.blockedList.remove(Account.objects.get(user__username=data.get('unblockUsername')))
 				user.save()
 				return HttpResponse('User unblocked', status=200)
+			except json.JSONDecodeError:
+				return HttpResponse('Invalid JSON', status=400)
+			except KeyError:
+				return HttpResponse('Missing parameters', status=400)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		else:
