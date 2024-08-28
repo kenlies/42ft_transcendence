@@ -112,7 +112,7 @@ ws.onmessage = async (event) => {
 		case "game_over":
 			game.stopRedraw();
 			game.stopKeyEvents();
-			if (gameMode === "onlineTournament" || gameMode === "offlineTournament") {
+			if (gameMode === "onlineTournament" || gameMode === "localTournament") {
 				if (matchLevel++ < 2) {
 					console.log("Game over");
 					lobbyContainer.classList.remove("hide");
