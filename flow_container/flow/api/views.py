@@ -377,6 +377,10 @@ def user_view(request):
 			)
 			newAccount.save()
 			return HttpResponse('User created', status=201)
+		except json.JSONDecodeError:
+			return HttpResponse('Invalid JSON', status=400)
+		except KeyError:
+			return HttpResponse('Missing parameters', status=400)
 		except Exception as e:
 			return HttpResponse(e, status=500)
 	if request.user.is_authenticated:
@@ -452,6 +456,10 @@ def user_view(request):
 					else:
 						return HttpResponse('Wrong password', status=401)
 				return HttpResponse('Information updated', status=200)
+			except json.JSONDecodeError:
+				return HttpResponse('Invalid JSON', status=400)
+			except KeyError:
+				return HttpResponse('Missing parameters', status=400)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		else:
