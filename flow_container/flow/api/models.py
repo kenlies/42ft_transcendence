@@ -22,7 +22,7 @@ class Account(models.Model):
 
 class Match(models.Model):
 	matchId = models.CharField(max_length=50)
-	matchDate = models.CharField(max_length=50, default='')
+	matchDate = models.DateTimeField()
 	matchWinnerUsername = models.CharField(max_length=15, default='')
 	matchLoserUsername = models.CharField(max_length=15, default='')
 	matchWinnerScore = models.IntegerField()

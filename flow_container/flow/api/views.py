@@ -66,7 +66,7 @@ def record_match_view(request):
 				return HttpResponse('Unauthorized', status=401)
 			newMatch = Match(
 				matchId = data.get('matchId'),
-				matchDate = timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+				matchDate = timezone.now(),
 				matchWinnerUsername = data.get('matchWinner'),
 				matchLoserUsername = data.get('matchLoser'),
 				matchWinnerScore = data.get('matchWinnerScore'),
@@ -357,7 +357,7 @@ def user_view(request):
 				for match in allMatches:
 					matchData = {
 						'matchId': match.matchId,
-						'matchDate': match.matchDate,
+						'matchDate': match.matchDate.strftime('%Y-%m-%d %H:%M:%S'),
 						'matchWinner': match.matchWinnerUsername,
 						'matchLoser': match.matchLoserUsername,
 						'matchWinnerScore': match.matchWinnerScore,
