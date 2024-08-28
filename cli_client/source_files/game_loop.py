@@ -148,6 +148,7 @@ async def pong(websocket, matchMetaData, is_local=False):
 
 		print_game(Config.game_state)
 		last_draw_time = time.time()
+		last_move_time = time.time()
 
 		while True: 
 			latest_data = None
@@ -179,12 +180,17 @@ async def pong(websocket, matchMetaData, is_local=False):
 					listener.stop()
 					return None
 			while not Config.inputQueue.empty():
+				current_time = time.time()
 				if is_local:
 					value, player = Config.inputQueue.get()
-					await send_to_server_local(websocket, value, player)
+					if (current_time - last_move_time >= 0.1):
+						last_move_time = current_time
+						await send_to_server_local(websocket, value, player)
 				else:
 					value = Config.inputQueue.get()
-					await send_to_server(websocket, value)
+					if (current_time - last_move_time >= 0.1):
+						last_move_time = current_time
+						await send_to_server(websocket, value)
 
 			current_time = time.time()
 			if current_time - last_draw_time >= 0.1:
