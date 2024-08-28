@@ -331,6 +331,10 @@ def friend_view(request):
 				user.friendList.add(Account.objects.get(user__username=friendUsername))
 				user.save()
 				return HttpResponse('Friend added', status=200)
+			except json.JSONDecodeError:
+				return HttpResponse('Invalid JSON', status=400)
+			except KeyError:
+				return HttpResponse('Missing parameters', status=400)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		if (request.method == 'DELETE'): ##delete friend from list
@@ -340,6 +344,10 @@ def friend_view(request):
 				user.friendList.remove(Account.objects.get(user__username=data.get('friendUsername')))
 				user.save()
 				return HttpResponse('Friend deleted', status=200)
+			except json.JSONDecodeError:
+				return HttpResponse('Invalid JSON', status=400)
+			except KeyError:
+				return HttpResponse('Missing parameters', status=400)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		else:
