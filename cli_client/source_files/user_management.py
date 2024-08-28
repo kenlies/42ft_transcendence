@@ -1,8 +1,19 @@
 import os
+import pytz
 import json
 import requests
 from .config import Config
+from datetime import datetime
+from tzlocal import get_localzone
 from .print_banners_docs import print_banner, print_available_commands
+
+def localize_match_date(matchDate):
+	utc_datetime = datetime.strptime(matchDate, '%Y-%m-%d %H:%M:%S')
+	utc_timezone = pytz.utc
+	utc_datetime = utc_datetime.replace(tzinfo=utc_timezone)
+	local_timezone = get_localzone()
+	local_datetime = utc_datetime.astimezone(local_timezone)
+	return local_datetime
 
 def view_me():
 	os.system('clear')
@@ -43,7 +54,7 @@ def view_me():
 	else:
 		for match in toPrintMatches:
 			print("	" + "Id: " + match['matchId'])
-			print("	" + "Date: " + match['matchDate'])
+			print("	" + "Date: " + str(localize_match_date(match['matchDate'])))
 			print("	" + "Winner: " + match['matchWinner'] + ". With the score: " + str(match['matchWinnerScore']) + " - " + str(match['matchLoserScore']) +  ". Against: " + match['matchLoser'] + ".\n")
 	print("|                                                                                                                     |")
 	print("-----------------------------------------------------------------------------------------------------------------------\n")

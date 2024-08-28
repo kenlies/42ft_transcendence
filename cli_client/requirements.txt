@@ -1,3 +1,5 @@
 requests
 pynput
 websockets
+pytz
+tzlocal
