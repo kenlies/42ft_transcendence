@@ -3,6 +3,15 @@ const username = '{{ username }}';
 const blocklist = {{ blocked|safe }};
 const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
+
+ws.onerror = async function () {
+	console.log("Websocket error!")
+	const errorModal = document.getElementById("error-modal");
+	errorModal.classList.add("show");
+	await new Promise(resolve => setTimeout(resolve, 2500));
+	window.location.hash = 'home';
+};
+
 let room_closed = false;
 let host = false;
 let matchLevel = 0;
