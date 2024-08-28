@@ -157,6 +157,10 @@ def login_view(request):
 				return HttpResponse('Login successful', status=200)
 			else:
 				return HttpResponse('Login failed', status=401)
+		except json.JSONDecodeError:
+			return HttpResponse('Invalid JSON', status=400)
+		except KeyError:
+			return HttpResponse('Missing parameters', status=400)
 		except:
 			return HttpResponse('Internal Server Error', status=500)
 	else:
