@@ -25,19 +25,25 @@ def matchmaker_view(request):
 						"username": request.user.username
 					}
 				elif (gameMode == 'local'):
-					data = {
-						"secret": os.environ.get("MATCHMAKER_SECRET"),
-						"player1": request.GET.get('player1'),
-						"player2": request.GET.get('player2')
-					}
+					if (request.GET.get('player1') and request.GET.get('player2')):
+						data = {
+							"secret": os.environ.get("MATCHMAKER_SECRET"),
+							"player1": request.GET.get('player1'),
+							"player2": request.GET.get('player2')
+						}
+					else:
+						return HttpResponse('Missing query parameters', status=400)
 				elif (gameMode == 'localTournament'):
-					data = {
-						"secret": os.environ.get("MATCHMAKER_SECRET"),
-						"player1": request.GET.get('player1'),
-						"player2": request.GET.get('player2'),
-						"player3": request.GET.get('player3'),
-						"player4": request.GET.get('player4')
-					}
+					if (request.GET.get('player1') and request.GET.get('player2') and request.GET.get('player3') and request.GET.get('player4')):
+						data = {
+							"secret": os.environ.get("MATCHMAKER_SECRET"),
+							"player1": request.GET.get('player1'),
+							"player2": request.GET.get('player2'),
+							"player3": request.GET.get('player3'),
+							"player4": request.GET.get('player4')
+						}
+					else:
+						return HttpResponse('Missing query parameters', status=400)
 				else:
 					return HttpResponse('Invalid game mode', status=400)
 				matchmakerResponse = requests.post(matchmakerUrl, data=json.dumps(data))
@@ -96,7 +102,6 @@ def record_match_view(request):
 			print("Match recorded")
 			return HttpResponse('Match recorded', status=201)
 		except Exception as e:
-			print(e)
 			return HttpResponse(e, status=500)
 	else:
 		return HttpResponse('Method not allowed', status=405)
