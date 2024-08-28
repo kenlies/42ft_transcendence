@@ -229,6 +229,10 @@ def messages_view(request):
 				sender.save()
 				receiver.save()
 				return HttpResponse('Message sent', status=200)
+			except json.JSONDecodeError:
+				return HttpResponse('Invalid JSON', status=400)
+			except KeyError:
+				return HttpResponse('Missing parameters', status=400)
 			except Exception as e:
 				return HttpResponse(e, status=500)
 		if (request.method == 'GET'):
