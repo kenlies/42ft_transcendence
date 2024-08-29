@@ -72,7 +72,7 @@
 			sendSystemMessage(null, "cannot");
 			return ;
 		}
-		const ballSpeed = speedSliderValBelow.textContent / 1000;
+		const ballSpeed = speedSlider.value / 1000;
 		const paddleSpeed = ballSpeed;
 		console.log(ballSpeed);
 		console.log(paddleSpeed);
@@ -84,14 +84,14 @@
 
 	const speedSlider = document.getElementById("speed-slider");
 	const speedSliderValBelow = document.getElementById("speed-slider-val-below"); // change name
-	speedSliderValBelow.textContent = speedSlider.value; // Display the default slider value
+	speedSliderValBelow.textContent = speedSlider.value / 10; // Display the default slider value
 
 	// Update the current slider value (each time you drag the slider handle)
 	speedSlider.oninput = function() {
 		if (host === true)
 			ws.send(JSON.stringify({"type": "setting_change", "value": this.value}));
 		else
-			speedSliderValBelow.textContent = this.value;
+			speedSliderValBelow.textContent = this.value / 10;
 	}
 
 	chatInput.focus();
