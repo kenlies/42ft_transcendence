@@ -11,7 +11,7 @@ class Account(models.Model):
 	matchHistory = models.ManyToManyField('Match', through='MatchRecords', blank=True)
 	sentMessages = models.ManyToManyField('Message', blank=True, related_name='sent_messages')
 	receivedMessages = models.ManyToManyField('Message', blank=True, related_name='received_messages')
-	last_activity = models.DateTimeField(default=datetime.min)
+	last_activity = models.DateTimeField(default=timezone.now)
 
 	def __str__(self):
 		return self.user.username
