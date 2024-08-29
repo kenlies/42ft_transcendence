@@ -22,7 +22,7 @@ from matchmaker.onlineMatchConsumer import onlineMatchConsumer
 from matchmaker.onlineTournamentConsumer import onlineTournamentConsumer
 from matchmaker.localMatchConsumer import localMatchConsumer
 from matchmaker.localTournamentConsumer import localTournamentConsumer
-
+from matchmaker.startup_clean import clean
 
 django_asgi_application = get_asgi_application()
 
@@ -37,3 +37,5 @@ application = ProtocolTypeRouter({
 	'http': django_asgi_application,
 	'websocket': URLRouter(websocket_urlpatterns)
 })
+
+clean()
