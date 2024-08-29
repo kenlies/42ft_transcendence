@@ -32,15 +32,39 @@
 		chatInputForm.reset();
 	};
 
-	chatInputForm.addEventListener('submit', (e) => {
-		e.preventDefault();
-		const message = chatInput.value.trim();
+	if (gameMode === "local" || gameMode === "localTournament")
+	{
+		const invite = document.getElementById('lobby-invite');
+		invite.classList.add("hide");
 
-		if (message) {
-			sendMessage(e);
-			chatInput.value = '';
+		if (gameMode === "local") {
+			const lobby = document.getElementById('lobby-container');
+			const chat = document.getElementById('lobby-chat-container');
+			
+			chat.classList.add("hide");
+			lobby.classList.add("shorten-grid-gap");
 		}
-	});
+		else {
+			chatInputForm.classList.add("hide");
+		}
+	}
+	else { // only add listeners on chat/invite buttons for online games
+		chatInputForm.addEventListener('submit', (e) => {
+			e.preventDefault();
+			const message = chatInput.value.trim();
+
+			if (message) {
+				sendMessage(e);
+				chatInput.value = '';
+			}
+		});
+
+		inviteButton.addEventListener('click', (e) => {
+			e.preventDefault();
+			receiver = inviteInput.value.trim();
+			ws.send(JSON.stringify({"type": "invite", "receiver": receiver}));
+		});
+	}
 
 	startButton.addEventListener('click', (e) => {
 		e.preventDefault();
@@ -56,12 +80,6 @@
 			ws.send(JSON.stringify({"type": "start_tournament", "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}));
 		else
 			ws.send(JSON.stringify({"type": "start_match", "ballSpeed": ballSpeed, "paddleSpeed": paddleSpeed}));
-	});
-
-	inviteButton.addEventListener('click', (e) => {
-		e.preventDefault();
-		receiver = inviteInput.value.trim();
-		ws.send(JSON.stringify({"type": "invite", "receiver": receiver}));
 	});
 
 	const speedSlider = document.getElementById("speed-slider");
