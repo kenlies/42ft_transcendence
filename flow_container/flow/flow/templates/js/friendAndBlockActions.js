@@ -16,15 +16,18 @@ async function addFriend(friendUsername, addFriendError) {
 
         if (response.ok) {
             console.log('Friend added.');
+            return true;
         }
         else {
             addFriendError.textContent = result;
             addFriendError.classList.add("show");
+            return false;
         }
     }
     catch (error) {
         addFriendError.textContent = error;
         addFriendError.classList.add("show");
+        return false;
     }
 }
 
@@ -46,14 +49,17 @@ async function blockUser(blockUsername, blockUserError) {
 
         if (response.ok) {
             console.log('User blocked');
+            return true;
         }
         else {
             blockUserError.textContent = result;
             blockUserError.classList.add("show");
+            return false;
         }
     }
     catch (error) {
         blockUserError.textContent = error;
         blockUserError.classList.add("show");
+        return false;
     }
 }
