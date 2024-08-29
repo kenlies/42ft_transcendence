@@ -19,7 +19,7 @@ def matchmaker_view(request):
 			try:
 				gameMode = request.GET.get('gameMode')
 				matchmakerUrl = "http://matchmaker:8001/match/initiate/" + gameMode
-				if (gameMode == 'online' or gameMode == 'onlineTournament'):
+				if (gameMode == 'online' or gameMode == 'onlineTournament' or gameMode == 'ai'):
 					data = {
 						"secret": os.environ.get("MATCHMAKER_SECRET"),
 						"username": request.user.username

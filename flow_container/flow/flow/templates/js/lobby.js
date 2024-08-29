@@ -32,12 +32,12 @@
 		chatInputForm.reset();
 	};
 
-	if (gameMode === "local" || gameMode === "localTournament")
+	if (gameMode === "local" || gameMode === "localTournament" || gameMode === "ai")
 	{
 		const invite = document.getElementById('lobby-invite');
 		invite.classList.add("hide");
 
-		if (gameMode === "local") {
+		if (gameMode === "local" || gameMode === "ai") {
 			const lobby = document.getElementById('lobby-container');
 			const chat = document.getElementById('lobby-chat-container');
 

@@ -34,3 +34,8 @@ class LocalTournament(models.Model):
 	player2 = models.CharField(max_length=15)
 	player3 = models.CharField(max_length=15)
 	player4 = models.CharField(max_length=15)
+
+class AiMatch(models.Model):
+	roomId = models.CharField(max_length=36)
+	player1 = models.CharField(max_length=15)
+	player2 = models.CharField(default="Bot")

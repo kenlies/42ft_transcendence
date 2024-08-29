@@ -98,6 +98,8 @@ def joinlobby(request):
 					gameMode = 'localTournament'
 				elif 'online' in gameUrl:
 					gameMode = 'online'
+				elif 'ai' in gameUrl:
+					gameMode = 'ai'
 				else:
 					gameMode = 'local'
 				context["response"] = {"url": gameUrl, 'gameMode': gameMode}
