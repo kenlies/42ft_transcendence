@@ -163,7 +163,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 		self.player4Username = theTournament.player4
 		await self.send(json.dumps({
 			'identity': 'message',
-			'message': 'First level matches are about to begin. The first match is between ' + self.get_username_from_role(self.firstLevelMatch1[0]) + ' and ' + self.get_username_from_role(self.firstLevelMatch1[1]),
+			'message': 'The first match is between ' + self.get_username_from_role(self.firstLevelMatch1[0]) + ' and ' + self.get_username_from_role(self.firstLevelMatch1[1]),
 			'sender': 'System'
 		}))
 		await asyncio.sleep(5)
@@ -187,7 +187,6 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 		await asyncio.sleep(5)
 		self.tournamentWinner = await self.single_match(self.match1Winner, self.match2Winner)
 		await self.reset_match_data()
-		await asyncio.sleep(5)
 		await self.send(json.dumps({
 			'identity': 'tournament_over',
 			'winner': self.get_username_from_role(self.tournamentWinner)
