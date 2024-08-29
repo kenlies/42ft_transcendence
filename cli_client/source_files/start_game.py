@@ -66,7 +66,7 @@ def render_match_options_selection():
 
 def ask_settings():
 	while True:
-		userInput = input("Would you like to set custom settings? (y/n): ")
+		userInput = input("Would you like to set custom speed? (y/n): ")
 		if (userInput == 'y' or userInput == 'Y' or userInput == 'yes' or userInput == 'Yes'):
 			break
 		elif (userInput == 'n' or userInput == 'N' or userInput == 'no' or userInput == 'No'):
@@ -75,31 +75,21 @@ def ask_settings():
 			print("Invalid command. Please try again.")
 	if (userInput == 'y' or userInput == 'Y' or userInput == 'yes' or userInput == 'Yes'):
 		while True:
-			ballSpeed = input("Enter the speed of the ball (min: 0.001, max: 0.05): ")
+			speed = input("Enter the speed (slowest: 1, fastest: 5): ")
 			try:
-				ballSpeed = float(ballSpeed)
+				speed = int(speed)
 			except:
 				print("Invalid speed. Please try again.")
 				continue
-			if (ballSpeed < 0.001 or ballSpeed > 0.05):
+			if (speed < 1 or speed > 5):
 				print("Invalid speed. Please try again.")
 				continue
 			else:
-				break
-		while True:
-			paddleSpeed = input("Enter the speed of the paddles (min: 0.001, max: 0.05): ")
-			try:
-				paddleSpeed = float(paddleSpeed)
-			except:
-				print("Invalid speed. Please try again.")
-				continue
-			if (paddleSpeed < 0.001 or paddleSpeed > 0.05):
-				print("Invalid speed. Please try again.")
-				continue
-			else:
+				ballSpeed = float(speed * 0.01)
+				paddleSpeed = float(speed * 0.01)
 				break
 	else:
-		ballSpeed = 0.02
+		ballSpeed = 0.03
 		paddleSpeed = 0.03
 	return ballSpeed, paddleSpeed
 
