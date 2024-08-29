@@ -91,7 +91,7 @@
 		if (host === true)
 			ws.send(JSON.stringify({"type": "setting_change", "value": this.value}));
 		else
-			this.value = speedSliderValBelow.textContent;
+			speedSliderValBelow.textContent = this.value;
 	}
 
 	chatInput.focus();

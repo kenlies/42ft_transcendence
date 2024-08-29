@@ -82,6 +82,8 @@ ws.onmessage = async (event) => {
 			playersInRoom = [];
 			if (parsedMessage.player1 === username)
 				host = true;
+			else
+				speedSlider.setAttribute("disabled", "true");
 			playersInRoom.push(parsedMessage.player1);
 			playersInRoom.push(parsedMessage.player2);
 			if (gameMode === "onlineTournament") {
