@@ -195,6 +195,9 @@ def avatar_view(request):
 				user = Account.objects.get(user__username=request.user.username)
 				avatar_file = request.FILES.get('avatar')
 				if avatar_file:
+					old_avatar = user.avatar.path
+					if os.path.exists(old_avatar) and old_avatar != '/code/api/static/avatars/default.png':
+						os.remove(old_avatar)
 					user.avatar = avatar_file
 					user.save()
 					return HttpResponse('Avatar changed', status=200)
