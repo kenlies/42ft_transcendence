@@ -4,7 +4,7 @@ const blocklist = {{ blocked|safe }};
 const gameMode = '{{ response.gameMode }}';
 const ws = new WebSocket(url);
 
-ws.onclose = async (event) => {
+ws.onerror = async (event) => {
 	console.log("Websocket error!");
 	const errorModal = document.getElementById("error-modal");
 	errorModal.classList.add("show");
