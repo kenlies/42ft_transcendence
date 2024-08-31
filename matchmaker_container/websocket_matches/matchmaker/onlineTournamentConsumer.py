@@ -3,6 +3,7 @@ import json
 import random
 import asyncio
 import requests
+import time
 from queue import Queue
 from .models import OnlineTournament
 from channels.db import database_sync_to_async
@@ -59,6 +60,8 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
+		self.confirmedPlayers = []
+		self.allConfirmed = False
 	
 	def get_username_from_role(self, role):
 		if (role == 1):
@@ -102,9 +105,12 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				thetournament.ready = True
 			await database_sync_to_async(thetournament.save)()
 			self.inGame = False
+			self.is_disconnecting = False
 			if self.role == 1:
 				self.loopTaskActive = False
 				self.connectedPlayers = []
+				self.confirmedPlayers = []
+				self.allConfirmed = False
 				self.gameOnGoing = False
 				self.currentPLayer1 = 0
 				self.currentPLayer2 = 0
@@ -124,6 +130,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 
 
 	async def disconnect(self, close_code):
+		self.is_disconnecting = True
 		try:
 			thetournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 			matchObjectExists = True
@@ -185,16 +192,39 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				'player2_username': player2
 			}
 		)
+		
+	async def wait_for_confirmed(self, player1, player2):
+		start_time = time.time()
+		while (self.allConfirmed == False):
+			await self.send_start_match(self.get_username_from_role(player1), self.get_username_from_role(player2))
+			await asyncio.sleep(2)
+			if (time.time() - start_time > 15):
+				for player in self.connectedPlayers:
+					if player not in self.confirmedPlayers:
+						await self.channel_layer.group_send(
+							self.room_group_name,
+							{
+								'type': 'live_message',
+								'message': 'Player ' + self.get_username_from_role(player) + ' has been disconnected due to a network error.',
+								'sender': 'System'
+							}
+						)
+						await self.channel_layer.group_send(
+							self.room_group_name,
+							{
+								'type': 'time_out_disconnect',
+								'role': player
+							}
+						)
+				return
 
 	async def single_match(self, player1, player2):
 		self.gameOnGoing = True
 		self.abort = False
 		self.currentPLayer1 = player1
 		self.currentPLayer2 = player2
-		for _ in range(2):
-			await self.send_start_match(self.get_username_from_role(player1), self.get_username_from_role(player2))
-			await asyncio.sleep(1)
-		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5 and self.abort == False):
+		await self.wait_for_confirmed(player1, player2)
+		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5 and not self.abort):
 			await update_players(self)
 			await update_ball(self)
 			positions = {
@@ -334,6 +364,14 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 							'role': self.role
 						}
 					)
+			elif (data['type'] == 'received_start_match'):
+				await self.channel_layer.group_send(
+					self.room_group_name,
+					{
+						'type': 'received_start_match',
+						'role': self.role
+					}
+				)
 			elif (data['type'] == 'room_data_request'):
 				theTournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
 				await self.channel_layer.group_send(
@@ -459,34 +497,38 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 
 	################### SEND DATA ON WEBSOCKETS ##################
 	async def room_data(self, event):
-		await self.send(json.dumps({
-			'identity': 'room_data',
-			'player1': event['player1'],
-			'player2': event['player2'],
-			'player3': event['player3'],
-			'player4': event['player4']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'room_data',
+				'player1': event['player1'],
+				'player2': event['player2'],
+				'player3': event['player3'],
+				'player4': event['player4']
+			}))
 
 	async def setting_change(self, event):
 		if self.role == 1:
 			self.speed = event['value']
-		await self.send(json.dumps({
-			'identity': 'setting_change',
-			'value': event['value']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'setting_change',
+				'value': event['value']
+			}))
 
 	async def room_closed(self, event):
-		await self.send(json.dumps({
-			'identity': 'room_closed',
-			'username': event['username']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'room_closed',
+				'username': event['username']
+			}))
 
 	async def live_message(self, event):
-		await self.send(json.dumps({
-			'identity': 'message',
-			'message': event['message'],
-			'sender': event['sender']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'message',
+				'message': event['message'],
+				'sender': event['sender']
+			}))
 
 	async def paddle_position(self, event):
 		if (self.role == 1 and self.loopTaskActive and self.gameOnGoing):
@@ -498,47 +540,52 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 
 	async def game_update(self, event):
 		positions = event['positions']
-		await self.send(json.dumps({
-			'identity': 'game_update',
-			'positions': positions
-		}))
-	
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'game_update',
+				'positions': positions
+			}))
+
 	async def game_over(self, event):
-		await self.send(json.dumps({
-			'identity': 'game_over',
-			'winner': event['winner']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'game_over',
+				'winner': event['winner']
+			}))
 
 	async def start_match(self, event):
-		await self.send(json.dumps({
-			'identity': 'start_match',
-			'role': self.role,
-			'paddleSpeed': event['paddleSpeed'],
-			'paddleHeight': event['paddleHeight'],
-			'courtHeight': event['courtHeight'],
-			'courtWidth': event['courtWidth'],
-			'player1Paddle_y_top': event['player1Paddle_y_top'],
-			'player2Paddle_y_top': event['player2Paddle_y_top'],
-			'player1Paddle_x': event['player1Paddle_x'],
-			'player2Paddle_x': event['player2Paddle_x'],
-			'ball_x': event['ball_x'],
-			'ball_y': event['ball_y'],
-			'ballDeltaY': event['ballDeltaY'],
-			'ballDeltaX': event['ballDeltaX'],
-			'ballSpeed': event['ballSpeed'],
-			'goalsPlayer1': event['goalsPlayer1'],
-			'goalsPlayer2': event['goalsPlayer2'],
-			'player1_username': event['player1_username'],
-			'player2_username': event['player2_username']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'start_match',
+				'role': self.role,
+				'paddleSpeed': event['paddleSpeed'],
+				'paddleHeight': event['paddleHeight'],
+				'courtHeight': event['courtHeight'],
+				'courtWidth': event['courtWidth'],
+				'player1Paddle_y_top': event['player1Paddle_y_top'],
+				'player2Paddle_y_top': event['player2Paddle_y_top'],
+				'player1Paddle_x': event['player1Paddle_x'],
+				'player2Paddle_x': event['player2Paddle_x'],
+				'ball_x': event['ball_x'],
+				'ball_y': event['ball_y'],
+				'ballDeltaY': event['ballDeltaY'],
+				'ballDeltaX': event['ballDeltaX'],
+				'ballSpeed': event['ballSpeed'],
+				'goalsPlayer1': event['goalsPlayer1'],
+				'goalsPlayer2': event['goalsPlayer2'],
+				'player1_username': event['player1_username'],
+				'player2_username': event['player2_username']
+			}))
 
 	async def player_disconnected(self, event):
-		await self.send(json.dumps({
-			'identity': 'player_disconnected',
-			'username': event['username']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'player_disconnected',
+				'username': event['username']
+			}))
 		if self.role == 1:
-			self.connectedPlayers.remove(event['role'])
+			if event['role'] in self.connectedPlayers:
+				self.connectedPlayers.remove(event['role'])
 			if self.gameOnGoing and (event['role'] == self.currentPLayer1 or event['role'] == self.currentPLayer2):
 				self.abort = True
 				self.winner_through_disconnect = self.currentPLayer1 if self.currentPLayer1 != event['role'] else self.currentPLayer2
@@ -555,7 +602,21 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 			)
 
 	async def tournament_over(self, event):
-		await self.send(json.dumps({
-			'identity': 'tournament_over',
-			'winner': event['winner']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'tournament_over',
+				'winner': event['winner']
+			}))
+	
+	async def received_start_match(self, event):
+		if self.role == 1:
+			self.confirmedPlayers.append(event['role'])
+			for player in self.connectedPlayers:
+				if player not in self.confirmedPlayers:
+					return
+			self.allConfirmed = True
+	
+	async def time_out_disconnect(self, event):
+		if self.role == event['role']:
+			self.is_disconnecting = True
+			await self.close()
