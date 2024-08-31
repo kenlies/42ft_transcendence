@@ -124,6 +124,7 @@ ws.onmessage = async (event) => {
 			game.initStartValues(parsedMessage);
 			game.initKeyEvents();
 			game.startRedraw();
+			ws.send(JSON.stringify({"type": "received_start_match"}));
 			addEventListener("hashchange", (event) => {
 				game.stopRedraw();
 			},
