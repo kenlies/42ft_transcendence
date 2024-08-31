@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import requests
+import time
 from queue import Queue
 from .models import OnlineMatch
 from channels.db import database_sync_to_async
@@ -49,7 +50,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
-	async def initiate_start_match(self): ## this calls the start_match function below in all client instances
+	async def send_start_match(self):
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
@@ -69,10 +70,25 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				"ballSpeed": self.ballSpeed,
 				'goalsPlayer1': self.goalsPlayer1,
 				'goalsPlayer2': self.goalsPlayer2,
-				'player1_username' : self.player1,
-				'player2_username' : self.player2
+				'player1_username': self.player1,
+				'player2_username': self.player2
 			}
 		)
+		
+	async def wait_for_confirmed(self):
+		start_time = time.time()
+		while (self.allConfirmed == False):
+			await self.send_start_match()
+			await asyncio.sleep(2)
+			if (time.time() - start_time > 15):
+				await self.channel_layer.group_send(
+					self.room_group_name,
+					{
+						'type': 'time_out_disconnect',
+						'role': 1 if 2 in self.confirmedPlayers else 2
+					}
+				)
+				return
 
 
 	############ GAME LOGIC ############
@@ -80,6 +96,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 	#-Update player positions and ball position and echo to all clients
 
 	async def pong(self):
+		await self.wait_for_confirmed()
 		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5):
 			await update_players(self)
 			await update_ball(self)
@@ -156,6 +173,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				await self.close()
 			if self.role == 1:
 				self.speed = 25
+				self.confirmedPlayers = []
+				self.allConfirmed = False
 			await self.channel_layer.group_send(
 				self.room_group_name,
 				{
@@ -242,6 +261,14 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 							'player2Paddle_y_position': data["value"]
 						}
 					)
+			elif (data['type'] == 'received_start_match'):
+				await self.channel_layer.group_send(
+					self.room_group_name,
+					{
+						'type': 'received_start_match',
+						'role': self.role
+					}
+				)
 			elif (data['type'] == 'room_data_request'):
 				theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 				await self.channel_layer.group_send(
@@ -294,9 +321,6 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 							theMatchObject.hasCommenced = True
 							await database_sync_to_async(theMatchObject.save)()
 							await self.init_match(ballSpeed, paddleSpeed)
-							await self.initiate_start_match()#Twice to ensure sync
-							asyncio.sleep(0.5)
-							await self.initiate_start_match()
 							self.loopTaskActive = True
 							self.game_loop_task = asyncio.create_task(self.pong())
 						else:
@@ -453,3 +477,13 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			'player1_username' : event['player1_username'],
 			'player2_username' : event['player2_username']
 		}))
+	
+	async def received_start_match(self, event):
+		if self.role == 1:
+			self.confirmedPlayers.append(event['role'])
+			if 1 in self.confirmedPlayers and 2 in self.confirmedPlayers:
+				self.allConfirmed = True
+
+	async def time_out_disconnect(self, event):
+		if self.role == event['role']:
+			await self.disconnect(1000)
