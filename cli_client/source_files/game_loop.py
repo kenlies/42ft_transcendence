@@ -144,6 +144,7 @@ async def pong(websocket, matchMetaData, is_local=False):
 			listener = keyboard.Listener(on_press=on_press_local)
 		else:
 			listener = keyboard.Listener(on_press=on_press_online)
+		await websocket.send(json.dumps({"type": "received_start_match"}))
 		listener.start()
 
 		print_game(Config.game_state)
