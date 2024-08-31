@@ -1,4 +1,5 @@
 import json
+import time
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import LocalTournament
 from channels.db import database_sync_to_async
@@ -55,6 +56,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
+		self.confirmed = False
 	
 	def get_username_from_role(self, role):
 		if (role == 1):
@@ -78,6 +80,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 			self.player3 = thetournament.player3
 			self.player4 = thetournament.player4
 			self.loopTaskActive = False
+			self.confirmed = False
 			await self.accept()
 			await self.send(json.dumps({
 				'identity': 'room_data',
@@ -127,13 +130,24 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 				'player2_username': self.get_username_from_role(self.currentPLayer2)
 		}))
 
+	async def wait_for_confirmed(self):
+		start_time = time.time()
+		while (self.confirmed == False):
+			await self.send_start_match()
+			await asyncio.sleep(2)
+			if (time.time() - start_time > 15):
+				await self.send(json.dumps({
+					'identity': 'error',
+					'message': 'Match not confirmed'
+				}))
+				await self.close()
+				return
+
 	async def single_match(self, player1, player2):
 		self.gameOnGoing = True
 		self.currentPLayer1 = player1
 		self.currentPLayer2 = player2
-		for _ in range(2):
-			await self.send_start_match()
-			await asyncio.sleep(1)
+		await self.wait_for_confirmed()
 		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5):
 			await update_players(self)
 			await update_ball(self)
@@ -205,7 +219,9 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data):
 		data = json.loads(text_data)
 		if ('type' in data):
-			if (self.loopTaskActive and self.gameOnGoing):
+			if (data['type'] == 'received_start_match'):
+				self.confirmed = True
+			elif (self.loopTaskActive and self.gameOnGoing):
 				if (data['type'] == 'paddle_position' and 'value' in data and 'player' in data):
 					if (data['player'] == 'player1'):
 						self.player1_update_queue.put(data['value'])
