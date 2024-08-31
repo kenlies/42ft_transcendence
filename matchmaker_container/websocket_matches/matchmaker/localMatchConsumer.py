@@ -1,6 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
+import time
 from .models import LocalMatch
 from queue import Queue
 from channels.db import database_sync_to_async
@@ -35,7 +36,7 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
-	async def start_match(self):
+	async def send_start_match(self):
 		await self.send(json.dumps({
 			'identity': 'start_match',
 			'paddleSpeed': self.paddleSpeed,
@@ -57,10 +58,24 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 			'player2_username': self.player2
 		}))
 
+	async def wait_for_confirmed(self):
+		start_time = time.time()
+		while (self.confirmed == False):
+			await self.send_start_match()
+			await asyncio.sleep(2)
+			if (time.time() - start_time > 15):
+				await self.send(json.dumps({
+					'identity': 'error',
+					'message': 'Match not confirmed'
+				}))
+				await self.close()
+				return
+
 
 	############ GAME LOGIC ############
 
 	async def pong(self):
+		await self.wait_for_confirmed()
 		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5):
 			await update_players(self)
 			await update_ball(self)
@@ -101,6 +116,7 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 			self.player1 = matchObject.player1
 			self.player2 = matchObject.player2
 			self.loopTaskActive = False
+			self.confirmed = False
 			await self.accept()
 			await self.send(json.dumps({
 				'identity': 'room_data',
@@ -128,7 +144,9 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data):
 		data = json.loads(text_data)
 		if ('type' in data):
-			if (self.loopTaskActive):
+			if (data['type'] == 'received_start_match'):
+				self.confirmed = True
+			elif (self.loopTaskActive):
 				if (data['type'] == 'paddle_position' and 'value' in data and 'player' in data):
 					if (data['player'] == 'player1'):
 						self.player1_update_queue.put(data['value'])
@@ -155,7 +173,6 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 					ballSpeed = data['ballSpeed']
 					paddleSpeed = data['paddleSpeed']
 					await self.init_match(ballSpeed, paddleSpeed)
-					await self.start_match()
 					self.loopTaskActive = True
 					self.game_loop_task = asyncio.create_task(self.pong())
 			else:
