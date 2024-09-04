@@ -22,7 +22,7 @@ def initiate_online_match_view(request):
 			data = json.loads(request.body)
 			if (data["secret"] == os.environ.get("MATCHMAKER_SECRET")):
 				# check if there is a match to connect to
-				toConnectTo = OnlineMatch.objects.filter(ready=False)
+				toConnectTo = OnlineMatch.objects.filter(ready=False).exclude(player1=data["username"]).exclude(player2=data["username"])
 				if (len(toConnectTo) > 0):
 					match = toConnectTo[0]
 					match.player2 = data["username"]
@@ -50,7 +50,7 @@ def initiate_online_tournament_view(request):
 			data = json.loads(request.body)
 			if (data["secret"] == os.environ.get("MATCHMAKER_SECRET")):
 				# check if there is a match to connect to
-				toConnectTo = OnlineTournament.objects.filter(ready=False)
+				toConnectTo = OnlineTournament.objects.filter(ready=False).exclude(player1=data["username"]).exclude(player2=data["username"]).exclude(player3=data["username"]).exclude(player4=data["username"])
 				if (len(toConnectTo) > 0):
 					tournament = toConnectTo[0]
 					if (tournament.playerCount == 2):
