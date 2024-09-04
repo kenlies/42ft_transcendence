@@ -148,6 +148,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			theMatchObject.playerCount += 1
 			if (self.role == 2):#handle second player connecting from invite
 				theMatchObject.ready = True
+				self.player1 = theMatchObject.player1
+				self.player2 = theMatchObject.player2
 			await database_sync_to_async(theMatchObject.save)()
 			self.loopTaskActive = False
 			if self.role > 2:#handle more than 2 players through invite
