@@ -147,7 +147,8 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 					self.room_group_name,
 					{
 						'type': 'player_disconnected',
-						'username': self.username
+						'username': self.username,
+						'role': self.role
 					}
 				)
 			await self.channel_layer.group_discard(
@@ -529,6 +530,8 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 			'identity': 'player_disconnected',
 			'username': event['username']
 		}))
+		if self.role == 1:
+			self.connectedPlayers.remove(event['role'])
 
 	async def player_connected(self, event):
 		if self.role == 1:
