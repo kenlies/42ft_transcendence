@@ -188,12 +188,13 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 
 	async def single_match(self, player1, player2):
 		self.gameOnGoing = True
+		self.abort = False
 		self.currentPLayer1 = player1
 		self.currentPLayer2 = player2
 		for _ in range(2):
 			await self.send_start_match(self.get_username_from_role(player1), self.get_username_from_role(player2))
 			await asyncio.sleep(1)
-		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5):
+		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5 and self.abort == False):
 			await update_players(self)
 			await update_ball(self)
 			positions = {
@@ -214,15 +215,21 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				}
 			)
 			await asyncio.sleep(0.01)
-		if (self.goalsPlayer1 >= 5 or self.goalsPlayer2 >= 5):
+		if (self.goalsPlayer1 >= 5 or self.goalsPlayer2 >= 5 or self.abort):
+			if self.abort:
+				winner = self.winner_through_disconnect
+			else:
+				winner = player1 if self.goalsPlayer1 >= 5 else player2
 			await self.channel_layer.group_send(
 				self.room_group_name,
 				{
 					'type': 'game_over',
-					'winner': self.get_username_from_role(player1) if self.goalsPlayer1 >= 5 else self.get_username_from_role(player2)
+					'winner': self.get_username_from_role(winner)
 				}
 			)
 		self.gameOnGoing = False
+		if self.abort:
+			return self.winner_through_disconnect
 		return player1 if self.goalsPlayer1 >= 5 else player2
 
 	async def record_match(self, winner, loser):
@@ -532,6 +539,9 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		}))
 		if self.role == 1:
 			self.connectedPlayers.remove(event['role'])
+			if self.gameOnGoing and (event['role'] == self.currentPLayer1 or event['role'] == self.currentPLayer2):
+				self.abort = True
+				self.winner_through_disconnect = self.currentPLayer1 if self.currentPLayer1 != event['role'] else self.currentPLayer2
 
 	async def player_connected(self, event):
 		if self.role == 1:
