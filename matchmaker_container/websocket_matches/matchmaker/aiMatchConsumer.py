@@ -22,6 +22,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 		self.ball_x = COURT_WIDTH / 2
 		self.ballDeltaY = 0.0
 		self.ballDeltaX = self.ballSpeed
+		self.ballHeading = 1
 
 		self.player1Paddle_y_top = (COURT_HEIGHT - self.paddleHeight) / 2
 		self.player1Paddle_x = 0.0
@@ -58,6 +59,23 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 
 	############ GAME LOGIC ############
 
+	async def updateAiPaddle(self):
+		while True:
+			try:
+				if (self.ballHeading == 1):
+					targetY = await self.predictAiCollisionPoint()
+					if (targetY < (self.player2Paddle_y_top + self.paddleHeight / 2)):
+						while (targetY < (self.player2Paddle_y_top + self.paddleHeight / 2) and (self.player2Paddle_y_top > 0)):
+							self.player2_update_queue.put(self.player2Paddle_y_top - self.paddleSpeed / 10)
+							await asyncio.sleep(0.01)
+					elif (targetY > (self.player2Paddle_y_top + self.paddleHeight / 2)):
+						while (targetY > (self.player2Paddle_y_top + self.paddleHeight / 2) and (self.player2Paddle_y_top + self.paddleHeight < 1)):
+							self.player2_update_queue.put(self.player2Paddle_y_top + self.paddleSpeed / 10)
+							await asyncio.sleep(0.01)
+				await asyncio.sleep(1)
+			except:
+				print("Error in AI")
+
 	async def pong(self):
 		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5):
 			await update_players(self)
@@ -85,6 +103,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 			if self.loopTaskActive:
 				self.loopTaskActive = False
 				self.game_loop_task.cancel()
+				self.ai_loop_task.cancel()
 			try:
 				await database_sync_to_async(AiMatch.objects.get)(roomId=self.room_name).delete()
 			except:
@@ -111,10 +130,12 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 			if (self.loopTaskActive):
 				self.loopTaskActive = False
 				self.game_loop_task.cancel()
+				self.ai_loop_task.cancel()
 		except:
 			if (self.loopTaskActive):
 				self.loopTaskActive = False
 				self.game_loop_task.cancel()
+				self.ai_loop_task.cancel()
 		self.close()
 
 	################### RECEIVE DATA ON WEBSOCKETS ##################
@@ -150,6 +171,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 					await self.init_match(ballSpeed, paddleSpeed)
 					await self.start_match()
 					self.loopTaskActive = True
+					self.ai_loop_task = asyncio.create_task(self.updateAiPaddle())
 					self.game_loop_task = asyncio.create_task(self.pong())
 			else:
 				await self.send(json.dumps({
