@@ -34,17 +34,21 @@ async def update_ball(self):
 		self.ball_x = COURT_WIDTH / 2
 		self.ball_y = COURT_HEIGHT / 2
 		self.ballDeltaX = -self.ballSpeed
+		self.ballHeading = -1
 		self.ballDeltaY = 0.0
 	elif (self.ball_x >= 1 and self.ball_x != self.player2Paddle_x and (self.ball_y < self.player2Paddle_y_top or self.ball_y > self.player2Paddle_y_top + PADDLE_HEIGHT)):
 		self.goalsPlayer1 += 1
 		self.ball_x = COURT_WIDTH / 2
 		self.ball_y = COURT_HEIGHT / 2
 		self.ballDeltaX = self.ballSpeed
+		self.ballHeading = 1
 		self.ballDeltaY = 0.0
 	randomFactor = random.uniform(-self.ballSpeed, self.ballSpeed) * 0.9
 	if (self.ball_x <= self.player1Paddle_x and self.ball_y >= self.player1Paddle_y_top and self.ball_y <= self.player1Paddle_y_top + PADDLE_HEIGHT):
 		self.ballDeltaY = randomFactor
 		self.ballDeltaX = math.sqrt((self.ballSpeed ** 2) - (self.ballDeltaY ** 2))
+		self.ballHeading = 1
 	elif (self.ball_x >= self.player2Paddle_x and self.ball_y >= self.player2Paddle_y_top and self.ball_y <= self.player2Paddle_y_top + PADDLE_HEIGHT):
 		self.ballDeltaY = randomFactor
 		self.ballDeltaX = math.sqrt((self.ballSpeed ** 2) - (self.ballDeltaY ** 2)) * -1
+		self.ballHeading = -1
