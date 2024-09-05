@@ -59,6 +59,18 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 
 	############ GAME LOGIC ############
 
+	async def predictAiCollisionPoint(self):
+		try:
+			timeUntilCollision = (self.player2Paddle_x - self.ball_x) / self.ballDeltaX
+			predictedCollisionPoint = self.ball_y + self.ballDeltaY * timeUntilCollision
+			if (predictedCollisionPoint < 0):
+				predictedCollisionPoint = -predictedCollisionPoint
+			elif (predictedCollisionPoint > self.courtHeight):
+				predictedCollisionPoint = 2 * self.courtHeight - predictedCollisionPoint
+			return predictedCollisionPoint
+		except:
+			print("Error in Ai prediction")
+
 	async def updateAiPaddle(self):
 		while True:
 			try:
