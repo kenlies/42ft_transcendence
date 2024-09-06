@@ -84,6 +84,13 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 						while (targetY > (self.player2Paddle_y_top + self.paddleHeight / 2) and (self.player2Paddle_y_top + self.paddleHeight < 1)):
 							self.player2_update_queue.put(self.player2Paddle_y_top + self.paddleSpeed / 10)
 							await asyncio.sleep(0.01)
+				elif (self.ballHeading == -1):
+					while (0.5 < (self.player2Paddle_y_top + self.paddleHeight / 2) and (self.player2Paddle_y_top > 0)):
+						self.player2_update_queue.put(self.player2Paddle_y_top - self.paddleSpeed / 10)
+						await asyncio.sleep(0.01)
+					while (0.5 > (self.player2Paddle_y_top + self.paddleHeight / 2) and (self.player2Paddle_y_top + self.paddleHeight < 1)):
+						self.player2_update_queue.put(self.player2Paddle_y_top + self.paddleSpeed / 10)
+						await asyncio.sleep(0.01)
 				await asyncio.sleep(1)
 			except:
 				print("Error in AI")
