@@ -34,7 +34,7 @@
         <div id="match-history">
             <h2 class="tab-heading">Match History</h2>
             <div id="match-history-content">
-                {% include 'pong/matchTable.html' %}
+                {% include 'pong/elements/matchTable.html' %}
             </div>
         </div>
 
@@ -48,7 +48,7 @@
                     <button id="add-friend-button">Add Friend</button>
                 </div>
                 <div id="friend-list-content">
-                    {% include 'pong/friendList.html' %}
+                    {% include 'pong/elements/friendList.html' %}
                 </div>
             </div>
 
@@ -61,7 +61,7 @@
                     <button id="block-user-button">Block</button>
                 </div>
                 <div id="blocked-list-content">
-                    {% include 'pong/blockedUsersList.html' %}
+                    {% include 'pong/elements/blockedUsersList.html' %}
                 </div>
             </div>
         {% else %}
@@ -69,7 +69,7 @@
             <div id="chat" class="hidden">
                 <h2 class="tab-heading">Chat</h2>
                 <div id="chat-content">
-                    {% include 'pong/chat.html' %}
+                    {% include 'pong/elements/chat.html' %}
                 </div>
                 <form id="chat-input" class="chat-input">
                     <input type="text" id="chat-message" placeholder="Type a message...">
@@ -87,8 +87,8 @@
 {
     const friendList = document.getElementById('friend-list-content');
     const blockedUsersList = document.getElementById('blocked-list-content');
-    const friendListInterval = setInterval(() => changeContainerContent(friendList, 'friendList'), 1000);
-    const blockedUsersInterval = setInterval(() => changeContainerContent(blockedUsersList, 'blockedUsersList'), 1000);
+    const friendListInterval = setInterval(() => changeContainerContent(friendList, 'elements/friendList'), 1000);
+    const blockedUsersInterval = setInterval(() => changeContainerContent(blockedUsersList, 'elements/blockedUsersList'), 1000);
 
     addEventListener("hashchange", (event) => {
         clearInterval(friendListInterval);
@@ -151,7 +151,7 @@
 <script>
 {
     const chatContent = document.getElementById('chat-content');
-    const chatInterval = setInterval(() => changeContainerContent(chatContent, 'chat-{{ targetUser.user.username }}'), 1000);
+    const chatInterval = setInterval(() => changeContainerContent(chatContent, 'elements/chat-{{ targetUser.user.username }}'), 1000);
 
     addEventListener("hashchange", (event) => {
         clearInterval(chatInterval);
