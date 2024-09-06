@@ -33,7 +33,7 @@ const chatMessages = document.getElementById('lobby-chat-messages');
 
 const startButton = document.getElementById('lobby-start-button');
 
-const displayWinner = (text) => {
+const displayModal = (text) => {
 	const gameModal = document.getElementById("game-modal");
 	gameModal.firstChild.textContent = text;
 	gameModal.classList.add("show");
@@ -136,7 +136,7 @@ ws.onmessage = async (event) => {
 			room_closed = true;
 			if (lobbyContainer.classList.contains("hide") && gameMode == "onlineTournament") {
 				await new Promise(resolve => setTimeout(resolve, 5000));
-				displayWinner("Tournament closed: Host disconnected");
+				displayModal("Tournament closed: Host disconnected");
 			}
 			break;
 
@@ -156,7 +156,7 @@ ws.onmessage = async (event) => {
 
 		case "tournament_over":
 			console.log("Tournament over");
-			displayWinner("Tournament winner: " + parsedMessage.winner);
+			displayModal("Tournament winner: " + parsedMessage.winner);
 			break;
 
 		case "game_over":
@@ -172,7 +172,7 @@ ws.onmessage = async (event) => {
 			}
 			else {
 				console.log("Game over");
-				displayWinner("Match winner: " + parsedMessage.winner);
+				displayModal("Match winner: " + parsedMessage.winner);
 			}
 			break;
 
