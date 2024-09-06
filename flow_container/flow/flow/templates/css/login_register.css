@@ -15,7 +15,7 @@
     align-self: center;
     text-align: center;
 
-    {% include "css/include/borders.css" %}
+    {% include "css/include/borders.css" with border="top-bottom-dotted" %}
 
     & > h1 {
         margin: 0 0 10px;
@@ -26,11 +26,10 @@
     & > input[type=password] {
         width: 100%;
         display: block;
-        padding: 10px var(--padding); 
+        padding: 10px var(--padding);
         box-sizing: border-box;
-        font-family: "Hitmarker Text";
 
-        {% include "css/include/forms.css" %}
+        {% include "css/include/form-inputs.css" %}
     }
 
     & > .button,
@@ -38,44 +37,12 @@
         width: 100%;
         box-sizing: border-box;
         cursor: pointer;
-        
-        {% include "css/include/buttons.css" with style="button1" %}
+
+        {% include "css/include/buttons.css" %}
     }
 }
 
 #login-error,
 #register-error {
-    background: var(--dark-bg);
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: var(--dark-bg);
-    text-align: left;
-
-    /* hide by default */
-    opacity: 0;
-    height: 0;
-    padding: 0 var(--padding);
-    overflow: hidden;
-
-    &::before {
-        content: "Error:";
-        display: inline-block;
-        width: 100%;
-        margin-bottom: 5px;
-        color: var(--error-color);
-        font-weight: 500;
-        text-transform: uppercase;
-    }
-
-    &.show {
-        opacity: 1;
-        height: auto;
-        padding: var(--padding);
-    }
-
-    transition-duration: 0.5s;
-    transition-property:
-        opacity,
-        height,
-        padding;
+    {% include "css/include/error-field.css" %}
 }

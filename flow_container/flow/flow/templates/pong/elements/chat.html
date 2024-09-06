@@ -1,23 +1,19 @@
-<div class="chat-box">
-    {% for message in messages %}
-    <div class="message {% if message.messageSender == user %}sent{% else %}received{% endif %}">
-        <div class="message-content">
-            <img src="/api/avatar?username={{ message.messageSender.user.username }}" alt="{{ message.messageSender.user.username }}" class="chat-pic">
-            <div class="message-text">
-                <p>
-                    {% if message.messageContent|length >= 11 and message.messageContent|slice:":11" == "GAME_INVITE" %}
-                        {% with game_url=message.messageContent|slice:"12:" %}
-                            Game Invite
-                            <button onclick="changeContainerLobby(document.body, '{{ game_url }}')">Join Game</button>
-                        {% endwith %}
-                    {% else %}
-                        {{ message.messageContent }}
-                    {% endif %}
-                </p>
-            </div>
-        </div>
+{% for message in messages reversed %}
+<div class="message {% if message.messageSender == user %}sent{% else %}received{% endif %}">
+    <div class="avatar">
+        <img src="/api/avatar?username={{ message.messageSender.user.username }}" alt="{{ message.messageSender.user.username }}">
     </div>
-    {% empty %}
-        <p>No messages found.</p>
-    {% endfor %}
+    <div class="message-text">
+        {% if message.messageContent|length >= 11 and message.messageContent|slice:":11" == "GAME_INVITE" %}
+            {% with game_url=message.messageContent|slice:"12:" %}
+                Game Invite
+                <button onclick="startLobby('{{ game_url }}')">Join Game</button>
+            {% endwith %}
+        {% else %}
+            {{ message.messageContent }}
+        {% endif %}
+    </div>
 </div>
+{% empty %}
+    <p>No messages found.</p>
+{% endfor %}

@@ -1,0 +1,89 @@
+#profile-chat-content,
+#lobby-chat-messages {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    flex-grow: 1;
+    gap: var(--padding);
+    padding: var(--padding);
+}
+
+#profile-chat-content {
+    flex-direction: column-reverse;
+}
+
+#lobby-chat-messages {
+    flex-direction: column;
+}
+
+#profile-chat-input-form,
+#lobby-chat-input-form {
+    display: flex;
+    flex-direction: row;
+}
+
+#profile-chat-message-input,
+#lobby-chat-input {
+    flex-grow: 1;
+}
+
+#profile-chat-message-input,
+#profile-chat-input-button,
+#lobby-chat-input,
+#lobby-chat-send-button {
+    padding: 10px var(--padding);
+    background-color: var(--dark-bg);
+    background-clip: padding-box;
+    color: var(--fg-color);
+    border: none;
+    box-sizing: border-box;
+    border-top: 2px solid var(--border-color);
+
+    &:not(:last-child) {
+        border-right: 2px solid var(--border-color);
+    }
+
+    &:hover,
+    &:focus,
+    &:focus-visible {
+        outline: none;
+        background-color: var(--light-bg);
+    }
+
+}
+
+.message {
+    --avatar-size: 100px;
+    --message-outer-spacing: 80px;
+
+    background-color: var(--light-bg);
+
+    display: flex;
+    flex-direction: row;
+
+    min-height: var(--avatar-size);
+    flex-basis: var(--avatar-size);
+
+    &.sent {
+        align-self: flex-end;
+        margin-left: var(--message-outer-spacing);
+    }
+
+    &.received {
+        align-self: flex-start;
+        margin-right: var(--message-outer-spacing);
+    }
+
+    & > .avatar {
+        width: var(--avatar-size);
+        align-self: self-start;
+        flex-shrink: 0;
+    }
+
+    & > .message-text {
+        flex-wrap: wrap;
+        padding: var(--padding);
+        word-break: break-all;
+        hyphens: auto;
+    }
+}

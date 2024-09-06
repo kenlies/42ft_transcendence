@@ -1,3 +1,43 @@
+#game-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+}
+
+#scoreboard {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: var(--padding);
+    outline: 2px solid var(--border-color);
+    background-color: var(--dark-bg);
+}
+
+#player1-name {
+    align-self:flex-start
+}
+
+#player2-name {
+    align-self: flex-end;
+}
+
+#player1-score,
+#player2-score {
+    font-family: "Hitmarker VF", sans-serif;
+    font-stretch: 80%;
+    font-weight: 400;
+    font-size: 2rem;
+}
+
+#player1-name,
+#player2-name {
+    font-family: "Hitmarker VF", sans-serif;
+    font-stretch: 20%;
+    font-weight: 600;
+    font-size: 2rem;
+}
+
 #game-canvas {
     outline: 2px solid var(--border-color);
     background-color: var(--dark-bg);

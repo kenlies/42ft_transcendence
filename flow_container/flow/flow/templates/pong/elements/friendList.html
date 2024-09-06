@@ -1,26 +1,26 @@
 {% if friends %}
     {% for friend in friends %}
         {% if friend.is_online %}
-        <div class="friend-list-item">
-            <a class="landing-button" href="#profile-{{ friend.user.username }}">
-                <img src="/api/avatar?username={{ friend.user.username }}" alt="{{ friend.user.username }}" class="friend-pic">
+            <a class="friend-list-item" href="#profile-{{ friend.user.username }}">
+                <div class="avatar">
+                    <img src="/api/avatar?username={{ friend.user.username }}">
+                </div>
                 <span>{{ friend.user.username }}</span>
-                <span class="status-circle online-circle"></span>
             </a>
-        </div>
         {% endif %}
     {% endfor %}
     {% for friend in friends %}
         {% if not friend.is_online %}
-        <div class="friend-list-item">
-            <a class="landing-button" href="#profile-{{ friend.user.username }}">
-                <img src="/api/avatar?username={{ friend.user.username }}" alt="{{ friend.user.username }}" class="friend-pic">
+            <a class="friend-list-item offline" href="#profile-{{ friend.user.username }}">
+                <div class="avatar">
+                    <img src="/api/avatar?username={{ friend.user.username }}">
+                </div>
                 <span>{{ friend.user.username }}</span>
-                <span class="status-circle offline-circle"></span>
             </a>
-        </div>
         {% endif %}
     {% endfor %}
 {% else %}
-    <p>No friends found.</p>
+    <div class="empty-list-container">
+        <p>No friends found.</p>
+    </div>
 {% endif %}

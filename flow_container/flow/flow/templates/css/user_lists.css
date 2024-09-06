@@ -1,0 +1,76 @@
+.user-list-header {
+    padding: 10px;
+
+    border-bottom: 2px solid var(--border-color);
+    cursor: default;
+
+    font-family: "Hitmarker VF", sans-serif;
+    text-transform: uppercase;
+    font-stretch: 20%;
+    font-weight: 400;
+    font-size: 1.1rem;
+}
+
+#invite-player-button,
+.lobby-player-name,
+#add-friend-button,
+.friend-list-item,
+#block-user-button,
+.blocked-list-item {
+    --list-item-height: 60px;
+
+    display: block;
+    height: var(--list-item-height);
+    line-height: var(--list-item-height);
+    text-decoration: none;
+    color: var(--fg-color);
+    border-bottom: 1px dotted var(--border-color);
+
+    & > .avatar {
+        float: left;
+        width: var(--list-item-height);
+        border-right: 1px dotted var(--border-color);
+    }
+
+    & > span {
+        margin: 0 10px;
+    }
+}
+
+#invite-player-button,
+#add-friend-button,
+#block-user-button,
+.friend-list-item {
+    &:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+}
+
+.friend-list-item {
+    &.offline {
+        & > .avatar,
+        & > span {
+            opacity: 0.5;
+        }
+    }
+}
+
+.blocked-list-item {
+    & > .avatar {
+        filter: saturate(0);
+    }
+
+    & > .avatar,
+    & > span {
+        opacity: 0.7;
+    }
+}
+
+#invite-player-button,
+#add-friend-button,
+#block-user-button {
+    text-align: center;
+    border-top: 2px solid var(--border-color);
+    font-size: 1.6rem;
+    cursor: pointer;
+}

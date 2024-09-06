@@ -1,0 +1,33 @@
+background: var(--dark-bg);
+outline-width: 2px;
+outline-style: solid;
+outline-color: var(--dark-bg);
+text-align: left;
+
+/* hide by default */
+opacity: 0;
+height: 0;
+padding: 0 var(--padding);
+overflow: hidden;
+
+&::before {
+    content: "Error:";
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 5px;
+    color: var(--error-color);
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+&.show {
+    opacity: 1;
+    height: auto;
+    padding: var(--padding);
+}
+
+transition-duration: 0.5s;
+transition-property:
+    opacity,
+    height,
+    padding;

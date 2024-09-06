@@ -1,8 +1,12 @@
 {% for blockedUser in blocked %}
     <div class="blocked-list-item">
-        <img src="/api/avatar?username={{ blockedUser.user.username }}" alt="{{ blockedUser.user.username }}" class="friend-pic">
+        <div class="avatar">
+            <img src="/api/avatar?username={{ blockedUser.user.username }}">
+        </div>
         <span>{{ blockedUser.user.username }}</span>
     </div>
 {% empty %}
-    <p>No users are blocked.</p>
+    <div class="empty-list-container">
+        <p>No users are blocked.</p>
+    </div>
 {% endfor %}

@@ -1,0 +1,71 @@
+#settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+
+    align-self: center;
+    text-align: center;
+
+    {% include "css/include/borders.css" with border="top-bottom-dotted" %}
+
+    & > h1 {
+        margin: 0 0 10px;
+    }
+}
+
+#settings-section-container {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing);
+}
+
+#settings-buttons-container {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing);
+    justify-content: end;
+
+    & > .button,
+    & > button {
+        width: 200px;
+        box-sizing: border-box;
+        cursor: pointer;
+
+        {% include "css/include/buttons.css" %}
+    }
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2 / 3);
+    text-align: left;
+
+    & > h3 {
+        margin: 0;
+    }
+
+    & > input[type=text],
+    & > input[type=email],
+    & > input[type=password] {
+        width: 100%;
+        display: block;
+        padding: 10px var(--padding);
+        box-sizing: border-box;
+        font-family: "Hitmarker Text";
+
+        {% include "css/include/form-inputs.css" %}
+    }
+
+    & > .avatar {
+        --avatar-size: 200px;
+
+        width: var(--avatar-size);
+        display: block;
+        cursor: pointer;
+    }
+}
+
+#settings-error {
+    {% include "css/include/error-field.css" %}
+}

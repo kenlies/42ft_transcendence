@@ -2,9 +2,53 @@
 	{% include "js/ws.js" %}
 
 	const chatInput = document.getElementById('lobby-chat-input');
-	const inviteInput = document.getElementById('lobby-invite-input');
 	const chatInputForm = document.getElementById('lobby-chat-input-form');
-	const inviteButton = document.getElementById('lobby-invite-button');
+	const startButton = document.getElementById('lobby-start-button');
+
+    const modalDialog = document.getElementById('modal-dialog-container');
+    const modalDialogContent = document.getElementById('modal-dialog-content');
+    const modalDialogClose = document.getElementById('modal-dialog-close');
+    modalDialogClose.addEventListener('click', (event) => {
+		modalDialog.classList.remove("show");
+    });
+
+	{% if response.gameMode == 'online' or response.gameMode == 'onlineTournament' %}
+		const inviteButton = document.getElementById('invite-player-button');
+		inviteButton.addEventListener('click', async (event) => {
+			event.preventDefault();
+			await changeContainerContent(modalDialogContent, 'dialogs/lobby_invite_form');
+			modalDialog.classList.add("show");
+
+			const inviteForm = document.getElementById('lobby-invite-form');
+			const inviteError = document.getElementById('lobby-invite-error');
+			const inviteInput = document.getElementById('lobby-invite-input');
+
+			inviteForm.addEventListener('submit', async (event) => {
+				event.preventDefault();
+				receiver = inviteInput.value.trim();
+
+				try {
+					const response = await fetch('/api/user?' + new URLSearchParams({
+						username: receiver,
+					}).toString());
+
+					if (response.ok) {
+						console.log('Invite sent to ' + receiver);
+						ws.send(JSON.stringify({"type": "invite", "receiver": receiver}));
+						modalDialog.classList.remove("show");
+					}
+					else {
+						inviteError.textContent = await response.text();
+						inviteError.classList.add("show");
+					}
+				}
+				catch (error) {
+					inviteError.textContent = error;
+					inviteError.classList.add("show");
+				}
+			});
+		});
+	{% endif %}
 
 	const createChatMessageElement = (message) => {
 		const messageElement = document.createElement('div');
@@ -34,15 +78,13 @@
 
 	if (gameMode === "local" || gameMode === "localTournament" || gameMode === "ai")
 	{
-		const invite = document.getElementById('lobby-invite');
-		invite.classList.add("hide");
+		/* const inviteButton = document.getElementById('invite-player-button');
+		inviteButton.disabled = true; */
 
 		if (gameMode === "local" || gameMode === "ai") {
-			const lobby = document.getElementById('lobby-container');
 			const chat = document.getElementById('lobby-chat-container');
 
 			chat.classList.add("hide");
-			lobby.classList.add("shorten-grid-gap");
 		}
 		else {
 			chatInputForm.classList.add("hide");
@@ -57,12 +99,6 @@
 				sendMessage(e);
 				chatInput.value = '';
 			}
-		});
-
-		inviteButton.addEventListener('click', (e) => {
-			e.preventDefault();
-			receiver = inviteInput.value.trim();
-			ws.send(JSON.stringify({"type": "invite", "receiver": receiver}));
 		});
 	}
 

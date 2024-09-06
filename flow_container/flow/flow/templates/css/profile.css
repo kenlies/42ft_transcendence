@@ -1,213 +1,151 @@
-.container {
-    width: 80%;
-    margin: 50px auto;
-}
-
-.box {
-    background-color: #444;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    margin-bottom: 20px;
-    color: #fff;
-}
-
-.profile-header {
+#profile-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
+    flex-direction: row;
+    gap: var(--spacing);
+
+    height: 700px;
+    flex-grow: 0;
 }
 
-.profile-pic {
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
-    background: #ccc;
-}
-
-.profile-left {
+#profile-side-container {
     display: flex;
-    padding-right: 60px;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    gap: var(--spacing);
+    width: 620px;
 }
 
-.profile-right {
+
+#profile-user {
+    --avatar-size: 300px;
+
+    background-color: var(--dark-bg);
+    background-origin: padding-box;
+    outline: 2px solid var(--border-color);
+
+    flex-basis: var(--avatar-size);
     display: flex;
-    padding-left: 60px;
+    flex-direction: row;
+
+    & > .avatar {
+        width: var(--avatar-size);
+        border-right: 2px solid var(--border-color);
+    }
+}
+
+#profile-user-info {
+    flex-grow: 1;
+}
+
+#profile-user-details {
+    padding: 10px;
+}
+
+#profile-username {
+    padding: 10px;
+
+    font-family: "Hitmarker VF", sans-serif;
+    font-stretch: 20%;
+    font-weight: 500;
+    font-size: 1.4rem;
+
+    cursor: default;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.profile-user-online-tag,
+.profile-user-offline-tag {
+    font-family: "Hitmarker VF", sans-serif;
+    font-stretch: 20%;
+    font-weight: 500;
+    font-size: 0.9rem;
+    float: right;
+    text-transform: uppercase;
+}
+
+.profile-user-online-tag {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+
+#match-history {
+    background-color: var(--dark-bg);
+    background-origin: padding-box;
+    outline: 2px solid var(--border-color);
+
+    flex-grow: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#match-history-header {
+    padding: 10px;
+
+    font-family: "Hitmarker VF", sans-serif;
+    font-stretch: 20%;
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+
+    cursor: default;
+    border-bottom: 2px solid var(--border-color);
+}
+
+
+#match-history-content {
+
+    & > table {
+        width: 100%;
+
+        & > thead > tr > th {
+            border-bottom: 1px dotted var(--border-color);
+        }
+
+        & > thead > tr > th,
+        & > tbody > tr > td {
+            padding: 2px 10px;
+
+            &:not(:last-child) {
+                border-right: 1px dotted var(--border-color);
+            }
+        }
+    }
+}
+
+#friend-list-container,
+#blocked-list-container {
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    width: 280px;
+    background-color: var(--dark-bg);
+    background-origin: padding-box;
+    outline: 2px solid var(--border-color);
 }
 
-.main-content {
-    padding: 90px;
-}
-
-.buttons {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.buttons button {
-    padding: 10px 20px;
-    margin: 0 5px;
-    border: none;
-    background-color: #666666;
-    color: #ffffff;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.buttons button.active {
-    background-color: #ababab;
-}
-
-.hidden {
-    display: none;
-}
-
-.tab-heading {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-th, td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #fff;
-}
-
-th {
-    background-color: #014004;
-    color: #ffffff;
-}
-
-.friend-list-item, .blocked-list-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border-bottom: 1px solid #676565;
-}
-
-.friend-pic, .blocked-pic {
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    background: #ccc;
-}
-
-span {
-    color: rgb(224, 223, 223);
-}
-
-.online-status {
-    margin-left: 10px;
-    font-weight: bold;
-}
-
-.status-circle {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.online-circle {
-    background-color: green;
-}
-
-.offline-circle {
-    background-color: red;
-}
-
-.chat-box {
-    background-color: #333;
-    padding: 10px;
-    border-radius: 5px;
-    max-height: 400px;
+#friend-list,
+#blocked-list {
+    flex-grow: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 
-.message {
+.empty-list-container {
+    height: 100%;
     display: flex;
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 60%;
-    word-wrap: break-word;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
 }
 
-.message.sent {
-    background-color: #555;
-    align-self: flex-end;
-    text-align: right;
-    flex-direction: row-reverse;
-}
-
-.message.received {
-    background-color: #444;
-    align-self: flex-start;
-    text-align: left;
-}
-
-.message-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.chat-pic {
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    background: #ccc;
-}
-
-.message-text {
+#profile-chat {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    width: 590px;
+    background-color: var(--dark-bg);
+    outline: 2px solid var(--border-color);
 }
 
-.message.sent .message-text {
-    align-items: flex-end;
-}
-
-.chat-input {
-    display: flex;
-    margin-top: 20px;
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #666;
-    border-radius: 5px;
-    background-color: #555;
-    color: #fff;
-}
-
-.chat-input button {
-    padding: 10px 20px;
-    margin-left: 10px;
-    border: none;
-    background-color: #666;
-    color: #fff;
-    cursor: pointer;
-    border-radius: 5px;
+#block-user-error,
+#add-friend-error {
+    {% include "css/include/error-field.css" %}
 }

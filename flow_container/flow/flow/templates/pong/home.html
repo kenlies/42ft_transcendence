@@ -1,27 +1,50 @@
-<h1>Home page</h1>
+{% load static %}
+{% include "pong/elements/modal_dialog.html" %}
 
-<form id="startgame-form">
-    <button type="submit" value="online">online game</button>
-    <button type="submit" value="onlineTournament">online tournament</button>
-    <button type="submit" value="local">local game</button>
-    <button type="submit" value="localTournament">local tournament</button>
-    <button type="submit" value="ai">ai</button>
-</form>
+<div id="home-container">
+    <div id="home-user-container">
+        <a id="home-profile-button" href="#profile">
+            <div class="avatar">
+                <img src="/api/avatar?username={{ user.user.username }}">
+            </div>
+            <div id="home-user-username">
+                {{ user.user.username }}
+            </div>
+        </a>
+        <a class="button" href="#settings">Settings</a>
+        <a class="button">Log out</a>
+    </div>
+
+    <div id="game-form-container">
+        <form id="local-game-form">
+            <button class="game-button" type="submit" value="local">local game</button>
+            <button class="game-button" type="submit" value="localTournament">local tournament</button>
+        </form>
+        <form id="online-game-form">
+            <button class="game-button" type="submit" value="online">online game</button>
+            <button class="game-button" type="submit" value="onlineTournament">online tournament</button>
+            <button class="game-button" type="submit" value="ai">vs AI</button>
+        </form>
+    </div>
+</div>
 
 <script>
 {
-    const startGameForm = document.getElementById('startgame-form');
-
-	startGameForm.addEventListener('submit', async (event) => {
+    const startLobby = async (event, player1, player2, player3, player4) => {
         event.preventDefault();
 
         try {
             const token = getCookie('csrftoken');
-            const matchmakerQuery = '?gameMode=' + event.submitter.value
-                                  + '&player1=Player1'
-                                  + '&player2=Player2'
-                                  + '&player3=Player3'
-                                  + '&player4=Player4';
+
+            let matchmakerQuery = '?gameMode=' + event.submitter.value;
+            if (event.submitter.value === 'local' || event.submitter.value === 'localTournament') {
+                matchmakerQuery += '&player1=' + (player1 ? player1 : 'Player1');
+                matchmakerQuery += '&player2=' + (player2 ? player2 : 'Player2');
+            }
+            if (event.submitter.value === 'localTournament') {
+                matchmakerQuery += '&player3=' + (player3 ? player3 : 'Player3');
+                matchmakerQuery += '&player4=' + (player4 ? player4 : 'Player4');
+            }
 
             const response = await fetch('/api/matchmaker' + matchmakerQuery, {
                 method: 'GET',
@@ -47,6 +70,47 @@
         catch (error) {
             console.log(error);
         }
+    };
+
+    const modalDialog = document.getElementById('modal-dialog-container');
+    const modalDialogContent = document.getElementById('modal-dialog-content');
+    const modalDialogClose = document.getElementById('modal-dialog-close');
+    modalDialogClose.addEventListener('click', (event) => {
+        modalDialog.classList.remove("show");
+    });
+
+    const onlineGameForm = document.getElementById('online-game-form');
+	onlineGameForm.addEventListener('submit', startLobby);
+
+    const localGameForm = document.getElementById('local-game-form');
+	localGameForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (event.submitter.value === 'local') {
+            await changeContainerContent(modalDialogContent, 'dialogs/local_match_name_form');
+            const localMatchForm = document.getElementById('local-match-form');
+
+            const player1 = document.getElementById('local-match-player1');
+            const player2 = document.getElementById('local-match-player2');
+
+            localMatchForm.addEventListener('submit', (event) => {
+                startLobby(event, player1.value, player2.value);
+            });
+        } else if (event.submitter.value === 'localTournament') {
+            await changeContainerContent(modalDialogContent, 'dialogs/local_tournament_name_form');
+            const localTournamentForm = document.getElementById('local-tournament-form');
+
+            const player1 = document.getElementById('local-tournament-player1');
+            const player2 = document.getElementById('local-tournament-player2');
+            const player3 = document.getElementById('local-tournament-player3');
+            const player4 = document.getElementById('local-tournament-player4');
+
+            localTournamentForm.addEventListener('submit', (event) => {
+                startLobby(event, player1.value, player2.value, player3.value, player4.value);
+            });
+        }
+
+        modalDialog.classList.add("show");
     });
 }
 </script>

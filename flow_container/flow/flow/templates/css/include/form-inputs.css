@@ -1,0 +1,23 @@
+{% include "css/include/borders.css" with border="outline-glow-zoom" %}
+
+color: var(--fg-color);
+border: none;
+
+background-clip: padding-box;
+background-color: var(--dark-bg);;
+
+&::placeholder {
+    opacity: 0.3;
+}
+
+&.error {
+    color: var(--fg-color);
+    outline-color: var(--error-color);
+
+    &::placeholder {
+        color: var(--error-color);
+        font-weight: 500;
+        opacity: 1;
+    }
+}
+

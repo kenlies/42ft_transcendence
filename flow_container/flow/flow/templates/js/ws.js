@@ -25,12 +25,13 @@ const canvas = document.getElementById("game-canvas");
 game.initCanvas(canvas);
 
 const lobbyContainer = document.getElementById("lobby-container");
-const settingsContainer = document.getElementById("settings-container");
+const settingsContainer = document.getElementById("lobby-settings-container");
 const gameContainer = document.getElementById("game-container");
-const playerContainer = document.getElementById("player-container");
+const playerList = document.getElementById("lobby-player-list");
 const chatMessages = document.getElementById('lobby-chat-messages');
 
-const startButton = document.getElementById('lobby-start-button');
+player1Score = document.getElementById('player1-score');
+player2Score = document.getElementById('player2-score');
 
 const displayModal = (text) => {
 	const gameModal = document.getElementById("game-modal");
@@ -87,7 +88,7 @@ ws.onmessage = async (event) => {
 
 	switch (parsedMessage.identity) {
 		case "room_data":
-			playerContainer.textContent = "";
+			playerList.textContent = "";
 			playersInRoom = [];
 			if ((gameMode === "online" || gameMode === "onlineTournament") && parsedMessage.player1 !== username)
 				speedSlider.setAttribute("disabled", "true");
@@ -100,14 +101,16 @@ ws.onmessage = async (event) => {
 			playersInRoom.forEach((player) => {
 				if (player) {
 					const playerElement = document.createElement('div');
-					playerElement.classList.add('player-name');
+					playerElement.classList.add('lobby-player-name');
 
-					const playerAvatarContainer = document.createElement('div');
-					playerAvatarContainer.classList.add('avatar');
-					const playerAvatarImage = document.createElement('img');
-					playerAvatarImage.src = "/api/avatar?username=" + player;
-					playerAvatarContainer.appendChild(playerAvatarImage);
-					playerElement.appendChild(playerAvatarContainer);
+					if (gameMode === "online" || gameMode === "onlineTournament") {
+						const playerAvatarContainer = document.createElement('div');
+						playerAvatarContainer.classList.add('avatar');
+						const playerAvatarImage = document.createElement('img');
+						playerAvatarImage.src = "/api/avatar?username=" + player;
+						playerAvatarContainer.appendChild(playerAvatarImage);
+						playerElement.appendChild(playerAvatarContainer);
+					}
 
 					const playerName = document.createElement('span');
 					playerName.textContent = player;
@@ -130,7 +133,6 @@ ws.onmessage = async (event) => {
 			break;
 
 		case "start_match":
-			console.clear();
 			lobbyContainer.classList.add("hide");
 			settingsContainer.classList.add("hide");
 			gameContainer.classList.remove("hide");
@@ -161,6 +163,10 @@ ws.onmessage = async (event) => {
 		case "game_update":
 			try {
 				game.updateValues(parsedMessage.positions);
+				if (parsedMessage.positions.goalsPlayer1 != player1Score.textContent)
+					player1Score.textContent = parsedMessage.positions.goalsPlayer1;
+				if (parsedMessage.positions.goalsPlayer2 != player2Score.textContent)
+					player2Score.textContent = parsedMessage.positions.goalsPlayer2;
 			} catch (TypeError) {
 				console.log('game_update: game not ready yet');
 			}

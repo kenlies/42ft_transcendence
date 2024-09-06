@@ -1,31 +1,34 @@
+{% include "pong/elements/modal_dialog.html" %}
+
 <div id="error-modal"><h1>Connection Error!</h1></div>
 <div id="game-container" class="hide">
     {% include "pong/elements/game.html" %}
 </div>
-<div id="lobby-container" class="grid-container">
-    <div id="player-container"></div>
-    <div id="settings-container">
-        <div class="settings-grid-item-1">
-            <div class="speed-slide-container">Speed
+<div id="lobby-container">
+    <div id="lobby-main-container">
+        <div id="lobby-settings-container">
+            <div id="speed-slide-container">Speed
                 <input type="range" min="1" max="50" value="25" class="slider" id="speed-slider">
                 <div id="speed-slider-val-below"></div>
             </div>
+            <div>
+                <button type="submit" id="lobby-start-button" class="button">start game</button>
+            </div>
         </div>
-        <div class="settings-grid-item-2" id="lobby-invite">
-            <div id="lobby-invite-text">Invite a friend!</div>
-            <input type="text" id="lobby-invite-input" placeholder="Friends username..." />
-            <button type="submit" id="lobby-invite-button" class="button">invite</button>
-        </div>
-        <div class="settings-grid-item-3">
-            <button type="submit" id="lobby-start-button" class="button">start game</button>
+        <div id="lobby-chat-container">
+            <div id="lobby-chat-messages"></div>
+            <form id="lobby-chat-input-form">
+                <input type="text" id="lobby-chat-input" placeholder="bro..." autocomplete="off" maxlength="500" />
+                <button type="submit" id="lobby-chat-send-button">send it bro</button>
+            </form>
         </div>
     </div>
-    <div id="lobby-chat-container">
-        <div id="lobby-chat-messages"></div>
-        <form id="lobby-chat-input-form">
-            <input type="text" id="lobby-chat-input" placeholder="bro..." />
-            <button type="submit" id="lobby-chat-send-button" class="button">send it bro</button>
-        </form>
+    <div id="lobby-player-container">
+        <div class="user-list-header">Players</div>
+        <div id="lobby-player-list"></div>
+        {% if response.gameMode == 'online' or response.gameMode == 'onlineTournament' %}
+            <a id="invite-player-button">+</a>
+        {% endif %}
     </div>
 </div>
 <script>

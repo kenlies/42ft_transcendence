@@ -1,0 +1,78 @@
+#home-container {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing);
+}
+
+#game-form-container {
+    {% include "css/include/borders.css" with border="top-bottom-dotted" %}
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+}
+
+#online-game-form,
+#local-game-form {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing);
+}
+
+.game-button {
+    {% include "css/include/borders.css" with border="crosshair-zoom" %}
+    {% include "css/include/borders.css" with border="outline-glow-zoom" %}
+    background-color: var(--dark-bg);
+    color: var(--fg-color);
+
+    display: block;
+    flex: 1 1 40%;
+    height: 240px;
+    width: 300px;
+    cursor: pointer;
+}
+
+#home-user-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding);
+    margin: calc(var(--spacing) + 2px) 0;
+    width: 260px;
+
+    & > .button {
+        display: block;
+        {% include "css/include/buttons.css" %}
+        cursor: pointer;
+        padding: 15px var(--padding);
+    }
+}
+
+#home-profile-button {
+    display: block;
+    {% include "css/include/borders.css" with border="crosshair-zoom" %}
+    {% include "css/include/borders.css" with border="outline-glow-zoom" %}
+
+    & > .avatar {
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    text-decoration: none;
+    background-color: var(--dark-bg);
+    padding: 0;
+}
+
+#home-user-username {
+    padding: 10px;
+    color: var(--fg-color);
+    text-decoration: none;
+    text-align: center;
+    font-family: "Hitmarker VF", sans-serif;
+    font-stretch: 20%;
+    font-weight: 500;
+    font-size: 1.15rem;
+}
+
+#local-match-error,
+#local-tournament-error {
+    {% include "css/include/error-field.css" %}
+}

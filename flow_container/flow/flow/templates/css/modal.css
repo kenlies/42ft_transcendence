@@ -1,0 +1,104 @@
+#modal-dialog-container {
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
+
+    position: fixed;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+
+    background-color: rgba(20,20,20,0.2);
+    backdrop-filter: blur(7px);
+
+    transition-duration: var(--modal-display-duration);
+    transition-property: opacity visibility;
+
+    &.show {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+#modal-dialog {
+    padding: calc(var(--padding) * 2);
+    min-width: 100px;
+
+    background-color: var(--dark-bg);
+    border: 2px solid var(--border-color);
+    box-shadow: rgba(0,0,0,0.5) 0 10px 40px;
+
+    transform: scale(0.0, 0.0);
+
+    transition-duration: var(--modal-display-duration);
+    transition-property: transform;
+
+    #modal-dialog-container.show > & {
+        transform: scale(1.0, 1.0);
+    }
+}
+
+#modal-dialog-close {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: 40px;
+    line-height: 40px;
+    text-align: center;
+
+    cursor: pointer;
+    border-left: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+    background-clip: padding-box;
+
+    &:hover {
+
+        background-color: var(--light-bg);
+    }
+}
+
+#modal-dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: var(--spacing);
+
+    & > h2,
+    & > p {
+        margin: 0;
+    }
+
+    & > #lobby-invite-form,
+    & > #add-friend-form,
+    & > #block-user-form,
+    & > #local-match-form,
+    & > #local-tournament-form {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing) * 2 / 3);
+
+
+        & > input[type=text],
+        & > input[type=email],
+        & > input[type=password] {
+            width: 100%;
+            display: block;
+            padding: 10px var(--padding);
+            box-sizing: border-box;
+
+            {% include "css/include/form-inputs.css" %}
+        }
+
+        & > button {
+            width: 100%;
+            cursor: pointer;
+
+            {% include "css/include/buttons.css" %}
+        }
+    }
+}

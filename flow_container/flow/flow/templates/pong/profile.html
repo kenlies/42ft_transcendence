@@ -1,92 +1,86 @@
-<div class="container">
-    <div class="profile-header box">
-        <div class="profile-left">
-            <p><strong>{{ targetUser.user.username }}</strong></p>
-            <p><strong>{{ targetUser.user.email }}</strong></p>
-            {% if targetUser == user %}
-                <a class="landing-button" href="#settings">Settings</a>
-            {% endif %}
-        </div>
+{% if targetUser == user %}
+    {% include "pong/elements/modal_dialog.html" %}
+{% endif %}
 
-        <div class="profile-center">
-            <img src="/api/avatar?username={{ targetUser.user.username }}" class="profile-pic" alt="User Avatar">
-        </div>
+<div id="profile-container">
+    <div id="profile-side-container">
+        <div id="profile-user">
+            <div class="avatar">
+                <img src="/api/avatar?username={{ targetUser.user.username }}">
+            </div>
 
-        <div class="profile-right">
-                <p><strong>Matches Played: </strong>{{ match.count }}</p>
-                <p><strong>Wins: </strong>{{ match.wins }}</p>
-                <p><strong>Losses: </strong>{{ match.losses }}</p>
-        </div>
-    </div>
+            <div id="profile-user-info">
+                <div id="profile-username">{{ targetUser.user.username }}</div>
+                <div id="profile-user-details">
+                    {% if targetUser != user %}
+                        {% if targetUser.is_online %}
+                            <div class="profile-user-online-tag">Online</div>
+                        {% else %}
+                            <div class="profile-user-offline-tag">Offline</div>
+                        {% endif %}
+                    {% endif %}
 
-    <div class="main-content box">
-        <div class="buttons">
-            <button onclick="showSection('match-history')" class="active">Match History</button>
-            {% if targetUser == user %}
-                <button onclick="showSection('friend-list')">Friend List</button>
-                <button onclick="showSection('blocked-list')">Blocked List</button>
-            {% else %}
-                <button onclick="showSection('chat')">Chat</button>
-            {% endif %}
+                    <p><strong>Matches Played: </strong>{{ match.count }}</p>
+                    <p><strong>Wins: </strong>{{ match.wins }}</p>
+                    <p><strong>Losses: </strong>{{ match.losses }}</p>
+
+                    <p><strong>{{ targetUser.user.email }}</strong></p>
+
+                    {% if targetUser == user %}
+                        <a href="#settings">Settings</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
         <!-- Match History -->
         <div id="match-history">
-            <h2 class="tab-heading">Match History</h2>
+            <div id="match-history-header">Match History</div>
             <div id="match-history-content">
                 {% include 'pong/elements/matchTable.html' %}
             </div>
         </div>
-
-        {% if targetUser == user %}
-            <!-- Friend List -->
-            <div id="friend-list" class="hidden">
-                <h2 class="tab-heading">Friend List</h2>
-                <div>
-                    <input type="text" id="friend-username" placeholder="Enter username to add">
-                    <div id="add-friend-error"></div>
-                    <button id="add-friend-button">Add Friend</button>
-                </div>
-                <div id="friend-list-content">
-                    {% include 'pong/elements/friendList.html' %}
-                </div>
-            </div>
-
-            <!-- Blocked Users -->
-            <div id="blocked-list" class="hidden">
-                <h2 class="tab-heading">Blocked Users</h2>
-                <div>
-                    <input type="text" id="block-username" placeholder="Enter username to block">
-                    <div id="block-user-error"></div>
-                    <button id="block-user-button">Block</button>
-                </div>
-                <div id="blocked-list-content">
-                    {% include 'pong/elements/blockedUsersList.html' %}
-                </div>
-            </div>
-        {% else %}
-            <!-- Chat -->
-            <div id="chat" class="hidden">
-                <h2 class="tab-heading">Chat</h2>
-                <div id="chat-content">
-                    {% include 'pong/elements/chat.html' %}
-                </div>
-                <form id="chat-input" class="chat-input">
-                    <input type="text" id="chat-message" placeholder="Type a message...">
-                    <div id="chat-error"></div>
-                    <button type="submit">Send</button>
-                </form>
-            </div>
-        {% endif %}
     </div>
+
+    {% if targetUser == user %}
+        <!-- Friend List -->
+        <div id="friend-list-container">
+            <div class="user-list-header">Friends</div>
+            <div id="friend-list">
+                {% include "pong/elements/friendList.html" %}
+            </div>
+            <a id="add-friend-button">+</a>
+        </div>
+
+        <!-- Blocked Users -->
+        <div id="blocked-list-container">
+            <div class="user-list-header">Blocked users</div>
+            <div id="blocked-list">
+                {% include 'pong/elements/blockedUsersList.html' %}
+            </div>
+            <a id="block-user-button">🞩</a>
+        </div>
+    {% else %}
+        <!-- Chat -->
+        <div id="profile-chat">
+            <div id="profile-chat-content">
+                {% include 'pong/elements/chat.html' %}
+            </div>
+            <form id="profile-chat-input-form">
+                <input type="text" id="profile-chat-message-input" placeholder="Type a message..." autocomplete="off" maxlength="500">
+                <div id="profile-chat-error"></div>
+                <button id="profile-chat-input-button" type="submit">Send</button>
+            </form>
+        </div>
+    {% endif %}
 </div>
 
 {% if targetUser == user %}
 
 <script>
 {
-    const friendList = document.getElementById('friend-list-content');
-    const blockedUsersList = document.getElementById('blocked-list-content');
+    const friendList = document.getElementById('friend-list');
+    const blockedUsersList = document.getElementById('blocked-list');
     const friendListInterval = setInterval(() => changeContainerContent(friendList, 'elements/friendList'), 1000);
     const blockedUsersInterval = setInterval(() => changeContainerContent(blockedUsersList, 'elements/blockedUsersList'), 1000);
 
@@ -95,54 +89,56 @@
         clearInterval(blockedUsersInterval);
     }, { once: true });
 
-    const addFriendError = document.getElementById('add-friend-error');
-    const blockUserError = document.getElementById('block-user-error');
+    const modalDialog = document.getElementById('modal-dialog-container');
+    const modalDialogContent = document.getElementById('modal-dialog-content');
+    const modalDialogClose = document.getElementById('modal-dialog-close');
+    modalDialogClose.addEventListener('click', (event) => {
+        modalDialog.classList.remove("show");
+    });
 
-    function handleAddFriend() {
-        const friendUsername = document.getElementById('friend-username').value;
-        addFriendError.textContent = '';
-        addFriendError.classList.remove("show");
-        if (friendUsername) {
-            addFriend(friendUsername, addFriendError);
-        }
-    }
+    const addFriendButton = document.getElementById('add-friend-button');
+	addFriendButton.addEventListener('click', async (event) => {
+        event.preventDefault();
 
-    function handleBlockUser() {
-        const blockUsername = document.getElementById('block-username').value;
-        blockUserError.textContent = '';
-        blockUserError.classList.remove("show");
-        if (blockUsername) {
-            blockUser(blockUsername, blockUserError);
-        }
-    }
+        await changeContainerContent(modalDialogContent, 'dialogs/add_friend_form');
+        const addFriendForm = document.getElementById('add-friend-form');
+        const addFriendError = document.getElementById('add-friend-error');
+        const friendUsernameInput = document.getElementById('friend-username-input');
 
-    document.getElementById('add-friend-button').addEventListener('click', handleAddFriend);
-    document.getElementById('block-user-button').addEventListener('click', handleBlockUser);
+        addFriendForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-    function showSection(sectionId) {
-        const sections = ['match-history', 'friend-list', 'blocked-list'];
-        sections.forEach(id => {
-            const section = document.getElementById(id);
-            if (section) {
-                if (id === sectionId) {
-                    section.classList.remove('hidden');
-                }
-                else {
-                    section.classList.add('hidden');
-                }
+            if (friendUsernameInput.value) {
+                if (await addFriend(friendUsernameInput.value, addFriendError))
+                    modalDialog.classList.remove("show");
+                    changeContainerContent(friendList, 'elements/friendList');
             }
         });
 
-        const buttons = document.querySelectorAll('.buttons button');
-        buttons.forEach(button => {
-            button.classList.remove('active');
+        modalDialog.classList.add("show");
+    });
+
+    const blockUserButton = document.getElementById('block-user-button');
+	blockUserButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        await changeContainerContent(modalDialogContent, 'dialogs/block_user_form');
+        const blockUserForm = document.getElementById('block-user-form');
+        const blockUserError = document.getElementById('block-user-error');
+        const blockUsernameInput = document.getElementById('block-username-input');
+
+        blockUserForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (blockUsernameInput.value) {
+                if (await blockUser(blockUsernameInput.value, blockUserError))
+                    modalDialog.classList.remove("show");
+                    changeContainerContent(blockedUsersList, 'elements/blockedUsersList');
+            }
         });
 
-        const activeButton = Array.from(buttons).find(button => button.getAttribute('onclick').includes(sectionId));
-        if (activeButton) {
-            activeButton.classList.add('active');
-        }
-    }
+        modalDialog.classList.add("show");
+    });
 }
 </script>
 
@@ -150,20 +146,20 @@
 
 <script>
 {
-    const chatContent = document.getElementById('chat-content');
+    const chatContent = document.getElementById('profile-chat-content');
     const chatInterval = setInterval(() => changeContainerContent(chatContent, 'elements/chat-{{ targetUser.user.username }}'), 1000);
 
     addEventListener("hashchange", (event) => {
         clearInterval(chatInterval);
     }, { once: true });
 
-    const chatForm = document.getElementById('chat-input');
-    const chatError = document.getElementById('chat-error');
+    const chatForm = document.getElementById('profile-chat-input-form');
+    const chatError = document.getElementById('profile-chat-error');
 
     chatForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const messageContent = document.getElementById('chat-message');
+        const messageContent = document.getElementById('profile-chat-message-input');
 
         chatError.textContent = '';
         chatError.classList.remove('show');
@@ -187,6 +183,7 @@
 
                 if (response.ok) {
                     messageContent.value = '';
+                    changeContainerContent(chatContent, 'elements/chat-{{ targetUser.user.username }}');
                 } else {
                     chatError.textContent = result;
                     chatError.classList.add('show');
@@ -198,29 +195,14 @@
         }
     });
 
-    function showSection(sectionId) {
-        const sections = ['match-history', 'chat'];
-        sections.forEach(id => {
-            const section = document.getElementById(id);
-            if (section) {
-                if (id === sectionId) {
-                    section.classList.remove('hidden');
-                }
-                else {
-                    section.classList.add('hidden');
-                }
-            }
-        });
-
-        const buttons = document.querySelectorAll('.buttons button');
-        buttons.forEach(button => {
-            button.classList.remove('active');
-        });
-
-        const activeButton = Array.from(buttons).find(button => button.getAttribute('onclick').includes(sectionId));
-        if (activeButton) {
-            activeButton.classList.add('active');
-        }
+    const startLobby = async (game_url) => {
+        removeEventListener("hashchange", loadPageHash);
+        addEventListener("hashchange", (event) => {
+            changeContainerLobby(document.body, game_url);
+            addEventListener("hashchange", loadPageHash);
+        },
+        { once: true });
+        window.location.hash = 'lobby';
     }
 }
 </script>

@@ -4,7 +4,7 @@
     align-items: center;
     gap: var(--spacing);
 
-    {% include "css/include/borders.css" %}
+    {% include "css/include/borders.css" with border="top-bottom-dotted" %}
 }
 
 #landing-buttons-container {
@@ -17,7 +17,7 @@
     display: block;
     width: 300px;
 
-    {% include "css/include/buttons.css" with style="button1" %}
+    {% include "css/include/buttons.css" %}
 
     font-family: "Hitmarker VF";
     font-stretch: 40%;
