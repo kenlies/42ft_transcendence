@@ -114,7 +114,6 @@ ws.onmessage = async (event) => {
 			lobbyContainer.classList.add("hide");
 			settingsContainer.classList.add("hide");
 			gameContainer.classList.remove("hide");
-			await changeContainerContent(gameContainer, "game");
 			const canvas = document.getElementById("game-canvas");
 			game.initCanvas(canvas);
 			game.initStartValues(parsedMessage);
