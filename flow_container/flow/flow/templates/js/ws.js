@@ -46,6 +46,9 @@ const isScrolledToBottom = () => {
 const sendSystemMessage = (username, mode) => {
 	let msg;
 	switch (mode) {
+		case "tournie_winner":
+			msg = {message: "Tournament winner is: " + username, sender: "System"};
+			break;
 		case "winner":
 			msg = {message: "Winner is: " + username, sender: "System"};
 			break;
@@ -153,6 +156,7 @@ ws.onmessage = async (event) => {
 
 		case "tournament_over":
 			console.log("Tournament over");
+			sendSystemMessage(parsedMessage.winner, "tournie_winner");
 			displayModal("Tournament winner: " + parsedMessage.winner);
 			break;
 
