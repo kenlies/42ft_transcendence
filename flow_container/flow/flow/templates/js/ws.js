@@ -19,6 +19,8 @@ let matchLevel = 0;
 {% include "js/game.js" %}
 
 const game = new Game();
+const canvas = document.getElementById("game-canvas");
+game.initCanvas(canvas);
 
 const lobbyContainer = document.getElementById("lobby-container");
 const settingsContainer = document.getElementById("settings-container");
@@ -114,8 +116,6 @@ ws.onmessage = async (event) => {
 			lobbyContainer.classList.add("hide");
 			settingsContainer.classList.add("hide");
 			gameContainer.classList.remove("hide");
-			const canvas = document.getElementById("game-canvas");
-			game.initCanvas(canvas);
 			game.initStartValues(parsedMessage);
 			game.initKeyEvents();
 			game.startRedraw();
