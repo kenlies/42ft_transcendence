@@ -1,6 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
+import random
 from .models import AiMatch
 from queue import Queue
 from channels.db import database_sync_to_async
@@ -67,6 +68,15 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 				predictedCollisionPoint = -predictedCollisionPoint
 			elif (predictedCollisionPoint > self.courtHeight):
 				predictedCollisionPoint = 2 * self.courtHeight - predictedCollisionPoint
+
+			scoreDifference = self.goalsPlayer2 - self.goalsPlayer1
+			if (scoreDifference >= 0):
+				offset = random.uniform(-0.055, 0.055)
+				predictedCollisionPoint += offset
+				if (random.random() < 0.5 + (scoreDifference * 0.05)):
+					offset = random.uniform(-0.01, 0.01)
+					predictedCollisionPoint += offset
+
 			return predictedCollisionPoint
 		except:
 			print("Error in Ai prediction")
