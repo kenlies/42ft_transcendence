@@ -33,7 +33,7 @@ class Game {
     }
 
     playerIsSpectator() {
-        if (gameMode == "local" || gameMode == "localTournament")
+        if (gameMode == "local" || gameMode == "localTournament" || gameMode == "ai")
             return false;
         if (this.player1 === username || this.player2 === username)
             return false;
@@ -149,7 +149,7 @@ class Game {
                 ws.send(JSON.stringify({"type": "paddle_position", "value": this.rightpaddleY, "player": "player2"}));
             }
             else {
-                if (this.player1 === username) {
+                if (this.player1 === username || gameMode == "ai") {
                     // W or up
                     if ((this.pressedKeys[87] || this.pressedKeys[38]) && this.leftpaddleY  > 0) {
                         this.leftpaddleY -= this.paddleSpeed / 10;
