@@ -68,11 +68,13 @@ ws.onopen = (event) => {
 	if (gameMode === "onlineTournament" || gameMode === "online")
 		ws.send(JSON.stringify({"type": "room_data_request"}));
 	addEventListener("hashchange", (event) => {
+		ws.removeEventListener("close", wsErrorHandler);
 		ws.close();
 		game.stopKeyEvents();
 	},
 	{ once: true });
 	addEventListener("beforeunload", (event) => {
+		ws.removeEventListener("close", wsErrorHandler);
 		ws.close();
 	});
 };
