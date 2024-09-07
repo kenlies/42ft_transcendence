@@ -16,7 +16,6 @@ ws.addEventListener("error", wsErrorHandler), { once: true };
 ws.addEventListener("close", wsErrorHandler), { once: true };
 
 let room_closed = false;
-let host = false;
 let matchLevel = 0;
 
 {% include "js/game.js" %}
@@ -87,9 +86,7 @@ ws.onmessage = async (event) => {
 		case "room_data":
 			playerContainer.textContent = "";
 			playersInRoom = [];
-			if (parsedMessage.player1 === username)
-				host = true;
-			else
+			if (parsedMessage.player1 !== username)
 				speedSlider.setAttribute("disabled", "true");
 			playersInRoom.push(parsedMessage.player1);
 			playersInRoom.push(parsedMessage.player2);

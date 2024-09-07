@@ -40,7 +40,7 @@
 		if (gameMode === "local") {
 			const lobby = document.getElementById('lobby-container');
 			const chat = document.getElementById('lobby-chat-container');
-			
+
 			chat.classList.add("hide");
 			lobby.classList.add("shorten-grid-gap");
 		}
@@ -88,7 +88,7 @@
 
 	// Update the current slider value (each time you drag the slider handle)
 	speedSlider.oninput = function() {
-		if (host === true)
+		if (gameMode === "online" || gameMode === "onlineTournament")
 			ws.send(JSON.stringify({"type": "setting_change", "value": this.value}));
 		else
 			speedSliderValBelow.textContent = this.value / 10;
