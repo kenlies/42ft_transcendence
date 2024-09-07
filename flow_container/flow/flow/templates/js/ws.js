@@ -93,7 +93,7 @@ ws.onmessage = async (event) => {
 				speedSlider.setAttribute("disabled", "true");
 			playersInRoom.push(parsedMessage.player1);
 			playersInRoom.push(parsedMessage.player2);
-			if (gameMode === "onlineTournament") {
+			if (gameMode === "onlineTournament" || gameMode === "localTournament") {
 				playersInRoom.push(parsedMessage.player3);
 				playersInRoom.push(parsedMessage.player4);
 			}
