@@ -101,7 +101,18 @@ ws.onmessage = async (event) => {
 				if (player) {
 					const playerElement = document.createElement('div');
 					playerElement.classList.add('player-name');
-					playerElement.textContent = player;
+
+					const playerAvatarContainer = document.createElement('div');
+					playerAvatarContainer.classList.add('avatar');
+					const playerAvatarImage = document.createElement('img');
+					playerAvatarImage.src = "/api/avatar?username=" + player;
+					playerAvatarContainer.appendChild(playerAvatarImage);
+					playerElement.appendChild(playerAvatarContainer);
+
+					const playerName = document.createElement('span');
+					playerName.textContent = player;
+					playerElement.appendChild(playerName);
+
 					playerList.appendChild(playerElement);
 				}
 			});
