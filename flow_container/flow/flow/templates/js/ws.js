@@ -135,10 +135,8 @@ ws.onmessage = async (event) => {
 			console.log("Room closed: " + parsedMessage.username + " disconnected!");
 			sendSystemMessage(parsedMessage.username, "closed");
 			room_closed = true;
-			if (lobbyContainer.classList.contains("hide") && gameMode == "onlineTournament") {
-				await new Promise(resolve => setTimeout(resolve, 5000));
+			if (lobbyContainer.classList.contains("hide") && gameMode == "onlineTournament")
 				displayModal("Tournament closed: Host disconnected");
-			}
 			break;
 
 		case "setting_change":
