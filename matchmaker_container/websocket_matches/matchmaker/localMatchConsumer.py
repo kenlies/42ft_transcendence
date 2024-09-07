@@ -100,6 +100,11 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 			self.player2 = matchObject.player2
 			self.loopTaskActive = False
 			await self.accept()
+			await self.send(json.dumps({
+				'identity': 'room_data',
+				'player1': matchObject.player1,
+				'player2': matchObject.player2
+			}))
 		except:
 			print("Match object not found")
 			return

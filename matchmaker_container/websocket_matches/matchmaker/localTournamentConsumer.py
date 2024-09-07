@@ -79,6 +79,13 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 			self.player4 = thetournament.player4
 			self.loopTaskActive = False
 			await self.accept()
+			await self.send(json.dumps({
+				'identity': 'room_data',
+				'player1': thetournament.player1,
+				'player2': thetournament.player2,
+				'player3': thetournament.player3,
+				'player4': thetournament.player4
+			}))
 		except thetournament.DoesNotExist:
 			print("Match object not found")
 			return
