@@ -97,11 +97,13 @@ ws.onmessage = async (event) => {
 				playersInRoom.push(parsedMessage.player3);
 				playersInRoom.push(parsedMessage.player4);
 			}
-			playersInRoom.forEach((element) => {
-				const playerElement = document.createElement('div');
-				playerElement.classList.add('player-name');
-				playerElement.textContent = element;
-				playerContainer.appendChild(playerElement);
+			playersInRoom.forEach((player) => {
+				if (player) {
+					const playerElement = document.createElement('div');
+					playerElement.classList.add('player-name');
+					playerElement.textContent = player;
+					playerList.appendChild(playerElement);
+				}
 			});
 			break;
 
