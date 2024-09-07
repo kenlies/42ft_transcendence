@@ -2,6 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
 import random
+import time
 from .models import AiMatch
 from queue import Queue
 from channels.db import database_sync_to_async
@@ -37,7 +38,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
-	async def start_match(self):
+	async def send_start_match(self):
 		await self.send(json.dumps({
 			'identity': 'start_match',
 			'paddleSpeed': self.paddleSpeed,
@@ -57,6 +58,19 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 			'goalsPlayer2': self.goalsPlayer2
 		}))
 
+	async def wait_for_confirmed(self):
+		start_time = time.time()
+
+		while (self.confirmed == False):
+			await self.send_start_match()
+			await asyncio.sleep(2)
+			if (time.time() - start_time > 15):
+				await self.send(json.dumps({
+					'identity': 'error',
+					'message': 'Match not confirmed'
+				}))
+				await self.close()
+				return
 
 	############ GAME LOGIC ############
 
@@ -82,6 +96,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 			print("Error in Ai prediction")
 
 	async def updateAiPaddle(self):
+		await self.wait_for_confirmed()
 		while True:
 			try:
 				if (self.ballHeading == 1):
@@ -106,6 +121,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 				print("Error in AI")
 
 	async def pong(self):
+		await self.wait_for_confirmed()
 		while (self.goalsPlayer1 < 5 and self.goalsPlayer2 < 5):
 			await update_players(self)
 			await update_ball(self)
@@ -147,6 +163,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 			self.player1 = matchObject.player1
 			self.player2 = matchObject.player2
 			self.loopTaskActive = False
+			self.confirmed = False
 			await self.accept()
 			await self.send(json.dumps({
 				'identity': 'room_data',
@@ -176,7 +193,9 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data):
 		data = json.loads(text_data)
 		if ('type' in data):
-			if (self.loopTaskActive):
+			if (data['type'] == 'received_start_match'):
+				self.confirmed = True
+			elif (self.loopTaskActive):
 				if (data['type'] == 'paddle_position' and 'value' in data):
 					self.player1_update_queue.put(data['value'])
 			elif (data['type'] == 'start_match' and 'ballSpeed' in data and 'paddleSpeed' in data):
@@ -200,7 +219,6 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 					ballSpeed = data['ballSpeed']
 					paddleSpeed = data['paddleSpeed']
 					await self.init_match(ballSpeed, paddleSpeed)
-					await self.start_match()
 					self.loopTaskActive = True
 					self.ai_loop_task = asyncio.create_task(self.updateAiPaddle())
 					self.game_loop_task = asyncio.create_task(self.pong())
