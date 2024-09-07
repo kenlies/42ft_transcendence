@@ -134,9 +134,9 @@ ws.onmessage = async (event) => {
 		case "room_closed":
 			console.log("Room closed: " + parsedMessage.username + " disconnected!");
 			sendSystemMessage(parsedMessage.username, "closed");
-			room_closed = true;
-			if (lobbyContainer.classList.contains("hide") && gameMode == "onlineTournament")
+			if (lobbyContainer.classList.contains("hide") && gameMode == "onlineTournament" && !room_closed)
 				displayModal("Tournament closed: Host disconnected");
+			room_closed = true;
 			break;
 
 		case "setting_change":
@@ -157,6 +157,7 @@ ws.onmessage = async (event) => {
 			console.log("Tournament over");
 			sendSystemMessage(parsedMessage.winner, "tournie_winner");
 			displayModal("Tournament winner: " + parsedMessage.winner);
+			room_closed = true;
 			break;
 
 		case "game_over":
