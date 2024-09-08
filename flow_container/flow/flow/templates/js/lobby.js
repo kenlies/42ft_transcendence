@@ -3,7 +3,6 @@
 
 	const chatInput = document.getElementById('lobby-chat-input');
 	const chatInputForm = document.getElementById('lobby-chat-input-form');
-	const startButton = document.getElementById('lobby-start-button');
 
     const modalDialog = document.getElementById('modal-dialog-container');
     const modalDialogContent = document.getElementById('modal-dialog-content');

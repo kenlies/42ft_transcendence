@@ -29,6 +29,7 @@ const settingsContainer = document.getElementById("lobby-settings-container");
 const gameContainer = document.getElementById("game-container");
 const playerList = document.getElementById("lobby-player-list");
 const chatMessages = document.getElementById('lobby-chat-messages');
+const startButton = document.getElementById('lobby-start-button');
 
 player1Score = document.getElementById('player1-score');
 player2Score = document.getElementById('player2-score');
@@ -90,8 +91,10 @@ ws.onmessage = async (event) => {
 		case "room_data":
 			playerList.textContent = "";
 			playersInRoom = [];
-			if ((gameMode === "online" || gameMode === "onlineTournament") && parsedMessage.player1 !== username)
+			if ((gameMode === "online" || gameMode === "onlineTournament") && parsedMessage.player1 !== username) {
 				speedSlider.setAttribute("disabled", "true");
+				startButton.setAttribute("disabled", "true");
+			}
 			playersInRoom.push(parsedMessage.player1);
 			playersInRoom.push(parsedMessage.player2);
 			if (gameMode === "onlineTournament" || gameMode === "localTournament") {
