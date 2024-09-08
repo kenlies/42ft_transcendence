@@ -80,7 +80,8 @@
     });
 
     const onlineGameForm = document.getElementById('online-game-form');
-	onlineGameForm.addEventListener('submit', startLobby);
+    onlineGameForm.addEventListener('submit', (event) => {event.preventDefault();});
+    onlineGameForm.addEventListener('submit', startLobby, { once: true });
 
     const localGameForm = document.getElementById('local-game-form');
 	localGameForm.addEventListener('submit', async (event) => {
@@ -93,9 +94,10 @@
             const player1 = document.getElementById('local-match-player1');
             const player2 = document.getElementById('local-match-player2');
 
+            localMatchForm.addEventListener('submit', (event) => {event.preventDefault();});
             localMatchForm.addEventListener('submit', (event) => {
                 startLobby(event, player1.value, player2.value);
-            });
+            }, { once: true });
         } else if (event.submitter.value === 'localTournament') {
             await changeContainerContent(modalDialogContent, 'dialogs/local_tournament_name_form');
             const localTournamentForm = document.getElementById('local-tournament-form');
@@ -105,9 +107,10 @@
             const player3 = document.getElementById('local-tournament-player3');
             const player4 = document.getElementById('local-tournament-player4');
 
+            localTournamentForm.addEventListener('submit', (event) => {event.preventDefault();});
             localTournamentForm.addEventListener('submit', (event) => {
                 startLobby(event, player1.value, player2.value, player3.value, player4.value);
-            });
+            }, { once: true });
         }
 
         modalDialog.classList.add("show");
