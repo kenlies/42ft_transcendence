@@ -1,19 +1,23 @@
-{% for message in messages reversed %}
-<div class="message {% if message.messageSender == user %}sent{% else %}received{% endif %}">
-    <div class="avatar">
-        <img src="/api/avatar?username={{ message.messageSender.user.username }}" alt="{{ message.messageSender.user.username }}">
+{% if targetUser in blocked %}
+    <p>User blocked.</p>
+{% else %}
+    {% for message in messages reversed %}
+    <div class="message {% if message.messageSender == user %}sent{% else %}received{% endif %}">
+        <div class="avatar">
+            <img src="/api/avatar?username={{ message.messageSender.user.username }}" alt="{{ message.messageSender.user.username }}">
+        </div>
+        <div class="message-text">
+            {% if message.messageContent|length >= 11 and message.messageContent|slice:":11" == "GAME_INVITE" %}
+                {% with game_url=message.messageContent|slice:"12:" %}
+                    Game Invite
+                    <button onclick="startLobby('{{ game_url }}')">Join Game</button>
+                {% endwith %}
+            {% else %}
+                {{ message.messageContent }}
+            {% endif %}
+        </div>
     </div>
-    <div class="message-text">
-        {% if message.messageContent|length >= 11 and message.messageContent|slice:":11" == "GAME_INVITE" %}
-            {% with game_url=message.messageContent|slice:"12:" %}
-                Game Invite
-                <button onclick="startLobby('{{ game_url }}')">Join Game</button>
-            {% endwith %}
-        {% else %}
-            {{ message.messageContent }}
-        {% endif %}
-    </div>
-</div>
-{% empty %}
-    <p>No messages found.</p>
-{% endfor %}
+    {% empty %}
+        <p>No messages found.</p>
+    {% endfor %}
+{% endif %}
