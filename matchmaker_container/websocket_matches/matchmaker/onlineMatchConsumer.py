@@ -221,15 +221,28 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 					response = requests.post(flowUrl + "/api/match", data=json.dumps(data))
 					if response.status_code != 201:
 						print("Error sending match data to flow api")
-				await self.channel_layer.group_send(
-					self.room_group_name,
-					{
-						'type': 'room_closed',
-						'username': self.username
-					}
-				)
 				if (self.role == 1):#player 1 disconnects
 					await database_sync_to_async(theMatchObject.delete)()
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'room_closed',
+							'username': self.username
+						}
+					)
+				else:
+					theMatchObject.player2 = ''
+					theMatchObject.playerCount -= 1
+					theMatchObject.ready = False
+					await database_sync_to_async(theMatchObject.save)()
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'room_data',
+							'player1': theMatchObject.player1,
+							'player2': theMatchObject.player2
+						}
+					)
 
 			#This happens anyway always when disconnecting
 			await self.channel_layer.group_discard(

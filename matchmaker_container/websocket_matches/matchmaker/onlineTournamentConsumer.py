@@ -42,7 +42,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		self.player1_update_queue = Queue()
 		self.player2_update_queue = Queue()
 
-	
+
 	async def reset_match_data(self):
 		self.ball_y = COURT_HEIGHT / 2
 		self.ball_x = COURT_WIDTH / 2
@@ -63,7 +63,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 
 		self.confirmedPlayers = []
 		self.allConfirmed = False
-	
+
 	def get_username_from_role(self, role):
 		if (role == 1):
 			return self.player1Username
@@ -159,6 +159,28 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 						'role': self.role
 					}
 				)
+				if thetournament.hasCommenced == False:
+					if self.role < 3:
+						thetournament.player2 = thetournament.player3
+						thetournament.player3 = ''
+					if self.role < 4:
+						thetournament.player3 = thetournament.player4
+						thetournament.player4 = ''
+					if self.role == 4:
+						thetournament.player4 = ''
+					thetournament.playerCount -= 1
+					thetournament.ready = False
+					await database_sync_to_async(thetournament.save)()
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'room_data',
+							'player1': thetournament.player1,
+							'player2': thetournament.player2,
+							'player3': thetournament.player3,
+							'player4': thetournament.player4
+						}
+					)
 			await self.channel_layer.group_discard(
 				self.room_group_name,
 				self.channel_name
@@ -193,7 +215,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				'player2_username': player2
 			}
 		)
-		
+
 	async def wait_for_confirmed(self, player1, player2):
 		start_time = time.time()
 		while (self.allConfirmed == False):
@@ -351,7 +373,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				}
 			)
 			await asyncio.sleep(2)
-		
+
 	################### RECEIVE DATA ON WEBSOCKETS ##################
 	async def receive(self, text_data):
 		data = json.loads(text_data)
@@ -579,12 +601,21 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				'identity': 'player_disconnected',
 				'username': event['username']
 			}))
-		if self.role == 1:
-			if event['role'] in self.connectedPlayers:
-				self.connectedPlayers.remove(event['role'])
-			if self.gameOnGoing and (event['role'] == self.currentPLayer1 or event['role'] == self.currentPLayer2):
-				self.abort = True
-				self.winner_through_disconnect = self.currentPLayer1 if self.currentPLayer1 != event['role'] else self.currentPLayer2
+		try:
+			theTournament = await database_sync_to_async(OnlineTournament.objects.get)(roomId=self.room_name)
+			if self.role == 1:
+				if theTournament.hasCommenced == False:
+					self.connectedPlayers.pop()
+				else:
+					if event['role'] in self.connectedPlayers:
+						self.connectedPlayers.remove(event['role'])
+					if self.gameOnGoing and (event['role'] == self.currentPLayer1 or event['role'] == self.currentPLayer2):
+						self.abort = True
+						self.winner_through_disconnect = self.currentPLayer1 if self.currentPLayer1 != event['role'] else self.currentPLayer2
+			elif theTournament.hasCommenced == False and self.role > event['role']:
+				self.role -= 1
+		except:
+			pass
 
 	async def player_connected(self, event):
 		if self.role == 1:
@@ -603,7 +634,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				'identity': 'tournament_over',
 				'winner': event['winner']
 			}))
-	
+
 	async def received_start_match(self, event):
 		if self.role == 1:
 			self.confirmedPlayers.append(event['role'])
@@ -611,7 +642,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				if player not in self.confirmedPlayers:
 					return
 			self.allConfirmed = True
-	
+
 	async def time_out_disconnect(self, event):
 		if self.role == event['role']:
 			self.is_disconnecting = True
