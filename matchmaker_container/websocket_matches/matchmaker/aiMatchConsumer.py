@@ -222,11 +222,6 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 					self.loopTaskActive = True
 					self.ai_loop_task = asyncio.create_task(self.updateAiPaddle())
 					self.game_loop_task = asyncio.create_task(self.pong())
-			else:
-				await self.send(json.dumps({
-					'identity': 'error',
-					'message': 'Invalid data format'
-				}))
 		else:
 			await self.send(json.dumps({
 				'identity': 'error',

@@ -483,11 +483,6 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 							'value': data['value']
 						}
 					)
-			else:
-				await self.send(json.dumps({
-					'identity': 'error',
-					'message': 'Invalid message type'
-				}))
 		else:
 			await self.send(json.dumps({
 				'identity': 'error',

@@ -175,11 +175,6 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 					await self.init_match(ballSpeed, paddleSpeed)
 					self.loopTaskActive = True
 					self.game_loop_task = asyncio.create_task(self.pong())
-			else:
-				await self.send(json.dumps({
-					'identity': 'error',
-					'message': 'Invalid data format'
-				}))
 		else:
 			await self.send(json.dumps({
 				'identity': 'error',

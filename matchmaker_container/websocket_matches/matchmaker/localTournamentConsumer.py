@@ -258,11 +258,6 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 					}))
 					self.loopTaskActive = True
 					self.game_loop_task = asyncio.create_task(self.tournament())
-			else:
-				await self.send(json.dumps({
-					'identity': 'error',
-					'message': 'Invalid data format'
-				}))
 		else:
 			await self.send(json.dumps({
 				'identity': 'error',
