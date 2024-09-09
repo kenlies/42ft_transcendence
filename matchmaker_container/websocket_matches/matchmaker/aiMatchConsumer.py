@@ -198,7 +198,7 @@ class aiMatchConsumer(AsyncWebsocketConsumer):
 			elif (self.loopTaskActive):
 				if (data['type'] == 'paddle_position' and 'value' in data):
 					self.player1_update_queue.put(data['value'])
-			elif (data['type'] == 'start_match' and 'ballSpeed' in data and 'paddleSpeed' in data):
+			elif (data['type'] == 'start_match' and 'ballSpeed' in data and 'paddleSpeed' in data and not self.loopTaskActive):
 				if (type(data['ballSpeed']) != float or type(data['paddleSpeed']) != float):
 					await self.send(json.dumps({
 						'identity': 'error',

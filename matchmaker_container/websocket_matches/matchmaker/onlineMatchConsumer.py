@@ -288,7 +288,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 						'sender': data['sender']
 					}
 				)
-			elif (data['type'] == 'start_match' and 'ballSpeed' in data and 'paddleSpeed' in data): # will need to have metadata of the match, i.e. ball speed and paddle speed
+			elif (data['type'] == 'start_match' and 'ballSpeed' in data and 'paddleSpeed' in data and not self.loopTaskActive):
 				if (self.role != 1):
 					await self.send(json.dumps({
 						'identity': 'error',

@@ -393,7 +393,7 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 						'sender': data['sender']
 					}
 				)
-			elif (data['type'] == 'start_tournament' and 'ballSpeed' in data and 'paddleSpeed' in data):
+			elif (data['type'] == 'start_tournament' and 'ballSpeed' in data and 'paddleSpeed' in data and not self.loopTaskActive):
 				if (self.role != 1):
 					await self.send(json.dumps({
 						'identity': 'error',

@@ -227,7 +227,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 						self.player1_update_queue.put(data['value'])
 					elif (data['player'] == 'player2'):
 						self.player2_update_queue.put(data['value'])
-			elif (data['type'] == 'start_tournament' and 'ballSpeed' in data and 'paddleSpeed' in data):
+			elif (data['type'] == 'start_tournament' and 'ballSpeed' in data and 'paddleSpeed' in data and not self.loopTaskActive):
 				if (type(data['ballSpeed']) != float or type(data['paddleSpeed']) != float):
 					await self.send(json.dumps({
 						'identity': 'error',
