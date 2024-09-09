@@ -221,7 +221,7 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 		if ('type' in data):
 			if (data['type'] == 'received_start_match'):
 				self.confirmed = True
-			elif (self.loopTaskActive and self.gameOnGoing):
+			elif (self.loopTaskActive):
 				if (data['type'] == 'paddle_position' and 'value' in data and 'player' in data):
 					if (data['player'] == 'player1'):
 						self.player1_update_queue.put(data['value'])
