@@ -91,6 +91,9 @@
                 const result = await response.text();
 
                 if (response.ok) {
+                    await fetch('/api/avatar?' + new URLSearchParams({
+                        username: '{{ user.user.username }}',
+                    }).toString(), {cache: 'reload'});
                     if (Object.keys(userData).length == 0) {
                         window.location.hash = 'profile';
                         return;
