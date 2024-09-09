@@ -122,7 +122,10 @@
             const result = await response.text();
 
             if (response.ok) {
-                window.location.hash = 'profile';
+                if (userData.new_password)
+                    window.location.hash = 'login';
+                else
+                    window.location.hash = 'profile';
             }
             else {
                 settingsError.textContent = result;
