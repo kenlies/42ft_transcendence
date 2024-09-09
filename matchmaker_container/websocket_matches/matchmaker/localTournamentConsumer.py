@@ -122,7 +122,9 @@ class localTournamentConsumer(AsyncWebsocketConsumer):
 				'ballDeltaX' : self.ballDeltaX,
 				"ballSpeed": self.ballSpeed,
 				'goalsPlayer1': self.goalsPlayer1,
-				'goalsPlayer2': self.goalsPlayer2
+				'goalsPlayer2': self.goalsPlayer2,
+				'player1_username': self.get_username_from_role(self.currentPLayer1),
+				'player2_username': self.get_username_from_role(self.currentPLayer2)
 		}))
 
 	async def single_match(self, player1, player2):

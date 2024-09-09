@@ -52,7 +52,9 @@ class localMatchConsumer(AsyncWebsocketConsumer):
 			'ballDeltaX' : self.ballDeltaX,
 			"ballSpeed": self.ballSpeed,
 			'goalsPlayer1': self.goalsPlayer1,
-			'goalsPlayer2': self.goalsPlayer2
+			'goalsPlayer2': self.goalsPlayer2,
+			'player1_username': self.player1,
+			'player2_username': self.player2
 		}))
 
 
