@@ -1,11 +1,11 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
-import asyncio
 import time
-from .models import LocalMatch
+import asyncio
 from queue import Queue
+from .models import LocalMatch
 from channels.db import database_sync_to_async
 from matchmaker.update import update_players, update_ball
+from channels.generic.websocket import AsyncWebsocketConsumer
 from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
 
 class localMatchConsumer(AsyncWebsocketConsumer):
