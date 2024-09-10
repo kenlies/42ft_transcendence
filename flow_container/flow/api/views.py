@@ -76,17 +76,17 @@ def record_match_view(request):
 			data = json.loads(request.body)
 			if (data.get('secret') != os.environ.get("MATCHMAKER_SECRET")):
 				return HttpResponse('Unauthorized', status=401)
+			matchWinnerRecord = Account.objects.get(user__username=data.get('matchWinner'))
+			matchLoserRecord = Account.objects.get(user__username=data.get('matchLoser'))
 			newMatch = Match(
 				matchId = data.get('matchId'),
 				matchDate = timezone.now(),
-				matchWinnerUsername = data.get('matchWinner'),
-				matchLoserUsername = data.get('matchLoser'),
+				matchWinnerUsername = matchWinnerRecord.user,
+				matchLoserUsername = matchLoserRecord.user,
 				matchWinnerScore = data.get('matchWinnerScore'),
 				matchLoserScore = data.get('matchLoserScore'),
 			)
 			newMatch.save()
-			matchWinnerRecord = Account.objects.get(user__username=data.get('matchWinner'))
-			matchLoserRecord = Account.objects.get(user__username=data.get('matchLoser'))
 			winnerRecords = MatchRecords(
 				account = matchWinnerRecord,
 				match = newMatch,
@@ -408,8 +408,8 @@ def user_view(request):
 					matchData = {
 						'matchId': match.matchId,
 						'matchDate': match.matchDate.strftime('%Y-%m-%d %H:%M:%S'),
-						'matchWinner': match.matchWinnerUsername,
-						'matchLoser': match.matchLoserUsername,
+						'matchWinner': match.matchWinnerUsername.username,
+						'matchLoser': match.matchLoserUsername.username,
 						'matchWinnerScore': match.matchWinnerScore,
 						'matchLoserScore': match.matchLoserScore,
 					}

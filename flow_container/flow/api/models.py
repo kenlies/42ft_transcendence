@@ -23,8 +23,8 @@ class Account(models.Model):
 class Match(models.Model):
 	matchId = models.CharField(max_length=50)
 	matchDate = models.DateTimeField()
-	matchWinnerUsername = models.CharField(max_length=15, default='')
-	matchLoserUsername = models.CharField(max_length=15, default='')
+	matchWinnerUsername = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_winner')
+	matchLoserUsername = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_loser')
 	matchWinnerScore = models.IntegerField()
 	matchLoserScore = models.IntegerField()
 
