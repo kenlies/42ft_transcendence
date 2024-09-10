@@ -90,7 +90,7 @@ def record_match_view(request):
 			winnerRecords = MatchRecords(
 				account = matchWinnerRecord,
 				match = newMatch,
-				opponent = matchLoserRecord.user.username,
+				opponent = matchLoserRecord.user,
 				score = str(data.get('matchWinnerScore')) + '-' + str(data.get('matchLoserScore')),
 				result = 'Win'
 			)
@@ -98,7 +98,7 @@ def record_match_view(request):
 			loserRecords = MatchRecords(
 				account = matchLoserRecord,
 				match = newMatch,
-				opponent = matchWinnerRecord.user.username,
+				opponent = matchWinnerRecord.user,
 				score = str(data.get('matchLoserScore')) + '-' + str(data.get('matchWinnerScore')),
 				result = 'Loss'
 			)

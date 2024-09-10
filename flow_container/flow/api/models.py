@@ -31,7 +31,7 @@ class Match(models.Model):
 class MatchRecords(models.Model):
 	account = models.ForeignKey(Account, on_delete=models.CASCADE)
 	match = models.ForeignKey(Match, on_delete=models.CASCADE)
-	opponent = models.CharField(max_length=15)
+	opponent = models.ForeignKey(User, on_delete=models.CASCADE)
 	score =  models.CharField(max_length=5)
 	result = models.CharField(max_length=5)
 
