@@ -12,7 +12,7 @@
             {% for match in matchData %}
             <tr>
                 <td>{{ match.match__matchDate }}</td>
-                <td>{{ match.opponent }}</td>
+                <td>{{ match.opponent__username }}</td>
                 <td>{{ match.score }}</td>
                 <td>{{ match.result }}</td>
             </tr>
@@ -25,7 +25,7 @@
             {% for match in matchData %}
             <tr>
                 <td>{{ match.match__matchDate }}</td>
-                <td>{{ match.opponent }}</td>
+                <td>{{ match.opponent__username }}</td>
                 <td>{{ match.score }}</td>
                 <td>{{ match.result }}</td>
             </tr>

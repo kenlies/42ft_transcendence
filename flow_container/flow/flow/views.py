@@ -45,7 +45,7 @@ def content(request, content, subdir=None, targetUsername=None):
 						"wins": matches.filter(result='Win').count(),
 						"losses": matches.filter(result='Loss').count()
 					}
-					context['matchData'] = matches.values('match__matchDate', 'opponent', 'score', 'result')
+					context['matchData'] = matches.values('match__matchDate', 'opponent__username', 'score', 'result')
 
 					if targetUser not in context['blocked']:
 						receivedMessages = user.receivedMessages.filter(messageSender=targetUser).order_by('messageDate')
@@ -60,7 +60,7 @@ def content(request, content, subdir=None, targetUsername=None):
 						"wins": matches.filter(result='Win').count(),
 						"losses": matches.filter(result='Loss').count()
 					}
-					context['matchData'] = matches.values('match__matchDate', 'opponent', 'score', 'result')
+					context['matchData'] = matches.values('match__matchDate', 'opponent__username', 'score', 'result')
 					context['targetUser'] = user
 					context['messages'] = None
 			except:
