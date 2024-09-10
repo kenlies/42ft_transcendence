@@ -5,6 +5,7 @@ import requests
 import time
 from queue import Queue
 from .models import OnlineMatch
+from urllib.parse import parse_qsl
 from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from matchmaker.update import update_players, update_ball
@@ -160,8 +161,8 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				self.channel_name
 			)
 			await self.accept()
-			self.role = theMatchObject.playerCount
-			self.username = theMatchObject.player1 if self.role == 1 else theMatchObject.player2
+			self.username = dict(parse_qsl(self.scope['query_string'].decode('utf-8'))).get('username')
+			self.role = 1 if theMatchObject.player1 == self.username else 2
 			theMatchObject.playerCount += 1
 			if (self.role == 2):#handle second player connecting from invite
 				theMatchObject.ready = True

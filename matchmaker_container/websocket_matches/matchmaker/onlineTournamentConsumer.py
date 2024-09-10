@@ -5,6 +5,7 @@ import asyncio
 import requests
 import time
 from queue import Queue
+from urllib.parse import parse_qsl
 from .models import OnlineTournament
 from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
@@ -90,16 +91,16 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 				self.channel_name
 			)
 			await self.accept()
-			self.role = thetournament.playerCount
-			match self.role:
-				case 1:
-					self.username = thetournament.player1
-				case 2:
-					self.username = thetournament.player2
-				case 3:
-					self.username = thetournament.player3
-				case 4:
-					self.username = thetournament.player4
+			self.username = dict(parse_qsl(self.scope['query_string'].decode('utf-8'))).get('username')
+			match self.username:
+				case thetournament.player1:
+					self.role = 1
+				case thetournament.player2:
+					self.role = 2
+				case thetournament.player3:
+					self.role = 3
+				case thetournament.player4:
+					self.role = 4
 			thetournament.playerCount += 1
 			if (self.role == 4): #handle last player joining through invite
 				thetournament.ready = True
