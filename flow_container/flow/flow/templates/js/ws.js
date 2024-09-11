@@ -31,8 +31,8 @@ const playerList = document.getElementById("lobby-player-list");
 const chatMessages = document.getElementById('lobby-chat-messages');
 const startButton = document.getElementById('lobby-start-button');
 
-player1Score = document.getElementById('player1-score');
-player2Score = document.getElementById('player2-score');
+const player1Score = document.getElementById('player1-score');
+const player2Score = document.getElementById('player2-score');
 
 const displayModal = (text) => {
 	const gameModal = document.getElementById("game-modal");
