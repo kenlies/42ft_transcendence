@@ -11,7 +11,7 @@ from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
 from matchmaker.update import update_players, update_ball
 from channels.generic.websocket import AsyncWebsocketConsumer
-from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH
+from matchmaker.constants import PADDLE_HEIGHT, COURT_HEIGHT, COURT_WIDTH, BALL_SPEED_COF, PADDLE_SPEED_COF
 
 channel_layer = get_channel_layer()
 
@@ -22,8 +22,8 @@ class onlineTournamentConsumer(AsyncWebsocketConsumer):
 		self.courtWidth = COURT_WIDTH
 		self.paddleHeight = PADDLE_HEIGHT
 
-		self.ballSpeed = float(ballSpeed) / 10
-		self.paddleSpeed = float(paddleSpeed)
+		self.ballSpeed = float(ballSpeed) * BALL_SPEED_COF
+		self.paddleSpeed = float(paddleSpeed) * PADDLE_SPEED_COF
 
 		self.ball_y = COURT_HEIGHT / 2
 		self.ball_x = COURT_WIDTH / 2
