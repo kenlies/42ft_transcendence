@@ -169,6 +169,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				self.player1 = theMatchObject.player1
 				self.player2 = theMatchObject.player2
 			await database_sync_to_async(theMatchObject.save)()
+			self.is_disconnecting = False
 			self.loopTaskActive = False
 			if self.role > 2:#handle more than 2 players through invite
 				await self.close()
@@ -187,6 +188,7 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 			return
 
 	async def disconnect(self, close_code):
+		self.is_disconnecting = True
 		try:
 			theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
 			matchObjectExists = True
@@ -231,6 +233,14 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 						}
 					)
 				else:
+					await self.channel_layer.group_send(
+						self.room_group_name,
+						{
+							'type': 'player_disconnected',
+							'username': self.username,
+							'role': self.role
+						}
+					)
 					theMatchObject.player2 = ''
 					theMatchObject.playerCount -= 1
 					theMatchObject.ready = False
@@ -389,11 +399,19 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 	################### SEND DATA ON WEBSOCKETS ##################
 	#-Called by everyinstance in the group by group_send command
 	async def room_data(self, event):
-		await self.send(json.dumps({
-			'identity': 'room_data',
-			'player1': event['player1'],
-			'player2': event['player2']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'room_data',
+				'player1': event['player1'],
+				'player2': event['player2']
+			}))
+
+	async def player_disconnected(self, event):
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'player_disconnected',
+				'username': event['username']
+			}))
 
 	async def player_connected(self, event):
 		if self.role == 1:
@@ -408,16 +426,18 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 	async def setting_change(self, event):
 		if self.role == 1:
 			self.speed = event['value']
-		await self.send(json.dumps({
-			'identity': 'setting_change',
-			'value': event['value']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'setting_change',
+				'value': event['value']
+			}))
 
 	async def room_closed(self, event):
-		await self.send(json.dumps({
-			'identity': 'room_closed',
-			'username': event['username']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'room_closed',
+				'username': event['username']
+			}))
 		if (self.role == 1):
 			try:
 				theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
@@ -429,11 +449,12 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				self.game_loop_task.cancel()
 
 	async def live_message(self, event):
-		await self.send(json.dumps({
-			'identity': 'message',
-			'message': event['message'],
-			'sender': event['sender']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'message',
+				'message': event['message'],
+				'sender': event['sender']
+			}))
 
 	async def paddle_position(self, event):
 		if (self.role == 1 and self.loopTaskActive):
@@ -444,16 +465,18 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 
 	async def game_update(self, event):
 		positions = event['positions']
-		await self.send(json.dumps({
-			'identity': 'game_update',
-			'positions': positions
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'game_update',
+				'positions': positions
+			}))
 
 	async def game_over(self, event):
-		await self.send(json.dumps({
-			'identity': 'game_over',
-			'winner': event['winner']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'game_over',
+				'winner': event['winner']
+			}))
 		if (self.role == 1):
 			try:
 				theMatchObject = await database_sync_to_async(OnlineMatch.objects.get)(roomId=self.room_name)
@@ -465,27 +488,28 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 				self.game_loop_task.cancel()
 
 	async def start_match(self, event):
-		await self.send(json.dumps({
-			'identity': 'start_match',
-			'role': self.role,
-			'paddleSpeed': event['paddleSpeed'],
-			'paddleHeight': event['paddleHeight'],
-			'courtHeight': event['courtHeight'],
-			'courtWidth': event['courtWidth'],
-			'player1Paddle_y_top': event['player1Paddle_y_top'],
-			'player2Paddle_y_top': event['player2Paddle_y_top'],
-			'player1Paddle_x': event['player1Paddle_x'],
-			'player2Paddle_x': event['player2Paddle_x'],
-			'ball_x': event['ball_x'],
-			'ball_y': event['ball_y'],
-			'ballDeltaY': event['ballDeltaY'],
-			'ballDeltaX': event['ballDeltaX'],
-			'ballSpeed': event['ballSpeed'],
-			'goalsPlayer1': event['goalsPlayer1'],
-			'goalsPlayer2': event['goalsPlayer2'],
-			'player1_username' : event['player1_username'],
-			'player2_username' : event['player2_username']
-		}))
+		if not self.is_disconnecting:
+			await self.send(json.dumps({
+				'identity': 'start_match',
+				'role': self.role,
+				'paddleSpeed': event['paddleSpeed'],
+				'paddleHeight': event['paddleHeight'],
+				'courtHeight': event['courtHeight'],
+				'courtWidth': event['courtWidth'],
+				'player1Paddle_y_top': event['player1Paddle_y_top'],
+				'player2Paddle_y_top': event['player2Paddle_y_top'],
+				'player1Paddle_x': event['player1Paddle_x'],
+				'player2Paddle_x': event['player2Paddle_x'],
+				'ball_x': event['ball_x'],
+				'ball_y': event['ball_y'],
+				'ballDeltaY': event['ballDeltaY'],
+				'ballDeltaX': event['ballDeltaX'],
+				'ballSpeed': event['ballSpeed'],
+				'goalsPlayer1': event['goalsPlayer1'],
+				'goalsPlayer2': event['goalsPlayer2'],
+				'player1_username' : event['player1_username'],
+				'player2_username' : event['player2_username']
+			}))
 	
 	async def received_start_match(self, event):
 		if self.role == 1:
@@ -495,4 +519,5 @@ class onlineMatchConsumer(AsyncWebsocketConsumer):
 
 	async def time_out_disconnect(self, event):
 		if self.role == event['role']:
+			self.is_disconnecting = True
 			await self.disconnect(1000)
