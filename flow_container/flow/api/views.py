@@ -6,7 +6,7 @@ from django.contrib.sessions.models import Session
 from datetime import timedelta
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from .validation import validate
+from .validation import validate, validate_alias
 import json
 import requests
 import os
@@ -26,6 +26,9 @@ def matchmaker_view(request):
 					}
 				elif (gameMode == 'local'):
 					if (request.GET.get('player1') and request.GET.get('player2')):
+						invalid_alias = validate_alias(request.GET.get('player1')) or validate_alias(request.GET.get('player2'))
+						if invalid_alias:
+							return HttpResponse(invalid_alias, status=400)
 						data = {
 							"secret": os.environ.get("MATCHMAKER_SECRET"),
 							"player1": request.GET.get('player1'),
@@ -35,6 +38,9 @@ def matchmaker_view(request):
 						return HttpResponse('Missing query parameters', status=400)
 				elif (gameMode == 'localTournament'):
 					if (request.GET.get('player1') and request.GET.get('player2') and request.GET.get('player3') and request.GET.get('player4')):
+						invalid_alias = validate_alias(request.GET.get('player1')) or validate_alias(request.GET.get('player2')) or validate_alias(request.GET.get('player3')) or validate_alias(request.GET.get('player4'))
+						if invalid_alias:
+							return HttpResponse(invalid_alias, status=400)
 						data = {
 							"secret": os.environ.get("MATCHMAKER_SECRET"),
 							"player1": request.GET.get('player1'),

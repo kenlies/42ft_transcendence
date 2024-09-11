@@ -1,6 +1,17 @@
 from django.contrib.auth.models import User
 import re
 
+def validate_alias(alias):
+	if not alias:
+		return "Alias is required!"
+	elif len(alias) < 4:
+		return "Alias must be at least 4 characters long!"
+	elif len(alias) > 15:
+		return "Alias must be at most 15 characters long!"
+	elif not re.match("^[a-zA-Z0-9]+$", alias):
+		return "Alias must contain only alphanumeric characters!"
+	return None
+
 def validate_username(username):
     if not username:
         return "Username is required!"
