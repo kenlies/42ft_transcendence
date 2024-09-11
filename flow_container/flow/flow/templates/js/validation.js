@@ -14,6 +14,22 @@ function validateUsername(username, errorField) {
     return false;
 }
 
+function validatePlayerName(player, errorField) {
+    if (player.value === '' || player.value == null)
+        errorField.textContent = "Player name is required!";
+    else if (player.value.length < 4)
+        errorField.textContent = "Player name must be at least 4 characters long!";
+    else if (player.value.length > 15)
+        errorField.textContent = "Player name must be at most 15 characters long!";
+    else if (!/^[a-zA-Z0-9]+$/.test(player.value))
+        errorField.textContent = "Player name must contain only alphanumeric characters!";
+    else
+        return true;
+    player.classList.add('error');
+    errorField.classList.add('show');
+    return false;
+}
+
 function validateEmail(email, errorField) {
     if (email.value === '' || email.value == null)
         errorField.textContent = "Email is required!";

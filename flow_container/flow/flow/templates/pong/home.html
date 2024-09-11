@@ -38,12 +38,12 @@
 
             let matchmakerQuery = '?gameMode=' + event.submitter.value;
             if (event.submitter.value === 'local' || event.submitter.value === 'localTournament') {
-                matchmakerQuery += '&player1=' + (player1 ? player1 : 'Player1');
-                matchmakerQuery += '&player2=' + (player2 ? player2 : 'Player2');
+                matchmakerQuery += '&player1=' + player1;
+                matchmakerQuery += '&player2=' + player2;
             }
             if (event.submitter.value === 'localTournament') {
-                matchmakerQuery += '&player3=' + (player3 ? player3 : 'Player3');
-                matchmakerQuery += '&player4=' + (player4 ? player4 : 'Player4');
+                matchmakerQuery += '&player3=' + player3;
+                matchmakerQuery += '&player4=' + player4;
             }
 
             const response = await fetch('/api/matchmaker' + matchmakerQuery, {
@@ -84,23 +84,41 @@
     onlineGameForm.addEventListener('submit', startLobby, { once: true });
 
     const localGameForm = document.getElementById('local-game-form');
-	localGameForm.addEventListener('submit', async (event) => {
+    localGameForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         if (event.submitter.value === 'local') {
             await changeContainerContent(modalDialogContent, 'dialogs/local_match_name_form');
             const localMatchForm = document.getElementById('local-match-form');
+            const localMatchError = document.getElementById('local-match-error');
+            const localMatchStartButton = document.getElementById('local-match-start');
 
             const player1 = document.getElementById('local-match-player1');
             const player2 = document.getElementById('local-match-player2');
 
             localMatchForm.addEventListener('submit', (event) => {event.preventDefault();});
             localMatchForm.addEventListener('submit', (event) => {
-                startLobby(event, player1.value, player2.value);
-            }, { once: true });
+                player1.classList.remove('error');
+                player2.classList.remove('error');
+
+                if (validatePlayerName(player1, localMatchError)
+                    && validatePlayerName(player2, localMatchError)) {
+
+                    if (player1.value === player2.value) {
+                        localMatchError.textContent = "Player names must be unique"
+                        localMatchError.classList.add('show');
+                    } else {
+                        localMatchStartButton.setAttribute("disabled", "true");
+                        startLobby(event, player1.value, player2.value);
+                        modalDialog.classList.remove("show");
+                    }
+                }
+            });
         } else if (event.submitter.value === 'localTournament') {
             await changeContainerContent(modalDialogContent, 'dialogs/local_tournament_name_form');
             const localTournamentForm = document.getElementById('local-tournament-form');
+            const localTournamentError = document.getElementById('local-tournament-error');
+            const localTournamentStartButton = document.getElementById('local-tournament-start');
 
             const player1 = document.getElementById('local-tournament-player1');
             const player2 = document.getElementById('local-tournament-player2');
@@ -109,8 +127,26 @@
 
             localTournamentForm.addEventListener('submit', (event) => {event.preventDefault();});
             localTournamentForm.addEventListener('submit', (event) => {
-                startLobby(event, player1.value, player2.value, player3.value, player4.value);
-            }, { once: true });
+                player1.classList.remove('error');
+                player2.classList.remove('error');
+                player3.classList.remove('error');
+                player4.classList.remove('error');
+
+                if (validatePlayerName(player1, localTournamentError)
+                    && validatePlayerName(player2, localTournamentError)
+                    && validatePlayerName(player3, localTournamentError)
+                    && validatePlayerName(player4, localTournamentError)) {
+
+                    if (new Set([player1.value, player2.value, player3.value, player4.value]).size !== 4) {
+                        localTournamentError.textContent = "Player names must be unique"
+                        localTournamentError.classList.add('show');
+                    } else {
+                        localTournamentStartButton.setAttribute("disabled", "true");
+                        startLobby(event, player1.value, player2.value, player3.value, player4.value);
+                        modalDialog.classList.remove("show");
+                    }
+                }
+            });
         }
 
         modalDialog.classList.add("show");
