@@ -8,10 +8,14 @@
         </div>
         <div class="message-text">
             {% if message.messageContent|length >= 11 and message.messageContent|slice:":11" == "GAME_INVITE" %}
-                {% with game_url=message.messageContent|slice:"12:" %}
-                    Game Invite
-                    <button onclick="startLobby('{{ game_url }}')">Join Game</button>
-                {% endwith %}
+                {% if message.messageSender == targetUser %}
+                    {% with game_url=message.messageContent|slice:"12:" %}
+                        Game Invite
+                        <button onclick="startLobby('{{ game_url }}')">Join Game</button>
+                    {% endwith %}
+                {% else %}
+                    You sent a game invite.
+                {% endif %}
             {% else %}
                 {{ message.messageContent }}
             {% endif %}
