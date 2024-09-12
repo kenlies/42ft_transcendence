@@ -31,6 +31,8 @@ const playerList = document.getElementById("lobby-player-list");
 const chatMessages = document.getElementById('lobby-chat-messages');
 const startButton = document.getElementById('lobby-start-button');
 
+const player1Name = document.getElementById('player1-name');
+const player2Name = document.getElementById('player2-name');
 const player1Score = document.getElementById('player1-score');
 const player2Score = document.getElementById('player2-score');
 
@@ -136,6 +138,8 @@ ws.onmessage = async (event) => {
 			break;
 
 		case "start_match":
+			player1Name.textContent = parsedMessage.player1_username;
+			player2Name.textContent = parsedMessage.player2_username;
 			lobbyContainer.classList.add("hide");
 			settingsContainer.classList.add("hide");
 			gameContainer.classList.remove("hide");
