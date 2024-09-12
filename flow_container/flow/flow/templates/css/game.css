@@ -8,34 +8,43 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     padding: var(--padding);
     outline: 2px solid var(--border-color);
     background-color: var(--dark-bg);
+
+    font-family: "Hitmarker VF", sans-serif;
+    font-size: 1.8rem;
 }
 
 #player1-name {
-    align-self:flex-start
 }
 
 #player2-name {
-    align-self: flex-end;
-}
-
-#player1-score,
-#player2-score {
-    font-family: "Hitmarker VF", sans-serif;
-    font-stretch: 80%;
-    font-weight: 400;
-    font-size: 2rem;
+    text-align: right;
 }
 
 #player1-name,
 #player2-name {
-    font-family: "Hitmarker VF", sans-serif;
+    flex-basis: 40%;
+    flex-grow: 0;
     font-stretch: 20%;
     font-weight: 600;
-    font-size: 2rem;
+}
+
+#score-container {
+    display: flex;
+    flex-direction: row;
+}
+
+#score-divider {
+    margin: 0 10px;
+}
+
+#player1-score,
+#player2-score {
+    font-stretch: 80%;
+    font-weight: 400;
 }
 
 #game-canvas {
