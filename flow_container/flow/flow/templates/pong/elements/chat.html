@@ -11,7 +11,7 @@
                 {% if message.messageSender == targetUser %}
                     {% with game_url=message.messageContent|slice:"12:" %}
                         Game Invite
-                        <button onclick="startLobby('{{ game_url }}')">Join Game</button>
+                        <button onclick="joinLobby('{{ game_url }}')">Join Game</button>
                     {% endwith %}
                 {% else %}
                     You sent a game invite.

@@ -190,16 +190,6 @@
             }
         }
     });
-
-    const startLobby = async (game_url) => {
-        removeEventListener("hashchange", loadPageHash);
-        addEventListener("hashchange", (event) => {
-            changeContainerLobby(document.body, game_url);
-            addEventListener("hashchange", loadPageHash);
-        },
-        { once: true });
-        window.location.hash = 'lobby';
-    }
 }
 </script>
 

@@ -41,6 +41,16 @@ const getCookie = (name) => {
     return cookieValue;
 }
 
+const joinLobby = async (game_url) => {
+    removeEventListener("hashchange", loadPageHash);
+    addEventListener("hashchange", (event) => {
+        changeContainerLobby(document.body, game_url);
+        addEventListener("hashchange", loadPageHash);
+    },
+    { once: true });
+    window.location.hash = 'lobby';
+}
+
 const pingServer = async () => {
     try {
         await fetch('/api/ping', {
