@@ -112,32 +112,34 @@
             }
         }
 
-        try {
-            const response = await fetch('/api/user', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': token
-                },
-                body: JSON.stringify(userData),
-            });
+        if (Object.keys(userData).length) {
+            try {
+                const response = await fetch('/api/user', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': token
+                    },
+                    body: JSON.stringify(userData),
+                });
 
-            const result = await response.text();
+                const result = await response.text();
 
-            if (response.ok) {
-                if (userData.new_password)
-                    window.location.hash = 'login';
-                else
-                    window.location.hash = 'home';
+                if (response.ok) {
+                    if (userData.new_password)
+                        window.location.hash = 'login';
+                    else
+                        window.location.hash = 'home';
+                }
+                else {
+                    settingsError.textContent = result;
+                    settingsError.classList.add('show');
+                }
             }
-            else {
-                settingsError.textContent = result;
+            catch (error) {
+                settingsError.textContent = error;
                 settingsError.classList.add('show');
             }
-        }
-        catch (error) {
-            settingsError.textContent = error;
-            settingsError.classList.add('show');
         }
     });
 }
