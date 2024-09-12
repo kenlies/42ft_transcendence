@@ -26,6 +26,12 @@
 				event.preventDefault();
 				receiver = inviteInput.value.trim();
 
+				if (receiver == '{{ user.username }}') {
+					inviteError.textContent = 'Can not invite yourself!';
+					inviteError.classList.add("show");
+					return;
+				}
+
 				try {
 					const response = await fetch('/api/user?' + new URLSearchParams({
 						username: receiver,
