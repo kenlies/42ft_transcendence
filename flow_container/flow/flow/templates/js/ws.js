@@ -105,8 +105,15 @@ ws.onmessage = async (event) => {
 			}
 			playersInRoom.forEach((player) => {
 				if (player) {
-					const playerElement = document.createElement('div');
-					playerElement.classList.add('lobby-player-name');
+					let playerElement;
+					if (gameMode === "online" || gameMode === "onlineTournament") {
+						playerElement = document.createElement('a');
+						playerElement.classList.add('lobby-player-name');
+						playerElement.href = '#profile-' + player;
+					} else {
+						playerElement = document.createElement('div');
+						playerElement.classList.add('lobby-player-name');
+					}
 
 					if (gameMode === "online" || gameMode === "onlineTournament") {
 						const playerAvatarContainer = document.createElement('div');

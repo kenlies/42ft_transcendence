@@ -35,6 +35,10 @@
     width: 280px;
 }
 
+.lobby-player-name {
+	display: block;
+}
+
 #lobby-chat-container,
 #lobby-player-container,
 #lobby-settings-container {
