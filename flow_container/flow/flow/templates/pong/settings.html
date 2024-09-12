@@ -27,7 +27,7 @@
     </div>
     <div id="settings-error"></div>
     <div id="settings-buttons-container">
-        <a href="#profile" class="button">Cancel</a>
+        <a href="#home" class="button">Cancel</a>
         <button type="submit">Save</button>
     </div>
 </form>
@@ -95,7 +95,7 @@
                         username: '{{ user.user.username }}',
                     }).toString(), {cache: 'reload'});
                     if (Object.keys(userData).length == 0) {
-                        window.location.hash = 'profile';
+                        window.location.hash = 'home';
                         return;
                     }
                 }
@@ -128,7 +128,7 @@
                 if (userData.new_password)
                     window.location.hash = 'login';
                 else
-                    window.location.hash = 'profile';
+                    window.location.hash = 'home';
             }
             else {
                 settingsError.textContent = result;
