@@ -12,7 +12,7 @@
             </div>
         </a>
         <a class="button" href="#settings">Settings</a>
-        <a class="button">Log out</a>
+        <a class="button" id="home-logout">Log out</a>
     </div>
 
     <div id="game-form-container">
@@ -30,6 +30,27 @@
 
 <script>
 {
+    const logoutButton = document.getElementById('home-logout');
+
+    logoutButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await fetch('/api/logout');
+            const result = await response.text();
+
+            if (response.ok) {
+                window.location.hash = ''
+            }
+            else {
+                console.log(result);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+    });
+
     const startLobby = async (event, player1, player2, player3, player4) => {
         event.preventDefault();
 
