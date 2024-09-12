@@ -20,7 +20,7 @@
             const result = await response.text();
 
             if (response.ok) {
-                loadPageHash();
+                window.location.hash = ''
             }
             else {
                 loginError.textContent = result;
