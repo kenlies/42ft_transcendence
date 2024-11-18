@@ -83,3 +83,15 @@ noscript {
         padding-bottom: 100%;
     }
 }
+
+#logo-text,
+#logo-subtext {
+    fill: var(--fg-color);
+
+    transition-duration: 3s;
+    transition-property: fill;
+}
+
+#landing-container:hover #logo-subtext {
+    fill: var(--accent-color);
+}
