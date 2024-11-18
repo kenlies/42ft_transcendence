@@ -7,6 +7,11 @@
             <img src="/api/avatar?username={{ message.messageSender.user.username }}" alt="{{ message.messageSender.user.username }}">
         </div>
         <div class="message-text">
+            {% if message.messageSender == targetUser %}
+                <div class="message-sender">{{ message.messageSender.user.username }}:</div>
+            {% else %}
+                <div class="message-sender">You:</div>
+            {% endif %}
             {% if message.messageContent|length >= 11 and message.messageContent|slice:":11" == "GAME_INVITE" %}
                 {% if message.messageSender == targetUser %}
                     {% with game_url=message.messageContent|slice:"12:" %}

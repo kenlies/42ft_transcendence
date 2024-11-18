@@ -61,7 +61,6 @@
     display: flex;
     flex-direction: row;
 
-    min-height: var(--avatar-size);
     flex-basis: var(--avatar-size);
 
     &.sent {
@@ -86,4 +85,9 @@
         word-break: break-all;
         hyphens: auto;
     }
+}
+
+.message-sender {
+    font-weight: 600;
+    margin-bottom: 3px;
 }
