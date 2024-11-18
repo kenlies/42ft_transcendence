@@ -1,6 +1,7 @@
 {% load static %}
 <div id="landing-container">
-    <img src="{% static 'callofpong.svg' %}" alt="Call Of Pong">
+    <!-- <img src="{% static 'callofpong.svg' %}" alt="Call Of Pong"> -->
+    {% include "pong/callofpong.svg" %}
 
     <div id="landing-buttons-container">
         {% if user %}
