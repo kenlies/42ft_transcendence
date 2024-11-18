@@ -59,15 +59,28 @@
 		const messageElement = document.createElement('div');
 		messageElement.classList.add('message');
 
-		const senderElement = document.createElement('div');
-		senderElement.classList.add('message-sender');
-		senderElement.textContent = message.sender;
+		if (message.sender != 'Error') {
+			const avatarElement = document.createElement('div');
+			avatarElement.classList.add('avatar');
+
+			const avatarImage = document.createElement('img');
+			avatarImage.src = "/api/avatar?username=" + message.sender;
+			avatarElement.appendChild(avatarImage);
+			messageElement.appendChild(avatarElement);
+		}
 
 		const textElement = document.createElement('div');
 		textElement.classList.add('message-text');
-		textElement.textContent = message.message;
 
-		messageElement.appendChild(senderElement);
+		const senderElement = document.createElement('div');
+		senderElement.classList.add('message-sender');
+		senderElement.textContent = message.sender + ':';
+		textElement.appendChild(senderElement);
+
+		const actualMessage = document.createElement('span');
+		actualMessage.textContent = message.message;
+		textElement.appendChild(actualMessage);
+
 		messageElement.appendChild(textElement);
 
 		return messageElement;
